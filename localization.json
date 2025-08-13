@@ -1,0 +1,109 @@
+{
+    "unit_abilities_polib__crush": {
+		"English": "CRUSH"
+	},
+	"tooltip_ability_polib__crush": {
+		"English": "Destroys most improvements upon stepping on them."
+	},
+	"unit_abilities_polib__rummager": {
+		"English": "RUMMAGER"
+	},
+	"tooltip_ability_polib__rummager": {
+		"English": "Collects ruins immediately upon stepping on them."
+	},
+	"unit_abilities_polib__intercept": {
+		"English": "INTERCEPT"
+	},
+	"tooltip_ability_polib__intercept": {
+		"English": "Unit retaliates first when attacked."
+	},
+	"unit_abilities_polib__blind": {
+		"English": "BLIND"
+	},
+	"tooltip_ability_polib__blind": {
+		"English": "Can't reveal undiscovered tiles."
+	},
+	"unit_abilities_polib__bounded": {
+		"English": "BOUNDED"
+	},
+	"tooltip_ability_polib__bounded": {
+		"English": "Can not leave the territory of the city it was trained in."
+	},
+	"unit_abilities_polib__homesick": {
+		"English": "HOMESICK"
+	},
+	"tooltip_ability_polib__homesick": {
+		"English": "Can not leave the territory of the tribe it was trained in."
+	},
+	"unit_abilities_polib__lazy": {
+		"English": "LAZY"
+	},
+	"tooltip_ability_polib__lazy": {
+		"English": "Does not move to the tile of the defeated unit after combat."
+	},
+	"unit_abilities_polib__agent": {
+		"English": "AGENT"
+	},
+	"tooltip_ability_polib__agent": {
+		"English": "Can only train this unit inside enemy territory"
+	},
+	"unit_abilities_polib__scary": {
+		"English": "SCARY"
+	},
+	"tooltip_ability_polib__scary": {
+		"English": "Units attacked by this unit can't attack next turn."
+	},
+	"unit_abilities_polib__loyal": {
+		"English": "LOYAL"
+	},
+	"tooltip_ability_polib__loyal": {
+		"English": "This unit can not be converted."
+	},
+
+	
+	"building_ability_polib__indestructible":{
+        "English": "Can not be crushed."
+    },
+	"building_ability_polib__block":{
+        "English": "Impassable obstacle."
+    },
+	"building_ability_polib__isolated":{
+        "English": "Can not be built next to itself."
+    },
+	"building_ability_polib__native":{
+        "English": "Can only be built in your own terrain."
+    },
+	"building_ability_polib__foreign":{
+        "English": "Can not be built in your own terrain."
+    },
+	"building_ability_polib__healonce":{
+        "English": "Heals unit on the tile upon doing this."
+    },
+	"building_ability_polib__cleanseonce":{
+        "English": "Removes all effect from the unit on the tile upon doing this."
+    },
+	"building_ability_polib__cleanse":{
+        "English": "Removes all effect from the unit stepping on this improvement."
+    },
+	"building_ability_polib__demolishable":{
+        "English": "Can be demolished even without the necessary tech requirements."
+    },
+	"building_ability_polib__killunit":{
+        "English": "Kills the unit on the tile upon doing this."
+    },
+	"building_ability_polib__healall":{
+        "English": "Heals all units that step on this tile."
+    },
+	"building_ability_polib__healfriendly":{
+        "English": "Heals units belonging to the owner of this improvement, once they step unto this tile."
+    },
+	"building_ability_polib__gainxp":{
+        "English": "The unit on the tile gains 3 xp upon doing this."
+    },
+	"building_ability_polib__preventagent":{
+        "English": "Prevents agent units from being trained on neighbouring tiles."
+    },
+	"building_ability_polib__research":{
+        "English": "Receive a random technology upon doing this."
+    }
+}
