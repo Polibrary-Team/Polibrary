@@ -35,7 +35,6 @@ public static class Main
     private static ManualLogSource? modLogger;
     public static void Load(ManualLogSource logger)
     {
-        PolyMod.Registry.autoidx++;
         Harmony.CreateAndPatchAll(typeof(Main));
         modLogger = logger;
         logger.LogMessage("Polibrary.dll loaded.");
@@ -395,6 +394,7 @@ public static class Main
         }
     }
     #endregion*/
+
     #region Lazy
     [HarmonyPostfix]
     [HarmonyPriority(Priority.Last)]
@@ -426,6 +426,7 @@ public static class Main
     #endregion
     #region GLD Parsing
     public static Dictionary<ImprovementData.Type, string> BuildersDict = new Dictionary<ImprovementData.Type, string>();
+    public static Dictionary<ImprovementData.Type, string> NoBuildersDict = new Dictionary<ImprovementData.Type, string>();
 
     [HarmonyPrefix]
     [HarmonyPriority(Priority.Last)]
@@ -445,6 +446,30 @@ public static class Main
                         BuildersDict[impType] = ability;
                         token.Remove("BuiltBySpecific");
                         modLogger.LogInfo($"Added {ability} ability to {impType} in BuildersDict");
+                    }
+                }
+            }
+        }
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPriority(Priority.Last)]
+    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
+    private static void GameLogicData_Parse4(GameLogicData __instance, JObject rootObject)
+    {
+        foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
+        {
+            JObject? token = jtoken.TryCast<JObject>();
+            if (token != null)
+            {
+                if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
+                {
+                    if (token["NotBuiltBySpecific"] != null)
+                    {
+                        string ability = token["NotBuiltBySpecific"]!.ToObject<string>();
+                        NoBuildersDict[impType] = ability;
+                        token.Remove("NotBuildBySpecific");
+                        modLogger.LogInfo($"Added {ability} ability to {impType} in NoBuildersDict");
                     }
                 }
             }
@@ -491,6 +516,18 @@ public static class Main
                 return;
             }
             if (!tile.unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(ability)))
+            {
+                __result = false;
+            }
+        }
+        if (NoBuildersDict.TryGetValue(improvement.type, out string ability2))
+        {
+            if (tile.unit == null)
+            {
+                __result = false;
+                return;
+            }
+            if (tile.unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(ability2)))
             {
                 __result = false;
             }
