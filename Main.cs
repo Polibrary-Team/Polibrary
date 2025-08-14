@@ -277,6 +277,41 @@ public static class Main
 
         __result = newlist;
     }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(PathFinder), nameof(PathFinder.GetMoveOptions))]
+    public static void CantEmbark(this GameState gameState, WorldCoordinates start, int maxCost, UnitState unit, ref Il2CppSystem.Collections.Generic.List<WorldCoordinates> __result)
+    {
+
+        if (!unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_cantembark")))
+        {
+            return;
+        }
+
+        Il2CppSystem.Collections.Generic.List<WorldCoordinates> newlist = new Il2CppSystem.Collections.Generic.List<WorldCoordinates>();
+
+        for (int i = 0; i < __result.Count; i++)
+        {
+            bool flag = false;
+            if (__result[i] != WorldCoordinates.NULL_COORDINATES)
+            {
+                TileData tile = gameState.Map.GetTile(__result[i]);
+                if (tile != null)
+                {
+                    if (tile.terrain == Polytopia.Data.TerrainData.Type.Water || tile.terrain == Polytopia.Data.TerrainData.Type.Ocean)
+                    {
+                        flag = true;
+                    }
+                }
+            }
+            if (!flag)
+            {
+                newlist.Add(__result[i]);
+            }
+        }
+
+        __result = newlist;
+    }
     #endregion
 
     #region ImpPlacements

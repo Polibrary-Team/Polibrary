@@ -59,6 +59,12 @@
 	"tooltip_ability_polib__loyal": {
 		"English": "This unit can not be converted."
 	},
+	"unit_abilities_polib__cantembark": {
+		"English": "CAN'T EMBARK"
+	},
+	"tooltip_ability_polib__cantembark": {
+		"English": "This unit can not embark or move onto water."
+	},
 
 	
 	"building_ability_polib__indestructible":{

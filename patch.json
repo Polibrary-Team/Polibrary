@@ -29,6 +29,9 @@
 		},
 		"polib_loyal": {
 			"idx": -1
+		},
+		"polib_cantembark": {
+			"idx": -1
 		}
 	},
 	"improvementAbility": {
