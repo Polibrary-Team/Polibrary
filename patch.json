@@ -79,7 +79,12 @@
 		},
 		"polib_research": {
 			"idx": -1
+		},
+		"polib_woundedbuilder": {
+			"idx": -1
+		},
+		"polib_fullhealthbuilder": {
+			"idx": -1
 		}
-		
 	}
 }

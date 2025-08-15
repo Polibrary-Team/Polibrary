@@ -574,6 +574,39 @@ public static class Main
         }
     }
 
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
+    public static void NewRequirers(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
+    {
+        if (!__result) return;
+        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_woundedbuilder")))
+        {
+            if (tile.unit == null)
+            {
+                __result = false;
+                return;
+            }
+            if (tile.unit.health == tile.unit.GetMaxHealth(gameState))
+            {
+                __result = false;
+                return;
+            }
+        }
+        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_fullhealthbuilder")))
+        {
+            if (tile.unit == null)
+            {
+                __result = false;
+                return;
+            }
+            if (tile.unit.health != tile.unit.GetMaxHealth(gameState))
+            {
+                __result = false;
+                return;
+            }
+        }
+    }
+
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
