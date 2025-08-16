@@ -500,6 +500,8 @@ public static class Main
     public static Dictionary<ImprovementData.Type, string> BuildersDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<ImprovementData.Type, string> NoBuildersDict = new Dictionary<ImprovementData.Type, string>();
 
+    public static Dictionary<ImprovementData.Type, string> ImpBuildersDict = new Dictionary<ImprovementData.Type, string>();
+
     [HarmonyPrefix]
     [HarmonyPriority(Priority.Last)]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
@@ -518,6 +520,30 @@ public static class Main
                         BuildersDict[impType] = ability;
                         token.Remove("BuiltBySpecific");
                         modLogger.LogInfo($"Added {ability} ability to {impType} in BuildersDict");
+                    }
+                }
+            }
+        }
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPriority(Priority.Last)]
+    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
+    private static void GameLogicData_Parse5(GameLogicData __instance, JObject rootObject)
+    {
+        foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
+        {
+            JObject? token = jtoken.TryCast<JObject>();
+            if (token != null)
+            {
+                if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
+                {
+                    if (token["BuiltOnSpecific"] != null)
+                    {
+                        string ability = token["BuiltOnSpecific"]!.ToObject<string>();
+                        ImpBuildersDict[impType] = ability;
+                        token.Remove("BuiltOnSpecific");
+                        modLogger.LogInfo($"Added {ability} ability to {impType} in ImpBuildersDict");
                     }
                 }
             }
@@ -635,6 +661,26 @@ public static class Main
             if (tile.unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(ability2)))
             {
                 __result = false;
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
+    public static void mBuiltOnSpecific(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
+    {
+        if (__result == false) return;
+        if (ImpBuildersDict.TryGetValue(improvement.type, out string ability))
+        {
+            if (tile.improvement == null)
+            {
+                __result = false;
+                return;
+            }
+            if (!Main.DataFromState(tile.improvement, gameState).HasAbility(EnumCache<ImprovementAbility.Type>.GetType(ability)))
+            {
+                __result = false;
+                return;
             }
         }
     }
