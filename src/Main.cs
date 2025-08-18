@@ -1026,9 +1026,9 @@ public static class Main
 
 
     //thanks exploit
-    [HarmonyPrefix] //if you're trying to learn from this code, i advise you look at other mods instead, or just ask exploit idk
-    [HarmonyPriority(Priority.Last)] //its just pure shitcode
-    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))] //or have you too come to humiliate me?
+    [HarmonyPrefix]
+    [HarmonyPriority(Priority.Last)]
+    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
     private static void GameLogicData_Parse6(GameLogicData __instance, JObject rootObject) //in this world, its analfuck, or be analfucked
     {
         foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
