@@ -1,0 +1,15 @@
+{
+    "id": "polibrary",
+    "name": "Polibrary",
+    "version": "2.0",
+    "authors": [
+        "Fapingvin: Main guye 1", "wasd_: Main guye 2", "With help from: exploit, johnklipi"
+    ],
+    "dependencies": [
+        {
+            "id": "polytopia",
+            "min": "2.10.0"
+        }
+    ],
+    "description": "General library of tools for modders."
+}
