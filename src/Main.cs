@@ -520,11 +520,12 @@ public static class Main
             {
                 if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
                 {
-                    if (token["BuiltBySpecific"] != null)
+                    string key = token["BuiltBySpecific"] != null ? "BuiltBySpecific" : "builtBySpecific";
+                    if (token[key] != null)
                     {
-                        string ability = token["BuiltBySpecific"]!.ToObject<string>();
+                        string ability = token[key]!.ToObject<string>();
                         BuildersDict[impType] = ability;
-                        token.Remove("BuiltBySpecific");
+                        token.Remove(key);
                         modLogger.LogInfo($"Added {ability} ability to {impType} in BuildersDict");
                     }
                 }
@@ -544,11 +545,12 @@ public static class Main
             {
                 if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
                 {
-                    if (token["BuiltOnSpecific"] != null)
+                    string key = token["BuiltOnSpecific"] != null ? "BuiltOnSpecific" : "builtOnSpecific";
+                    if (token[key] != null)
                     {
-                        string ability = token["BuiltOnSpecific"]!.ToObject<string>();
+                        string ability = token[key]!.ToObject<string>();
                         ImpBuildersDict[impType] = ability;
-                        token.Remove("BuiltOnSpecific");
+                        token.Remove(key);
                         modLogger.LogInfo($"Added {ability} ability to {impType} in ImpBuildersDict");
                     }
                 }
@@ -568,11 +570,12 @@ public static class Main
             {
                 if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
                 {
-                    if (token["NotBuiltBySpecific"] != null)
+                    string key = token["NotBuiltBySpecific"] != null ? "NotBuiltBySpecific" : "notBuiltBySpecific";
+                    if (token[key] != null)
                     {
-                        string ability = token["NotBuiltBySpecific"]!.ToObject<string>();
+                        string ability = token[key]!.ToObject<string>();
                         NoBuildersDict[impType] = ability;
-                        token.Remove("NotBuildBySpecific");
+                        token.Remove(key);
                         modLogger.LogInfo($"Added {ability} ability to {impType} in NoBuildersDict");
                     }
                 }
@@ -594,11 +597,12 @@ public static class Main
             {
                 if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
                 {
-                    if (token["Unblock"] != null)
+                    string key = token["Unblock"] != null ? "Unblock" : "unblock";
+                    if (token[key] != null)
                     {
-                        string ability = token["Unblock"]!.ToObject<string>();
+                        string ability = token[key]!.ToObject<string>();
                         UnblockDict[impType] = ability;
-                        token.Remove("Unblock");
+                        token.Remove(key);
                         modLogger.LogInfo($"Added {ability} ability to {impType} in UnblockDict");
                     }
                 }

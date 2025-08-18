@@ -1,31 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\polibrary.csproj": {}
+    "C:\\Users\\HP\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\Polibrary.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\polibrary.csproj": {
+    "C:\\Users\\HP\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\Polibrary.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\polibrary.csproj",
-        "projectName": "polibrary",
-        "projectPath": "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\polibrary.csproj",
-        "packagesPath": "C:\\Users\\Pc\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\obj\\",
+        "projectUniqueName": "C:\\Users\\HP\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\Polibrary.csproj",
+        "projectName": "Polibrary",
+        "projectPath": "C:\\Users\\HP\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\Polibrary.csproj",
+        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\HP\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Pc\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://nuget.bepinex.dev/v3/index.json": {},
