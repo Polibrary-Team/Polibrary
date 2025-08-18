@@ -1,15 +1,15 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\Polibrary.csproj": {}
+    "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\polibrary.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\Polibrary.csproj": {
+    "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\polibrary.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\Polibrary.csproj",
-        "projectName": "Polibrary",
-        "projectPath": "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\Polibrary.csproj",
+        "projectUniqueName": "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\polibrary.csproj",
+        "projectName": "polibrary",
+        "projectPath": "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\polibrary.csproj",
         "packagesPath": "C:\\Users\\Pc\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\obj\\",
         "projectStyle": "PackageReference",

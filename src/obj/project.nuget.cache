@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Ivi7vBaSc0s=",
+  "dgSpecHash": "As9WW4G6354=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\Polibrary.csproj",
+  "projectFilePath": "C:\\Users\\Pc\\Documents\\GitHub\\Unified-Polytopia-Library\\src\\polibrary.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Pc\\.nuget\\packages\\asmresolver\\6.0.0-beta.1\\asmresolver.6.0.0-beta.1.nupkg.sha512",
     "C:\\Users\\Pc\\.nuget\\packages\\asmresolver.dotnet\\6.0.0-beta.1\\asmresolver.dotnet.6.0.0-beta.1.nupkg.sha512",
