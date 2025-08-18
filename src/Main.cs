@@ -2187,31 +2187,6 @@ public static class Main
             __result = true;
         }
     }*/
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(StartSceneBg), nameof(StartSceneBg.Start))]
-    [HarmonyPriority(Priority.Low)]
-    private static void StartSceneBg_Start(StartSceneBg __instance)
-    {
-
-        string fileName = "background";
-        __instance.nature.sprite = PolyMod.Registry.GetSprite(fileName);
-        __instance.starContainer.gameObject.SetActive(false);
-        __instance.gradientBgSprite.gameObject.SetActive(false);
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(ScrollerGradient), nameof(ScrollerGradient.OnEnable))]
-    private static void ScrollerGradient_OnEnable(ScrollerGradient __instance)
-    {
-        Une.UI.Image[] allImages = Une.GameObject.FindObjectsOfType<Une.UI.Image>();
-        foreach (Une.UI.Image image in allImages)
-        {
-            if (image.gameObject.name == "ScrollerTopGradient")
-            {
-                Une.GameObject.Destroy(image);
-            }
-        }
-    }
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(AI), "CheckForTechNeeds")]
