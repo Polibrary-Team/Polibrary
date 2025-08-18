@@ -1451,21 +1451,27 @@ public static class Main
             }
             else if (tile.owner == unit.owner && tile.improvement != null && tile.improvement.type == ImprovementData.Type.City && tile.improvement.rewards != null)
             {
+                modLogger!.LogInfo($"got in");
                 int def2 = 0;
+                modLogger!.LogInfo(tile.improvement.rewards.Count);
                 foreach (CityReward reward in tile.improvement.rewards)
                 {
+                    modLogger!.LogInfo($"tried");
                     if (cityRewardDict.TryGetValue(reward, out var cityRewardData))
                     {
-                        def2 = cityRewardData.defenceBoostReward;
+                        def2 = def2 + cityRewardData.defenceBoostReward;
+                        modLogger!.LogInfo($"incremented def2: {def2}");
                     }
                 }
                 if (def2 != 0)
                 {
                     finaldef = def2;
+                    modLogger!.LogInfo($"set finaldef to {def2}");
                 }
             }
             if (finaldef == 10)
             {
+                modLogger!.LogInfo($"returned true");
                 return true;
             }
             else
