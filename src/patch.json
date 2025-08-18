@@ -1,0 +1,90 @@
+{
+	"unitAbility": {
+		"polib_crush": {
+			"idx": -1
+		},
+		"polib_rummager": {
+			"idx": -1
+		},
+		"polib_intercept": {
+			"idx": -1
+		},
+		"polib_blind": {
+			"idx": -1
+		},
+		"polib_bounded": {
+			"idx": -1
+		},
+		"polib_homesick": {
+			"idx": -1
+		},
+		"polib_lazy": {
+			"idx": -1
+		},
+		"polib_agent": {
+			"idx": -1
+		},
+		"polib_scary": {
+			"idx": -1
+		},
+		"polib_loyal": {
+			"idx": -1
+		},
+		"polib_cantembark": {
+			"idx": -1
+		}
+	},
+	"improvementAbility": {
+		"polib_indestructible": {
+			"idx": -1
+		},
+		"polib_block": {
+			"idx": -1
+		},
+		"polib_isolated": {
+			"idx": -1
+		},
+		"polib_native": {
+			"idx": -1
+		},
+		"polib_foreign": {
+			"idx": -1
+		},
+		"polib_healonce": {
+			"idx": -1
+		},
+		"polib_cleanseonce": {
+			"idx": -1
+		},
+		"polib_cleanse": {
+			"idx": -1
+		},
+		"polib_demolishable": {
+			"idx": -1
+		},
+		"polib_killunit": {
+			"idx": -1
+		},
+		"polib_healall": {
+			"idx": -1
+		},
+		"polib_healfriendly": {
+			"idx": -1
+		},
+		"polib_gainxp": {
+			"idx": -1
+		},
+		"polib_preventagent": {
+			"idx": -1
+		},
+		"polib_research": {
+			"idx": -1
+		},
+		"polib_woundedbuilder": {
+			"idx": -1
+		},
+		"polib_fullhealthbuilder": {
+			"idx": -1
+		}
+	}
+}
