@@ -1909,55 +1909,14 @@ public static class Main
         }
         modLogger!.LogInfo($"after foreach");
 
-        CityReward[] array = new CityReward[list.Count];
-        int[] orderArray = new int[list.Count];
-        int i1 = 0;
-        modLogger!.LogInfo($"before second foreach");
-        foreach (CityReward reward1 in list)
-        {
-            modLogger!.LogInfo($"in foreach");
-            int num2 = 0;
-            if (cityRewardDict.TryGetValue(reward1, out var cityRewardData))
-            {
-                num2 = cityRewardData.order + 1;
-                while (orderArray.Contains(num2))
-                {
-                    num2++;
-                }
-            }
-            orderArray[i1] = num2;
-            i1++;
-        }
-        modLogger!.LogInfo($"after second foreach");
-        int num = 0;
-        int min = orderArray.Min();
+        List<CityReward> orderedlist = ToSystemList(list);
+        System.Comparison<CityReward> comparison = (a, b) => cityRewardDict[a].order.CompareTo(cityRewardDict[b].order);
 
-        modLogger!.LogInfo($"before third foreach");
-        for (int i = 0; i < orderArray.Length; i++)
-        {
-            orderArray[i] -= min;
-        }
-        modLogger!.LogInfo($"after third foreach");
+        orderedlist.Sort(comparison);
 
-        int[] sorted = orderArray.OrderBy(x => x).ToArray();
+        Il2CppStructArray<CityReward> array = ToArrayPreserveOrderIl2Cpp(ToIl2CppList(orderedlist));
 
-        modLogger!.LogInfo($"before fourth foreach");
-        Dictionary<int, int> valueToRank = new Dictionary<int, int>();
-        for (int i = 0; i < sorted.Length; i++)
-        {
-            valueToRank[sorted[i]] = i;
-        }
-        modLogger!.LogInfo($"after fourth foreach");
-
-        int[] compressed = orderArray.Select(x => valueToRank[x]).ToArray();
-
-        for (int i = 0; i < list.Count; i++)
-        {
-            array[i] = list[compressed[i]];
-            num++;
-            modLogger!.LogInfo($"For loop: {i}, setting it to {list[orderArray[i]]}");
-        }
-        if (num != 0)
+        if (array != null || array.Length != 0)
         {
             __result = array;
             modLogger!.LogInfo($"Success, array length: {array.Length}");
@@ -2009,7 +1968,7 @@ public static class Main
         GameLogicData gld = gameState.GameLogicData;
         CityReward[] rewardarray = AIIsFuckingWithMe_GetCityRewardsForLevel(gld.GetImprovementData(tile.improvement.type), tile.improvement.level - 1);
 
-
+        //can someone please tell me what the fuck happens to rewards thanks
 
         System.Random random = new System.Random();
         int num = random.Next(0, rewardarray.Length);
@@ -2076,49 +2035,18 @@ public static class Main
             }
         }
         modLogger!.LogInfo($"AI after foreach");
-        CityReward[] array = new CityReward[list.Count];
-        int[] orderArray = new int[list.Count];
-        int i1 = 0;
-        foreach (CityReward reward1 in list)
-        {
-            int num2 = 0;
-            if (cityRewardDict.TryGetValue(reward1, out var cityRewardData))
-            {
-                num2 = cityRewardData.order + 1;
-                while (orderArray.Contains(num2))
-                {
-                    num2++;
-                }
-            }
-            orderArray[i1] = num2;
-            i1++;
-        }
-        int num = 0;
-        int min = orderArray.Min();
-        for (int i = 0; i < orderArray.Length; i++)
-        {
-            orderArray[i] -= min;
-        }
+        List<CityReward> orderedlist = ToSystemList(list);
+        System.Comparison<CityReward> comparison = (a, b) => cityRewardDict[a].order.CompareTo(cityRewardDict[b].order);
 
+        orderedlist.Sort(comparison);
 
-        int[] sorted = orderArray.OrderBy(x => x).ToArray();
+        Il2CppStructArray<CityReward> array = ToArrayPreserveOrderIl2Cpp(ToIl2CppList(orderedlist));
 
-        Dictionary<int, int> valueToRank = new Dictionary<int, int>();
-        for (int i = 0; i < sorted.Length; i++)
+        if (array != null || array.Length != 0)
         {
-            valueToRank[sorted[i]] = i;
-        }
-
-        int[] compressed = orderArray.Select(x => valueToRank[x]).ToArray();
-
-        for (int i = 0; i < list.Count; i++)
-        {
-            array[i] = list[compressed[i]];
-            num++;
-        }
-        if (num != 0)
-        {
+            modLogger!.LogInfo($"Success, array length: {array.Length}");
             return array;
+
         }
         else { modLogger!.LogInfo($"KRIS WTF HAPPENED?? AI [GetCityRewardsForLevel] COULDN'T FUCKING FIND A DAMN [CityReward[]]!!"); return new CityReward[2]; }
 
@@ -2495,81 +2423,117 @@ public static class Main
         return effectData;
 
     }
+    // SYSTEM → IL2CPP
+    public static Il2CppSystem.Collections.Generic.List<T> ToIl2CppList<T>(System.Collections.Generic.List<T> sysList)
+    {
+        var il2cppList = new Il2CppSystem.Collections.Generic.List<T>();
+        for (int i = 0; i < sysList.Count; i++)
+        {
+            il2cppList.Add(sysList[i]);
+        }
+        return il2cppList;
+    }
+
+    // IL2CPP → SYSTEM
+    public static System.Collections.Generic.List<T> ToSystemList<T>(Il2CppSystem.Collections.Generic.List<T> il2cppList)
+    {
+        var sysList = new System.Collections.Generic.List<T>(il2cppList.Count);
+        for (int i = 0; i < il2cppList.Count; i++)
+        {
+            sysList.Add(il2cppList[i]);
+        }
+        return sysList;
+    }
+    public static T[] ToArrayPreserveOrderIl2Cpp<T>(Il2CppSystem.Collections.Generic.List<T> il2cppList)
+    {
+        T[] array = new T[il2cppList.Count];
+        for (int i = 0; i < il2cppList.Count; i++)
+        {
+            array[i] = il2cppList[i];
+        }
+        return array;
+    }
+
+
+
+
+
+
 //I snuck this in, and he didn't even realize! I'm so sneaky! He'll never figure it out!
-/*
+    /*
 
 
 
-                                                                            ███████        ████████                                                                                       
-                                                                       ████                   ██████                                                                                      
-                                                                   ████                   █████                                                                                           
-                                                                 ███                   ███                                                                                                
-                                                               ███                  ████                                                                                                  
-                                                             ███                  ███                                                                                                     
-                                                           ███                 ████                                                                                                       
-                                                          ███                 ██                                                                                                          
-                                                         ███                 ██                                                                                                           
-                                                        ██                  ██                                                                                                            
-                                                       ██                   ██               █████                                                                                        
-                                                      ██                      ███   ████████████████████                                                                                  
-                                                     ███                        █████████████████████████████                                                                             
-                                                     ██                     ███████████      █████████████████████                              ██                                        
-                                                     ██                █████████████                ████████████████████                       ███                                        
-                                                     ██            █████████████                        ████████████████████████  ██████     ███ ██                                       
-                                                      ██        ██████████████                              ████████████████████████████   ███   ██                                       
-                                                    ████    █████████████████                    ██            ██████████████████████   ████     ██                                       
-                                                   ███████████████████████                         ██            ███████████████████████         ██                                       
-                                                   ██████████████████████        ███████             ██           █████████████████              ██                                       
-                                                   █████████████████████            ██████            ██            ████████████████             ██                                       
-                                                   ████████████████████                ████            ██            ███████████████            ██                                        
-                                                   ██████████████████                    ███            ████          ██████████████           ██                                         
-                                                 ███████████████████              ███████████                          █████████████          ██                                          
-                                              █████████████████████            ██ █  ██████████                        ██████████████       ██                                            
-                                             █████████████████████                  █████    ███                        █████████████      ██                                             
-                                           ██████████████████████                          █   ██       █                ███████████     ███                                              
-                                           █████████████████████                                     ███        ███████  ███████████   ███                                                
-                                          █████████████████████         ██                              ███████████      ██████████████                                                   
-                                         █████████████████████          ███                                  ████ ██     ████████████                                                     
-                                         ████████████████████          █████                                         █  ████████████                                                      
-                                        █████████████████████          ███████                                          █████████                                                         
-                                        ████████████████████          ███████████          ███    ██                   █████████                                                          
-                                        ███████████████████        ███████████████████               ██                ████████                                                           
-                                ███████████████████████████       █████████████████████                  ██           ████████                                                            
-                  █████████████████     ██████████████████        ████████████████████████                            ████████                                                            
-          ████████████                 ██████████████████        █████████    ████████████                            ████████                                                            
-    █████████                         ███████████████████       █████████    ██       ████   ██                       ████████                                                            
-                                    ██  ████████████████        █████████     ██         ███  ██              ███     █████████                                                           
-                                  ███   ███   ██████████       ██████████      █           ███                 ████   █████████                                                           
-                                 ██             ████████      █████████         █           █████      █        ████  █████████                                                           
-                                ██               ███████      ████████           ███          ██████          █████████████████   ██                                                      
-                              ███                ████████    ███████                ███           ███████████       ████████████████                                                      
-                             ██                  █████████   ██████     █              ██                              ███████████                                                        
-                            ██                  ███████████████████ █████          █      ████                          ██████████                                                        
-                           ██                ██████████████████████████             ███       █████                   █  ███████████                                                      
-                         ███             █████████████████████████████                 ███           █████        █████   ███████████                                                     
-                         ██               ███████████████████████████                      █                               ██████████                                                     
-                       ███                 ██████████████████████████                                                       █████████                                                     
-                      ██                     ████████████████████████                                                       ███   ██                                                      
-                      ██                       ████████████████████████                                         ██         ███     ██                                                     
-                     ██                          ██████████████████████                                      ███           ██      ██                                                     
-                    ██                             █████████████████████                                  ███              ██       ██                                                    
-                    ██                               ███████████████████                             █████                ██        ██                                                    
-                   ██                                  ██████████████████                                                ██          █                                                    
-                   ██                                   █████████████████                                               ██           ██                                                   
-                  ██                                  ██ ██████████████████                                            ██             ██                                                  
-                 ██                                  ███  ████████████████████            ██                          █               ███                                                 
-                 ██                                 ██     █████████████████████         ██                          ██               █████                                               
-                 ██                                ██       ███████████████████████    █████     ██                 ██                ██  ███                                             
-                 ██                               ██         ████████████████████████████████   ████     ███       ██                 █     ███                                           
-                 █                              ██           ████████████████████████████████████████████████    ███                 ██       ██                                          
-                ██                            ███             █████████████████████████████████████████████████████                  █         ███                                        
-                ██                           ███               ███████████████████████████████████████████████████                  ██          ███                                       
-                 █                          ██                  ████████████████████████████████████████████████                   ██             ██                                      
-                 ██                        ██                   ███████████████████████████████████████████████                  ██                ███                                    
-                 ██                      ██                      ████████████████████████████████████████████████             ███                   ███                                   
-                  ██                   ███                        █████████████████████████████████████████      ███████  █████                      ███                                  
-                   ██                 ██                           ███████████████████████████████████████                                            ███                                 
-    */
+                                                                                ███████        ████████                                                                                       
+                                                                           ████                   ██████                                                                                      
+                                                                       ████                   █████                                                                                           
+                                                                     ███                   ███                                                                                                
+                                                                   ███                  ████                                                                                                  
+                                                                 ███                  ███                                                                                                     
+                                                               ███                 ████                                                                                                       
+                                                              ███                 ██                                                                                                          
+                                                             ███                 ██                                                                                                           
+                                                            ██                  ██                                                                                                            
+                                                           ██                   ██               █████                                                                                        
+                                                          ██                      ███   ████████████████████                                                                                  
+                                                         ███                        █████████████████████████████                                                                             
+                                                         ██                     ███████████      █████████████████████                              ██                                        
+                                                         ██                █████████████                ████████████████████                       ███                                        
+                                                         ██            █████████████                        ████████████████████████  ██████     ███ ██                                       
+                                                          ██        ██████████████                              ████████████████████████████   ███   ██                                       
+                                                        ████    █████████████████                    ██            ██████████████████████   ████     ██                                       
+                                                       ███████████████████████                         ██            ███████████████████████         ██                                       
+                                                       ██████████████████████        ███████             ██           █████████████████              ██                                       
+                                                       █████████████████████            ██████            ██            ████████████████             ██                                       
+                                                       ████████████████████                ████            ██            ███████████████            ██                                        
+                                                       ██████████████████                    ███            ████          ██████████████           ██                                         
+                                                     ███████████████████              ███████████                          █████████████          ██                                          
+                                                  █████████████████████            ██ █  ██████████                        ██████████████       ██                                            
+                                                 █████████████████████                  █████    ███                        █████████████      ██                                             
+                                               ██████████████████████                          █   ██       █                ███████████     ███                                              
+                                               █████████████████████                                     ███        ███████  ███████████   ███                                                
+                                              █████████████████████         ██                              ███████████      ██████████████                                                   
+                                             █████████████████████          ███                                  ████ ██     ████████████                                                     
+                                             ████████████████████          █████                                         █  ████████████                                                      
+                                            █████████████████████          ███████                                          █████████                                                         
+                                            ████████████████████          ███████████          ███    ██                   █████████                                                          
+                                            ███████████████████        ███████████████████               ██                ████████                                                           
+                                    ███████████████████████████       █████████████████████                  ██           ████████                                                            
+                      █████████████████     ██████████████████        ████████████████████████                            ████████                                                            
+              ████████████                 ██████████████████        █████████    ████████████                            ████████                                                            
+        █████████                         ███████████████████       █████████    ██       ████   ██                       ████████                                                            
+                                        ██  ████████████████        █████████     ██         ███  ██              ███     █████████                                                           
+                                      ███   ███   ██████████       ██████████      █           ███                 ████   █████████                                                           
+                                     ██             ████████      █████████         █           █████      █        ████  █████████                                                           
+                                    ██               ███████      ████████           ███          ██████          █████████████████   ██                                                      
+                                  ███                ████████    ███████                ███           ███████████       ████████████████                                                      
+                                 ██                  █████████   ██████     █              ██                              ███████████                                                        
+                                ██                  ███████████████████ █████          █      ████                          ██████████                                                        
+                               ██                ██████████████████████████             ███       █████                   █  ███████████                                                      
+                             ███             █████████████████████████████                 ███           █████        █████   ███████████                                                     
+                             ██               ███████████████████████████                      █                               ██████████                                                     
+                           ███                 ██████████████████████████                                                       █████████                                                     
+                          ██                     ████████████████████████                                                       ███   ██                                                      
+                          ██                       ████████████████████████                                         ██         ███     ██                                                     
+                         ██                          ██████████████████████                                      ███           ██      ██                                                     
+                        ██                             █████████████████████                                  ███              ██       ██                                                    
+                        ██                               ███████████████████                             █████                ██        ██                                                    
+                       ██                                  ██████████████████                                                ██          █                                                    
+                       ██                                   █████████████████                                               ██           ██                                                   
+                      ██                                  ██ ██████████████████                                            ██             ██                                                  
+                     ██                                  ███  ████████████████████            ██                          █               ███                                                 
+                     ██                                 ██     █████████████████████         ██                          ██               █████                                               
+                     ██                                ██       ███████████████████████    █████     ██                 ██                ██  ███                                             
+                     ██                               ██         ████████████████████████████████   ████     ███       ██                 █     ███                                           
+                     █                              ██           ████████████████████████████████████████████████    ███                 ██       ██                                          
+                    ██                            ███             █████████████████████████████████████████████████████                  █         ███                                        
+                    ██                           ███               ███████████████████████████████████████████████████                  ██          ███                                       
+                     █                          ██                  ████████████████████████████████████████████████                   ██             ██                                      
+                     ██                        ██                   ███████████████████████████████████████████████                  ██                ███                                    
+                     ██                      ██                      ████████████████████████████████████████████████             ███                   ███                                   
+                      ██                   ███                        █████████████████████████████████████████      ███████  █████                      ███                                  
+                       ██                 ██                           ███████████████████████████████████████                                            ███                                 
+        */
 }
 
 
