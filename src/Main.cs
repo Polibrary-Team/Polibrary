@@ -950,8 +950,6 @@ public static class Main
     /// HERE WE GO
     /// 
 
-    private static ManualLogSource? LogMan1997;
-
     public static void Load2(ManualLogSource logger)
     {
         PolyMod.Loader.AddPatchDataType("cityRewardData", typeof(CityReward)); //casual fapingvin carry
@@ -1862,18 +1860,18 @@ public static class Main
         {
             tribeType = playerState.tribe;
         }
-        else { LogMan1997!.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED"); }
+        else { modLogger!.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED"); }
 
-        LogMan1997!.LogInfo($"before foreach");
+        modLogger!.LogInfo($"before foreach");
 
         foreach (CityReward reward in rewardArray)
         {
             if (cityRewardDict.TryGetValue(reward, out var cityRewardData))
             {
-                LogMan1997!.LogInfo($"after dictvalue");
+                modLogger!.LogInfo($"after dictvalue");
                 if ((cityRewardData.level == level || (cityRewardData.persistence == "post" && cityRewardData.level <= level) || (cityRewardData.persistence == "pre" && cityRewardData.level >= level)) && !cityRewardData.hidden)
                 {
-                    LogMan1997!.LogInfo($"after check");
+                    modLogger!.LogInfo($"after check");
                     if (cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
                     {
                         int num2 = 0;
@@ -1884,7 +1882,7 @@ public static class Main
                                 if (overrideClass.og == reward)
                                 {
                                     list.Add(overrideClass.neu);
-                                    LogMan1997!.LogInfo($"1 Added: {overrideClass.neu}");
+                                    modLogger!.LogInfo($"1 Added: {overrideClass.neu}");
                                 }
                                 else
                                 {
@@ -1895,19 +1893,19 @@ public static class Main
                         if (num2 >= cityRewardOverrideClasses.Count)
                         {
                             list.Add(reward);
-                            LogMan1997!.LogInfo($"2 Added: {reward}");
+                            modLogger!.LogInfo($"2 Added: {reward}");
                         }
                     }
                     else
                     {
                         list.Add(reward);
-                        LogMan1997!.LogInfo($"3 Added: {reward}");
+                        modLogger!.LogInfo($"3 Added: {reward}");
                     }
 
                 }
             }
         }
-        LogMan1997!.LogInfo($"after foreach");
+        modLogger!.LogInfo($"after foreach");
         CityReward[] array = new CityReward[list.Count];
         int[] orderArray = new int[list.Count];
         int i1 = 0;
@@ -1947,7 +1945,7 @@ public static class Main
         {
             array[i] = list[compressed[i]];
             num++;
-            LogMan1997!.LogInfo($"For loop: {i}, setting it to {list[orderArray[i]]}");
+            modLogger!.LogInfo($"For loop: {i}, setting it to {list[orderArray[i]]}");
 
 
         }
@@ -1955,7 +1953,7 @@ public static class Main
         {
 
             __result = array;
-            LogMan1997!.LogInfo($"Success, array length: {array.Length}");
+            modLogger!.LogInfo($"Success, array length: {array.Length}");
             return false;
         }
         else { return true; }
@@ -2029,17 +2027,17 @@ public static class Main
         {
             tribeType = playerState.tribe;
         }
-        else { LogMan1997!.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED"); }
+        else { modLogger!.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED"); }
 
-        LogMan1997!.LogInfo($"AI before foreach");
+        modLogger!.LogInfo($"AI before foreach");
         foreach (CityReward reward in rewardArray)
         {
             if (cityRewardDict.TryGetValue(reward, out var cityRewardData))
             {
-                LogMan1997!.LogInfo($"AI after dict");
+                modLogger!.LogInfo($"AI after dict");
                 if ((cityRewardData.level == level || (cityRewardData.persistence == "post" && cityRewardData.level <= level) || (cityRewardData.persistence == "pre" && cityRewardData.level >= level)) && !cityRewardData.hidden)
                 {
-                    LogMan1997!.LogInfo($"AI after check");
+                    modLogger!.LogInfo($"AI after check");
                     if (cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
                     {
                         int num2 = 0;
@@ -2070,7 +2068,7 @@ public static class Main
                 }
             }
         }
-        LogMan1997!.LogInfo($"AI after foreach");
+        modLogger!.LogInfo($"AI after foreach");
         CityReward[] array = new CityReward[list.Count];
         int[] orderArray = new int[list.Count];
         int i1 = 0;
@@ -2115,7 +2113,7 @@ public static class Main
         {
             return array;
         }
-        else { LogMan1997!.LogInfo($"KRIS WTF HAPPENED?? AI [GetCityRewardsForLevel] COULDN'T FUCKING FIND A DAMN [CityReward[]]!!"); return new CityReward[2]; }
+        else { modLogger!.LogInfo($"KRIS WTF HAPPENED?? AI [GetCityRewardsForLevel] COULDN'T FUCKING FIND A DAMN [CityReward[]]!!"); return new CityReward[2]; }
 
     }
 
@@ -2141,7 +2139,7 @@ public static class Main
         TribeData tribeData;
         if (!PolytopiaDataManager.GetGameLogicData(VersionManager.GetGameLogicDataVersionFromGameVersion(gameState.Version)).TryGetData(player.tribe, out tribeData))
         {
-            LogMan1997!.LogInfo($"HEY     EVERY      !! WE DIDNT [Fifty Percent Off]ING GET THE [TribeData] OF TRIBE {player.tribe}!!");
+            modLogger!.LogInfo($"HEY     EVERY      !! WE DIDNT [Fifty Percent Off]ING GET THE [TribeData] OF TRIBE {player.tribe}!!");
         }
 
         if (tribeData != null && startingResources.TryGetValue(tribeData.type, out var list)) //if things are okay (we check so we dont get errors)
@@ -2166,7 +2164,7 @@ public static class Main
                     else
                     {
                         restype = ResourceData.Type.Fruit;
-                        LogMan1997!.LogInfo($"KRIS YOU LEFT YOUR [ResourceData.Type]s ON AISLE 3 [Lyeing Around]?? TF?");
+                        modLogger!.LogInfo($"KRIS YOU LEFT YOUR [ResourceData.Type]s ON AISLE 3 [Lyeing Around]?? TF?");
                     }
                 }
 
@@ -2203,13 +2201,13 @@ public static class Main
                             terrainNotMatchList.Add(tile);
                         }
                     }
-                    else { LogMan1997!.LogInfo($"KRIS WHAT THE &#!@ [Tile] IS [Null]??? WHY?? [Y]?? [Yellow]??"); }
+                    else { modLogger!.LogInfo($"KRIS WHAT THE &#!@ [Tile] IS [Null]??? WHY?? [Y]?? [Yellow]??"); }
 
                 }
 
                 if (terrainNotMatchCount + rgamount == 8 && rgamount < amount)
                 {
-                    LogMan1997!.LogInfo($"KRIS WE DONT @&!%ING HAVE ENOUGH [TerrainData.Type], FIXING IT NOW");
+                    modLogger!.LogInfo($"KRIS WE DONT @&!%ING HAVE ENOUGH [TerrainData.Type], FIXING IT NOW");
                     int necessaryAmount = amount - rgamount;
                     for (int i = 0; i < necessaryAmount; i++)
                     {
@@ -2313,7 +2311,7 @@ public static class Main
                     }
                     else
                     {
-                        LogMan1997?.LogInfo("HOTCHI MAMA, KRIS, [Slow Down] THERE! I JUST SAVED YOUR [$2.99] LIFE FROM A [Null Crash1997]!! ALSO, WHO IS [Lougg Kaard]??");
+                        modLogger?.LogInfo("HOTCHI MAMA, KRIS, [Slow Down] THERE! I JUST SAVED YOUR [$2.99] LIFE FROM A [Null Crash1997]!! ALSO, WHO IS [Lougg Kaard]??");
                     }
                 }
                 bool flag6 = tileData.resource != null && gameState.GameLogicData.IsResourceVisibleToPlayer(tileData.resource.type, player);
@@ -2438,7 +2436,7 @@ public static class Main
     public static ModulUnitEffectData SetVanillaUnitEffectDefaults(UnitEffect effect)
     {
         ModulUnitEffectData effectData = new ModulUnitEffectData();
-        LogMan1997!.LogInfo("goof");
+        modLogger!.LogInfo("goof");
         switch (effect)
         {
             case UnitEffect.Boosted:
