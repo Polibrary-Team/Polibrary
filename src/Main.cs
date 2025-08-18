@@ -34,7 +34,7 @@ public static class Main
 {
 
 
-    private static ManualLogSource? modLogger;
+    private static ManualLogSource modLogger;
     public static void Load(ManualLogSource logger)
     {
         Harmony.CreateAndPatchAll(typeof(Main));
@@ -511,7 +511,7 @@ public static class Main
     {
         foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
         {
-            JObject? token = jtoken.TryCast<JObject>();
+            JObject token = jtoken.TryCast<JObject>();
 
             if (token != null)
             {
@@ -536,7 +536,7 @@ public static class Main
     {
         foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
         {
-            JObject? token = jtoken.TryCast<JObject>();
+            JObject token = jtoken.TryCast<JObject>();
             if (token != null)
             {
                 if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
@@ -560,7 +560,7 @@ public static class Main
     {
         foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
         {
-            JObject? token = jtoken.TryCast<JObject>();
+            JObject token = jtoken.TryCast<JObject>();
             if (token != null)
             {
                 if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
@@ -586,7 +586,7 @@ public static class Main
     {
         foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
         {
-            JObject? token = jtoken.TryCast<JObject>();
+            JObject token = jtoken.TryCast<JObject>();
             if (token != null)
             {
                 if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
@@ -994,8 +994,8 @@ public static class Main
         public int attackAdd { get; set; }
         public int movementMult { get; set; }
         public int movementAdd { get; set; }
-        public string? color { get; set; }
-        public List<string>? removal { get; set; }
+        public string color { get; set; }
+        public List<string> removal { get; set; }
         public bool freezing { get; set; }
     }
     public static Dictionary<CityReward, ModulCityRewardData> cityRewardDict = new Dictionary<CityReward, ModulCityRewardData>();
@@ -1007,8 +1007,8 @@ public static class Main
         public int visionRadius { get; set; }
         public bool allowsFly { get; set; }
         public UnitEffect effect { get; set; }
-        public string? effectApplication { get; set; }
-        public string? effectApplicationActionTarget { get; set; }
+        public string effectApplication { get; set; }
+        public string effectApplicationActionTarget { get; set; }
     }
     public class UnitBuffData
     {
@@ -1031,7 +1031,7 @@ public static class Main
     {
         foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
         {
-            JObject? token = jtoken.TryCast<JObject>();
+            JObject token = jtoken.TryCast<JObject>();
             if (token != null)
             {
                 if (EnumCache<TribeData.Type>.TryGetType(token.Path.Split('.').Last(), out var tribeType))
@@ -1053,7 +1053,7 @@ public static class Main
                     List<(ResourceData.Type, int)> startingResourcesList = new List<(ResourceData.Type, int)>();
                     if (token["startingResources"] != null)
                     {
-                        JArray? resarray = token["startingResources"].TryCast<JArray>();
+                        JArray resarray = token["startingResources"].TryCast<JArray>();
                         if (resarray != null)
                         {
                             for (int i = 0; i < resarray.Count; i++)
@@ -1062,7 +1062,7 @@ public static class Main
                                 ResourceData.Type restype = ResourceData.Type.Fruit;
                                 int amount = -1;
 
-                                JObject? resobject = restoken.TryCast<JObject>(); //hey, I wrote this shit without using gpt! I'm proud of myself, and if you think otherwise, touch grass nerd!
+                                JObject resobject = restoken.TryCast<JObject>(); //hey, I wrote this shit without using gpt! I'm proud of myself, and if you think otherwise, touch grass nerd!
                                 if (resobject != null)
                                 {
                                     if (resobject["resource"] != null)
@@ -1107,7 +1107,7 @@ public static class Main
         }
         foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
         {
-            JObject? token = jtoken.TryCast<JObject>();
+            JObject token = jtoken.TryCast<JObject>();
             if (token != null)
             {
                 if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var improvementType))
@@ -1129,7 +1129,7 @@ public static class Main
 
         foreach (JToken jtoken in rootObject.SelectTokens("$.cityRewardData.*").ToList())
         {
-            JObject? token = jtoken.TryCast<JObject>();
+            JObject token = jtoken.TryCast<JObject>();
             if (token != null)
             {
                 if (EnumCache<CityReward>.TryGetType(token.Path.Split('.').Last(), out var cityReward))
@@ -1277,7 +1277,7 @@ public static class Main
 
         foreach (JToken jtoken in rootObject.SelectTokens("$.unitEffectData.*").ToList())
         {
-            JObject? token = jtoken.TryCast<JObject>();
+            JObject token = jtoken.TryCast<JObject>();
             if (token != null)
             {
                 if (EnumCache<UnitEffect>.TryGetType(token.Path.Split('.').Last(), out var unitEffect))
