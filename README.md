@@ -1,4 +1,20 @@
-                                                                                                                                                       
+# Polibrary 2.0 - A GLD Modding Tool for Polytopia
+
+## Installation
+Download the **verified** .polymod file from the Polymod discord server, in the mods>Polibrary thread's latest pinned message. Download at least version 2.0 to include Modularity's functionalities in the mod.
+
+Alternatively, you can assemble your own mod from this github repo, using experimental and **unverified** source code.
+
+## Usage
+If you decide to use this library for your mods, you may skip the verification process as long as there is no polyscripts file present in your mod. When publishing, make sure to remind people to download Polibrary alongside your mod, otherwise their Polytopia **may crash**. Don't forget to make Polibrary a dependency for your mod in the `manifest.json` file as seen in the documentation.
+
+## Documentation
+The manual/documentation can be found here and there (PUT REFERENCE HERE WHEN FINISHED WITH IT)
+
+
+
+
+
                                                                                                                                                                                                                                           █  █                                                                                                                                                                  
                                                                                                                                                                                                                                                                                                                                                                                                                 
                                                                                                                                                                                                                                          █                                                                                                                                                                      
