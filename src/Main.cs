@@ -1465,13 +1465,12 @@ public static class Main
                 }
                 if (def2 != 0)
                 {
-                    finaldef = def2;
+                    finaldef = def2 - 1;
                     modLogger!.LogInfo($"set finaldef to {def2}");
                 }
             }
             if (finaldef == 10)
             {
-                modLogger!.LogInfo($"returned true");
                 return true;
             }
             else
@@ -1843,6 +1842,7 @@ public static class Main
                     ActionUtils.TrainUnitOnOccupiedSpace(state, playerId, cityRewardData.unitType, tile);
                 }
             }
+            tile.improvement.AddReward(reward);
             return false;
         }
         else { return true; }
