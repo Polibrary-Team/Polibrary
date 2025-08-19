@@ -123,7 +123,7 @@
     },
     "building_ability_polib__demolishable": {
         "English": "Can be demolished even without the necessary tech requirements.",
-        "Italian (Italy)": "Può essere demolito anche senza i requisiti tecnologici necessari."
+        "Italian (Italy)": "Può essere demolito anche senza le competenze necessarie."
     },
     "building_ability_polib__killunit": {
         "English": "Kills the unit on the tile upon doing this.",
@@ -147,7 +147,7 @@
     },
     "building_ability_polib__research": {
         "English": "Receive a random technology upon doing this.",
-        "Italian (Italy)": "Ricevi una tecnologia casuale eseguendo questa azione."
+        "Italian (Italy)": "Ricevi una competenza casuale eseguendo questa azione."
     },
     "building_ability_polib__fullhealthbuilder": {
         "English": "The unit on this tile must have full health to do this.",
