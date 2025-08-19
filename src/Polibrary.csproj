@@ -17,7 +17,7 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <PropertyGroup>
       <ModFilesDir>$(ProjectDir)..\mod\</ModFilesDir>
-      <ZipFile>$(ProjectDir)..\PoliLibrary.polymod</ZipFile>
+      <ZipFile>$(ProjectDir)..\Polibrary.polymod</ZipFile>
     </PropertyGroup>
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModFilesDir)" />
     <ItemGroup>
