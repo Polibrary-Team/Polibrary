@@ -961,7 +961,7 @@ public static class Main
     public static Dictionary<TribeData.Type, string> leaderNameDict = new Dictionary<TribeData.Type, string>();
     public static Dictionary<ImprovementData.Type, int> defenceBoostDict = new Dictionary<ImprovementData.Type, int>();
     public static Dictionary<TribeData.Type, List<(ResourceData.Type, int)>> startingResources = new Dictionary<TribeData.Type, List<(ResourceData.Type, int)>>();
-    public class ModulCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
+    public class PolibCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
     {
         public int productionModifier { get; set; }
         public int currencyReward { get; set; }
@@ -987,7 +987,7 @@ public static class Main
         public CityReward og { get; set; }
         public CityReward neu { get; set; }
     }
-    public class ModulUnitEffectData //So I haveth a Laser Pointre...
+    public class PolibUnitEffectData //So I haveth a Laser Pointre...
     {
         public int defenceMult { get; set; }
         public int attackMult { get; set; }
@@ -998,11 +998,11 @@ public static class Main
         public List<string> removal { get; set; }
         public bool freezing { get; set; }
     }
-    public static Dictionary<CityReward, ModulCityRewardData> cityRewardDict = new Dictionary<CityReward, ModulCityRewardData>();
+    public static Dictionary<CityReward, PolibCityRewardData> cityRewardDict = new Dictionary<CityReward, PolibCityRewardData>();
     public static Dictionary<TribeData.Type, List<CityRewardOverrideClass>> cityRewardOverrideDict = new Dictionary<TribeData.Type, List<CityRewardOverrideClass>>();
     public static CityReward[] rewardArray = CityRewardData.cityRewards;
-    public static Dictionary<UnitEffect, ModulUnitEffectData> unitEffectDataDict = new Dictionary<UnitEffect, ModulUnitEffectData>();
-    public class ModulUnitAbilityData
+    public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new Dictionary<UnitEffect, PolibUnitEffectData>();
+    public class PolibUnitAbilityData
     {
         public int visionRadius { get; set; }
         public bool allowsFly { get; set; }
@@ -1018,7 +1018,7 @@ public static class Main
         public int mhp { get; set; }
         public int mvm { get; set; }
     }
-    public static Dictionary<UnitAbility.Type, ModulUnitAbilityData> unitAbilityDataDict = new Dictionary<UnitAbility.Type, ModulUnitAbilityData>();
+    public static Dictionary<UnitAbility.Type, PolibUnitAbilityData> unitAbilityDataDict = new Dictionary<UnitAbility.Type, PolibUnitAbilityData>();
     public static Dictionary<byte, UnitBuffData> unitBuffDict = new Dictionary<byte, UnitBuffData>();
     public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] { UnitEffect.Boosted, UnitEffect.Bubble, UnitEffect.Frozen, UnitEffect.Invisible, UnitEffect.Petrified, UnitEffect.Poisoned };
 
@@ -1134,7 +1134,7 @@ public static class Main
             {
                 if (EnumCache<CityReward>.TryGetType(token.Path.Split('.').Last(), out var cityReward))
                 {
-                    ModulCityRewardData cityRewardData = new ModulCityRewardData();
+                    PolibCityRewardData cityRewardData = new PolibCityRewardData();
 
                     if (token["addProduction"] != null)
                     {
@@ -1282,7 +1282,7 @@ public static class Main
             {
                 if (EnumCache<UnitEffect>.TryGetType(token.Path.Split('.').Last(), out var unitEffect))
                 {
-                    ModulUnitEffectData unitEffectData = new ModulUnitEffectData();
+                    PolibUnitEffectData unitEffectData = new PolibUnitEffectData();
 
                     if (token["defenceMult"] != null)
                     {
@@ -1918,7 +1918,7 @@ public static class Main
 
         orderedlist.Sort(comparison);
 
-        Il2CppStructArray<CityReward> array = ToArrayPreserveOrderIl2Cpp(ToIl2CppList(orderedlist));
+        Il2CppStructArray<CityReward> array = ArrayFromListIl2Cpp(ToIl2CppList(orderedlist));
 
         if (array != null || array.Length != 0)
         {
@@ -2044,7 +2044,7 @@ public static class Main
 
         orderedlist.Sort(comparison);
 
-        Il2CppStructArray<CityReward> array = ToArrayPreserveOrderIl2Cpp(ToIl2CppList(orderedlist));
+        Il2CppStructArray<CityReward> array = ArrayFromListIl2Cpp(ToIl2CppList(orderedlist));
 
         if (array != null || array.Length != 0)
         {
@@ -2175,19 +2175,6 @@ public static class Main
         return false;
     }
 
-
-
-    /* yeah I gave up
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(TileData), nameof(TileData.HasImprovement))]
-    private static void TileData_HasImprovement(ImprovementData.Type type, TileData __instance, ref bool __result)
-    {
-        if (__instance.improvement == null && ImprovementData.Type.None == type)
-        {
-            __result = true;
-        }
-    }*/
-
     [HarmonyPrefix]
     [HarmonyPatch(typeof(AI), "CheckForTechNeeds")]
     public static bool Logshit(GameState gameState, PlayerState player, List<TileData> playerEmpire, Il2Gen.Dictionary<TechData.Type, int> neededTech)
@@ -2255,14 +2242,14 @@ public static class Main
         return false;
     }
 
-    public static ModulCityRewardData SetVanillaCityRewardDefaults(CityReward reward) //dont laugh
+    public static PolibCityRewardData SetVanillaCityRewardDefaults(CityReward reward) //dont laugh
     {
-        ModulCityRewardData rewardData = new ModulCityRewardData();
+        PolibCityRewardData rewardData = new PolibCityRewardData();
         switch (reward)
         {
             case CityReward.Workshop:
                 {
-                    rewardData = new ModulCityRewardData
+                    rewardData = new PolibCityRewardData
                     {
                         productionModifier = 1,
                         level = 1,
@@ -2272,7 +2259,7 @@ public static class Main
                 }
             case CityReward.Explorer:
                 {
-                    rewardData = new ModulCityRewardData
+                    rewardData = new PolibCityRewardData
                     {
                         scoutSpawnAmount = 1,
                         scoutMoveAmount = 15,
@@ -2283,7 +2270,7 @@ public static class Main
                 }
             case CityReward.Resources:
                 {
-                    rewardData = new ModulCityRewardData
+                    rewardData = new PolibCityRewardData
                     {
                         currencyReward = 5,
                         level = 2,
@@ -2293,7 +2280,7 @@ public static class Main
                 }
             case CityReward.CityWall:
                 {
-                    rewardData = new ModulCityRewardData
+                    rewardData = new PolibCityRewardData
                     {
                         defenceBoostReward = 40,
                         level = 2,
@@ -2303,7 +2290,7 @@ public static class Main
                 }
             case CityReward.PopulationGrowth:
                 {
-                    rewardData = new ModulCityRewardData
+                    rewardData = new PolibCityRewardData
                     {
                         populationReward = 3,
                         level = 3,
@@ -2313,7 +2300,7 @@ public static class Main
                 }
             case CityReward.BorderGrowth:
                 {
-                    rewardData = new ModulCityRewardData
+                    rewardData = new PolibCityRewardData
                     {
                         borderGrowthAmount = 1,
                         level = 3,
@@ -2323,7 +2310,7 @@ public static class Main
                 }
             case CityReward.Park:
                 {
-                    rewardData = new ModulCityRewardData
+                    rewardData = new PolibCityRewardData
                     {
                         productionModifier = 1,
                         scoreReward = 250,
@@ -2335,7 +2322,7 @@ public static class Main
                 }
             case CityReward.SuperUnit:
                 {
-                    rewardData = new ModulCityRewardData
+                    rewardData = new PolibCityRewardData
                     {
                         unitType = UnitData.Type.Giant, //i really like that I dont have to account for unitOverride
                         level = 4,
@@ -2347,14 +2334,14 @@ public static class Main
         }
         return rewardData;
     }
-    public static ModulUnitEffectData SetVanillaUnitEffectDefaults(UnitEffect effect)
+    public static PolibUnitEffectData SetVanillaUnitEffectDefaults(UnitEffect effect)
     {
-        ModulUnitEffectData effectData = new ModulUnitEffectData();
+        PolibUnitEffectData effectData = new PolibUnitEffectData();
         switch (effect)
         {
             case UnitEffect.Boosted:
                 {
-                    effectData = new ModulUnitEffectData
+                    effectData = new PolibUnitEffectData
                     {
                         movementAdd = 1,
                         attackAdd = 5,
@@ -2364,7 +2351,7 @@ public static class Main
                 }
             case UnitEffect.Poisoned:
                 {
-                    effectData = new ModulUnitEffectData
+                    effectData = new PolibUnitEffectData
                     {
                         defenceMult = 7,
                         removal = new List<string> { "heal" }
@@ -2373,7 +2360,7 @@ public static class Main
                 }
             case UnitEffect.Bubble:
                 {
-                    effectData = new ModulUnitEffectData
+                    effectData = new PolibUnitEffectData
                     {
                         movementAdd = 1,
                         removal = new List<string> { "nonflooded", "hurt" }
@@ -2382,7 +2369,7 @@ public static class Main
                 }
             case UnitEffect.Frozen:
                 {
-                    effectData = new ModulUnitEffectData
+                    effectData = new PolibUnitEffectData
                     {
                         freezing = true,
                         removal = new List<string> { "endturn" }
@@ -2391,7 +2378,7 @@ public static class Main
                 }
             case UnitEffect.Petrified:
                 {
-                    effectData = new ModulUnitEffectData
+                    effectData = new PolibUnitEffectData
                     {
                         freezing = true,
                         removal = new List<string> { "endturn" }
@@ -2414,16 +2401,16 @@ public static class Main
     }
 
     // IL2CPP → SYSTEM
-    public static System.Collections.Generic.List<T> ToSystemList<T>(Il2CppSystem.Collections.Generic.List<T> il2cppList)
+    public static List<T> ToSystemList<T>(Il2Gen.List<T> il2cppList)
     {
-        var sysList = new System.Collections.Generic.List<T>(il2cppList.Count);
+        var sysList = new List<T>(il2cppList.Count);
         for (int i = 0; i < il2cppList.Count; i++)
         {
             sysList.Add(il2cppList[i]);
         }
         return sysList;
     }
-    public static T[] ToArrayPreserveOrderIl2Cpp<T>(Il2CppSystem.Collections.Generic.List<T> il2cppList)
+    public static T[] ArrayFromListIl2Cpp<T>(Il2Gen.List<T> il2cppList)
     {
         T[] array = new T[il2cppList.Count];
         for (int i = 0; i < il2cppList.Count; i++)
@@ -2431,6 +2418,65 @@ public static class Main
             array[i] = il2cppList[i];
         }
         return array;
+    }
+    public static T[] ArrayFromListSystem<T>(List<T> sysList)
+    {
+        T[] array = new T[sysList.Count];
+        for (int i = 0; i < sysList.Count; i++)
+        {
+            array[i] = sysList[i];
+        }
+        return array;
+    }
+    public static int GetRewardCountForPlayer(byte playerId, CityReward targetReward = CityReward.None, CityReward[] targetRewards = null) //Make sure to set either one of them
+    {
+        GameManager.GameState.TryGetPlayer(playerId, out var playerState);
+        Il2Gen.List<TileData> tiles = playerState.GetCityTiles(GameManager.GameState);
+        int num = 0;
+        foreach (TileData tile in tiles)
+        {
+            Il2Gen.List<CityReward> rewards = tile.improvement.rewards;
+            foreach (CityReward checkedReward in rewards) //fasz
+            {
+                if (targetRewards != null)
+                {
+                    foreach (CityReward compareToThisReward in targetRewards)
+                    {
+                        if (checkedReward == compareToThisReward)
+                        {
+                            num++;
+                        }
+                    }
+                }
+                else if (targetReward != CityReward.None)
+                {
+                    if (checkedReward == targetReward)
+                    {
+                        num++;
+                    }
+                }
+                else
+                {
+                    modLogger!.LogInfo("HEY EVERY !! KRIS SOMETHING IS [Fifty Percent Off]ED UP IN [public static int GetRewardCountForPlayer()]!!! DO YOU WANNA BUY A [CityReward] FOR ONLY $2.99???");
+                }
+            }
+        }
+        return num;
+    }
+    public static CityReward[] GetSpawningRewardsForUnit(UnitData.Type unit)
+    {
+        List<CityReward> list = new List<CityReward>();
+        foreach (CityReward reward in rewardArray)
+        {
+            if (cityRewardDict.TryGetValue(reward, out var cityRewardData))
+            {
+                if (cityRewardData.unitType == unit)
+                {
+                    list.Add(reward);
+                }
+            }
+        }
+        return ArrayFromListSystem(list);
     }
 
 
