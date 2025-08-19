@@ -14,4 +14,15 @@
     <ItemGroup>
         <PackageReference Include="PolyMod" Version="*" />
     </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <PropertyGroup>
+      <ModFilesDir>$(ProjectDir)..\mod\</ModFilesDir>
+      <ZipFile>$(ProjectDir)..\Polibrary.polymod</ZipFile>
+    </PropertyGroup>
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModFilesDir)" />
+    <ItemGroup>
+      <FilesToZip Include="$(ModFilesDir)**\*" />
+    </ItemGroup>
+    <ZipDirectory SourceDirectory="$(ModFilesDir)" DestinationFile="$(ZipFile)" Overwrite="true" />
+  </Target>
 </Project>
