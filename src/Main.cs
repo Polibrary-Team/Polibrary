@@ -1000,7 +1000,7 @@ public static class Main
     }
     public static Dictionary<CityReward, PolibCityRewardData> cityRewardDict = new Dictionary<CityReward, PolibCityRewardData>();
     public static Dictionary<TribeData.Type, List<CityRewardOverrideClass>> cityRewardOverrideDict = new Dictionary<TribeData.Type, List<CityRewardOverrideClass>>();
-    public static CityReward[] rewardArray = CityRewardData.cityRewards;
+    public static List<CityReward> rewardList = MakeSystemList<CityReward>(CityRewardData.cityRewards);
     public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new Dictionary<UnitEffect, PolibUnitEffectData>();
     public class PolibUnitAbilityData
     {
@@ -1010,16 +1010,7 @@ public static class Main
         public string effectApplication { get; set; }
         public string effectApplicationActionTarget { get; set; }
     }
-    public class UnitBuffData
-    {
-        public UnitData.Type unit { get; set; }
-        public int atk { get; set; } //hear me out, we need polymod partnership with makeship to get johnklipi plush with detatchable cymanti hat and an exploit body pillow
-        public int dfc { get; set; } //arent they just sooo...              ...marketable?
-        public int mhp { get; set; }
-        public int mvm { get; set; }
-    }
     public static Dictionary<UnitAbility.Type, PolibUnitAbilityData> unitAbilityDataDict = new Dictionary<UnitAbility.Type, PolibUnitAbilityData>();
-    public static Dictionary<byte, UnitBuffData> unitBuffDict = new Dictionary<byte, UnitBuffData>();
     public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] { UnitEffect.Boosted, UnitEffect.Bubble, UnitEffect.Frozen, UnitEffect.Invisible, UnitEffect.Petrified, UnitEffect.Poisoned };
 
 
@@ -1264,7 +1255,15 @@ public static class Main
                         cityRewardData.healUnitOverSpawn = healUnitOverSpawn;
 
                     }
-                    rewardArray.AddItem(cityReward);
+                    if (!rewardList.Contains(cityReward))
+                    {
+                        rewardList.Add(cityReward);
+                    }
+                    else
+                    {
+                        modLogger!.LogInfo($"{cityReward} is already in the list, so obviously we don't add it in again");
+                    }
+                    modLogger!.LogInfo($"added {cityReward} to list, list length: {rewardList.Count} (shouldn't be 8)");
                     cityRewardDict[cityReward] = cityRewardData;
                 }
             }
@@ -1451,22 +1450,18 @@ public static class Main
             }
             else if (tile.owner == unit.owner && tile.improvement != null && tile.improvement.type == ImprovementData.Type.City && tile.improvement.rewards != null)
             {
-                modLogger!.LogInfo($"got in");
                 int def2 = 0;
                 modLogger!.LogInfo(tile.improvement.rewards.Count);
                 foreach (CityReward reward in tile.improvement.rewards)
                 {
-                    modLogger!.LogInfo($"tried");
                     if (cityRewardDict.TryGetValue(reward, out var cityRewardData))
                     {
                         def2 = def2 + cityRewardData.defenceBoostReward;
-                        modLogger!.LogInfo($"incremented def2: {def2}");
                     }
                 }
                 if (def2 != 0)
                 {
                     finaldef = def2 - 1;
-                    modLogger!.LogInfo($"set finaldef to {def2}");
                 }
             }
             if (finaldef == 10)
@@ -1488,11 +1483,13 @@ public static class Main
     public static void UnitDataExtensions_GetDefence(this UnitState unit, GameState state, ref int __result) //banan sugeston
     {
         UnitData unitData;
-        if (state.GameLogicData.TryGetData(unit.type, out unitData) && unitBuffDict.TryGetValue(unit.owner, out var unitBuffData) && unitBuffData.unit == unit.type)
+        state.GameLogicData.TryGetData(unit.type, out unitData);
+        int boostDefenceOverSpawn = 0;
+        foreach (CityReward reward in GetSpawningRewardsForUnit(unitData.type))
         {
-            __result = (unitData.defence + unitBuffData.dfc) * unit.GetDefenceBonus(state);
-            return;
+            boostDefenceOverSpawn += GetRewardData(reward).boostDefenceOverSpawn;
         }
+        __result = (unitData.defence + boostDefenceOverSpawn * GetRewardCountForPlayer(unit.owner, GetSpawningRewardsForUnit(unitData.type))) * unit.GetDefenceBonus(state);
     }
 
     [HarmonyPostfix]
@@ -1511,12 +1508,12 @@ public static class Main
                 effectMultiplicative = (effectData.movementMult != 0) ? effectMultiplicative * (effectData.movementMult / 10) : effectMultiplicative;
             }
         }
-        if (unitBuffDict.TryGetValue(unitState.owner, out var unitBuffData) && unitBuffData.unit == unitData.type)
+        int boostMovementOverSpawn = 0;
+        foreach (CityReward reward in GetSpawningRewardsForUnit(unitData.type))
         {
-            __result = ((unitData.GetMovement() + unitBuffData.mvm) * effectMultiplicative) + effectAdditive;
-            return;
+            boostMovementOverSpawn += GetRewardData(reward).boostMovementOverSpawn;
         }
-        __result = (unitData.GetMovement() * effectMultiplicative) + effectAdditive;
+        __result = ((unitData.GetMovement() + boostMovementOverSpawn * GetRewardCountForPlayer(unitState.owner, GetSpawningRewardsForUnit(unitData.type))) * effectMultiplicative) + effectAdditive;
     }
 
     [HarmonyPostfix]
@@ -1535,12 +1532,12 @@ public static class Main
                 effectMultiplicative = (effectData.attackMult != 0) ? effectMultiplicative * (effectData.attackMult / 10) : effectMultiplicative;
             }
         }
-        if (unitBuffDict.TryGetValue(unitState.owner, out var unitBuffData) && unitBuffData.unit == unitData.type)
+        int boostAttackOverSpawn = 0;
+        foreach (CityReward reward in GetSpawningRewardsForUnit(unitData.type))
         {
-            __result = ((unitData.GetAttack() + unitBuffData.atk * 10) * effectMultiplicative) + effectAdditive * 10;
-            return;
+            boostAttackOverSpawn += GetRewardData(reward).boostAttackOverSpawn;
         }
-        __result = (unitData.GetAttack() * effectMultiplicative) + effectAdditive * 10;
+        __result = ((unitData.GetAttack() + boostAttackOverSpawn * GetRewardCountForPlayer(unitState.owner, GetSpawningRewardsForUnit(unitData.type)) * 10) * effectMultiplicative) + effectAdditive * 10;
     }
 
     [HarmonyPostfix]
@@ -1553,12 +1550,19 @@ public static class Main
         }
         UnitData unitData;
         gameState.GameLogicData.TryGetData(unitState.type, out unitData);
+        /*
         if (unitBuffDict.TryGetValue(unitState.owner, out var unitBuffData) && unitBuffData.unit == unitData.type)
         {
             __result = unitData.health + (unitState.promotionLevel * 50) + unitBuffData.mhp;
             return;
         }
-        __result = unitData.health + (unitState.promotionLevel * 50);
+        */
+        int boostMaxHpOverSpawn = 0;
+        foreach (CityReward reward in GetSpawningRewardsForUnit(unitData.type))
+        {
+            boostMaxHpOverSpawn += GetRewardData(reward).boostMaxHpOverSpawn;
+        }
+        __result = unitData.health + (unitState.promotionLevel * 50) + (boostMaxHpOverSpawn * GetRewardCountForPlayer(unitState.owner, GetSpawningRewardsForUnit(unitData.type)));
     }
     /*
     [HarmonyPostfix]
@@ -1805,26 +1809,6 @@ public static class Main
                     if (num == 0)
                     {
                         ActionUtils.TrainUnitOnOccupiedSpace(state, playerId, cityRewardData.unitType, tile);
-                        unitBuffDict[state.CurrentPlayer] = new UnitBuffData
-                        {
-                            unit = cityRewardData.unitType
-                        };
-                    }
-                    else
-                    {
-                        UnitBuffData buffData = new UnitBuffData();
-                        if (unitBuffDict.TryGetValue(state.CurrentPlayer, out var buffData1))
-                        {
-                            buffData = new UnitBuffData
-                            {
-                                unit = cityRewardData.unitType,
-                                atk = buffData1.atk + cityRewardData.boostAttackOverSpawn,
-                                dfc = buffData1.dfc + cityRewardData.boostDefenceOverSpawn,
-                                mhp = buffData1.mhp + cityRewardData.boostMaxHpOverSpawn,
-                                mvm = buffData1.mvm + cityRewardData.boostMovementOverSpawn
-                            };
-                        }
-                        unitBuffDict[state.CurrentPlayer] = buffData;
                     }
                     if (cityRewardData.healUnitOverSpawn)
                     {
@@ -1868,16 +1852,13 @@ public static class Main
         }
         else { modLogger!.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED"); }
 
-        modLogger!.LogInfo($"before foreach");
 
-        foreach (CityReward reward in rewardArray)
+        foreach (CityReward reward in rewardList)
         {
             if (cityRewardDict.TryGetValue(reward, out var cityRewardData))
             {
-                modLogger!.LogInfo($"after dictvalue");
                 if ((cityRewardData.level == level || (cityRewardData.persistence == "post" && cityRewardData.level <= level) || (cityRewardData.persistence == "pre" && cityRewardData.level >= level)) && !cityRewardData.hidden)
                 {
-                    modLogger!.LogInfo($"after check");
                     if (cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
                     {
                         int num2 = 0;
@@ -1888,7 +1869,6 @@ public static class Main
                                 if (overrideClass.og == reward)
                                 {
                                     list.Add(overrideClass.neu);
-                                    modLogger!.LogInfo($"1 Added: {overrideClass.neu}");
                                 }
                                 else
                                 {
@@ -1899,19 +1879,16 @@ public static class Main
                         if (num2 >= cityRewardOverrideClasses.Count)
                         {
                             list.Add(reward);
-                            modLogger!.LogInfo($"2 Added: {reward}");
                         }
                     }
                     else
                     {
                         list.Add(reward);
-                        modLogger!.LogInfo($"3 Added: {reward}");
                     }
 
                 }
             }
         }
-        modLogger!.LogInfo($"after foreach");
 
         List<CityReward> orderedlist = ToSystemList(list);
         System.Comparison<CityReward> comparison = (a, b) => cityRewardDict[a].order.CompareTo(cityRewardDict[b].order);
@@ -1923,7 +1900,6 @@ public static class Main
         if (array != null || array.Length != 0)
         {
             __result = array;
-            modLogger!.LogInfo($"Success, array length: {array.Length}");
             return false;
         }
         else { return true; }
@@ -1999,15 +1975,12 @@ public static class Main
         }
         else { modLogger!.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED"); }
 
-        modLogger!.LogInfo($"AI before foreach");
-        foreach (CityReward reward in rewardArray)
+        foreach (CityReward reward in rewardList)
         {
             if (cityRewardDict.TryGetValue(reward, out var cityRewardData))
             {
-                modLogger!.LogInfo($"AI after dict");
                 if ((cityRewardData.level == level || (cityRewardData.persistence == "post" && cityRewardData.level <= level) || (cityRewardData.persistence == "pre" && cityRewardData.level >= level)) && !cityRewardData.hidden)
                 {
-                    modLogger!.LogInfo($"AI after check");
                     if (cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
                     {
                         int num2 = 0;
@@ -2038,7 +2011,6 @@ public static class Main
                 }
             }
         }
-        modLogger!.LogInfo($"AI after foreach");
         List<CityReward> orderedlist = ToSystemList(list);
         System.Comparison<CityReward> comparison = (a, b) => cityRewardDict[a].order.CompareTo(cityRewardDict[b].order);
 
@@ -2048,7 +2020,6 @@ public static class Main
 
         if (array != null || array.Length != 0)
         {
-            modLogger!.LogInfo($"Success, array length: {array.Length}");
             return array;
 
         }
@@ -2389,7 +2360,6 @@ public static class Main
         return effectData;
 
     }
-    // SYSTEM → IL2CPP
     public static Il2CppSystem.Collections.Generic.List<T> ToIl2CppList<T>(System.Collections.Generic.List<T> sysList)
     {
         var il2cppList = new Il2CppSystem.Collections.Generic.List<T>();
@@ -2399,8 +2369,6 @@ public static class Main
         }
         return il2cppList;
     }
-
-    // IL2CPP → SYSTEM
     public static List<T> ToSystemList<T>(Il2Gen.List<T> il2cppList)
     {
         var sysList = new List<T>(il2cppList.Count);
@@ -2428,7 +2396,15 @@ public static class Main
         }
         return array;
     }
-    public static int GetRewardCountForPlayer(byte playerId, CityReward targetReward = CityReward.None, CityReward[] targetRewards = null) //Make sure to set either one of them
+    public static T[] MakeSystemArray<T>(T value)
+    {
+        return new T[] { value };
+    }
+    public static List<T> MakeSystemList<T>(T[] array)
+    {
+        return new List<T>(array);
+    }
+    public static int GetRewardCountForPlayer(byte playerId, CityReward[] targetRewards)
     {
         GameManager.GameState.TryGetPlayer(playerId, out var playerState);
         Il2Gen.List<TileData> tiles = playerState.GetCityTiles(GameManager.GameState);
@@ -2436,7 +2412,7 @@ public static class Main
         foreach (TileData tile in tiles)
         {
             Il2Gen.List<CityReward> rewards = tile.improvement.rewards;
-            foreach (CityReward checkedReward in rewards) //fasz
+            foreach (CityReward checkedReward in rewards)
             {
                 if (targetRewards != null)
                 {
@@ -2448,25 +2424,18 @@ public static class Main
                         }
                     }
                 }
-                else if (targetReward != CityReward.None)
-                {
-                    if (checkedReward == targetReward)
-                    {
-                        num++;
-                    }
-                }
-                else
-                {
-                    modLogger!.LogInfo("HEY EVERY !! KRIS SOMETHING IS [Fifty Percent Off]ED UP IN [public static int GetRewardCountForPlayer()]!!! DO YOU WANNA BUY A [CityReward] FOR ONLY $2.99???");
-                }
             }
         }
         return num;
     }
+    public static int GetRewardCountForPlayer(byte playerId, CityReward targetReward)
+    {
+        return GetRewardCountForPlayer(playerId, MakeSystemArray(targetReward));
+    }
     public static CityReward[] GetSpawningRewardsForUnit(UnitData.Type unit)
     {
         List<CityReward> list = new List<CityReward>();
-        foreach (CityReward reward in rewardArray)
+        foreach (CityReward reward in rewardList)
         {
             if (cityRewardDict.TryGetValue(reward, out var cityRewardData))
             {
@@ -2477,6 +2446,11 @@ public static class Main
             }
         }
         return ArrayFromListSystem(list);
+    }
+    public static PolibCityRewardData GetRewardData(CityReward reward)
+    {
+        cityRewardDict.TryGetValue(reward, out var data);
+        return data;
     }
 
 
