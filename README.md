@@ -3,7 +3,7 @@
 ## Installation
 Download the **verified** .polymod file from the Polymod discord server, in the mods>Polibrary thread's latest pinned message. Download at least version 2.0 to include Modularity's functionalities in the mod.
 
-Alternatively, you could assemble your own mod from this github repo, using experimental and **unverified** source code, we sadly have no control over that (wink wink nudge nudge).
+Alternatively, you could assemble your own mod from this github repo, using experimental and **unverified** source code, we sadly have no control over that (wink wink nudge nudge). This is also against our End User Liscence Agreement that is explained in this video: https://www.youtube.com/watch?v=xvFZjo5PgG0&list=RDxvFZjo5PgG0&start_radio=1
 
 (Note: WITH UNVERIFIED CODE, IF YOU GO OUT OF YOUR WAY TO GET IT, **IT IS YOUR DAMN RESPONSIBILITY TO CHECK FOR MALWARE!!!** WE AREN'T EVIL, BUT THATS WHAT ALL EVIL PEOPLE SAY. IF YOU DON'T HAVE SUFFICIENT KNOWLEDGE TO CHECK, JUST STICK TO VERIFIED VERSIONS. **YOU HAVE BEEN WARNED.**) (See exploit? We warned them! Pretty fucking clear warning!)
 
