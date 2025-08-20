@@ -37,7 +37,91 @@ public static class ImprovementManager
     {
         GabrielLogOfHell = logger;
         GabrielLogOfHell.LogInfo("MACHINE, WHERE AM I?");
-        GabrielLogOfHell.LogInfo("WHY ARE THERE SCROLLS SCATTERED EVERYWHERE?");
+        GabrielLogOfHell.LogInfo("WHY ARE THERE MULTIPLE SCROLLS SCATTERED EVERYWHERE?");
         GabrielLogOfHell.LogInfo("MACHINE, IS THIS SOME KIND OF POLY-SCRIPT?");
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
+    public static void NewRequirers(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
+    {
+        if (!__result) return;
+        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_woundedbuilder")))
+        {
+            if (tile.unit == null)
+            {
+                __result = false;
+                return;
+            }
+            if (tile.unit.health == tile.unit.GetMaxHealth(gameState))
+            {
+                __result = false;
+                return;
+            }
+        }
+        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_fullhealthbuilder")))
+        {
+            if (tile.unit == null)
+            {
+                __result = false;
+                return;
+            }
+            if (tile.unit.health != tile.unit.GetMaxHealth(gameState))
+            {
+                __result = false;
+                return;
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
+    public static void mBuiltBySpecific(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
+    {
+        if (__result == false) return;
+        if (Parse.BuildersDict.TryGetValue(improvement.type, out string ability))
+        {
+            if (tile.unit == null)
+            {
+                __result = false;
+                return;
+            }
+            if (!tile.unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(ability)))
+            {
+                __result = false;
+            }
+        }
+        if (Parse.NoBuildersDict.TryGetValue(improvement.type, out string ability2))
+        {
+            if (tile.unit == null)
+            {
+                __result = false;
+                return;
+            }
+            if (tile.unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(ability2)))
+            {
+                __result = false;
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
+    public static void mBuiltOnSpecific(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
+    {
+        if (__result == false) return;
+        if (Parse.ImpBuildersDict.TryGetValue(improvement.type, out string ability))
+        {
+            if (tile.improvement == null)
+            {
+                __result = false;
+                return;
+            }
+            if (!Main.DataFromState(tile.improvement, gameState).HasAbility(EnumCache<ImprovementAbility.Type>.GetType(ability)))
+            {
+                __result = false;
+                return;
+            }
+        }
     }
 }

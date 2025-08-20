@@ -113,9 +113,9 @@ public static class PolibUtils
     public static CityReward[] GetSpawningRewardsForUnit(UnitData.Type unit)
     {
         List<CityReward> list = new List<CityReward>();
-        foreach (CityReward reward in Main.rewardList)
+        foreach (CityReward reward in Parse.rewardList)
         {
-            if (Main.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+            if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
             {
                 if (cityRewardData.unitType == unit)
                 {
@@ -125,9 +125,301 @@ public static class PolibUtils
         }
         return ArrayFromListSystem(list);
     }
-    public static Main.PolibCityRewardData GetRewardData(CityReward reward)
+    public static Parse.PolibCityRewardData GetRewardData(CityReward reward)
     {
-        Main.cityRewardDict.TryGetValue(reward, out var data);
+        Parse.cityRewardDict.TryGetValue(reward, out var data);
         return data;
+    }
+
+    private static void ApplyEffect(GameState gameState, WorldCoordinates Origin, WorldCoordinates Target, UnitEffect effect)
+    {
+        TileData tile = gameState.Map.GetTile(Origin);
+        TileData tile2 = gameState.Map.GetTile(Target);
+        UnitState unit = tile.unit;
+        UnitState unit2 = tile2.unit;
+        if (unit2 == null)
+        {
+            return;
+        }
+        unit2.AddEffect(effect);
+        if (unit2.passengerUnit != null)
+        {
+            unit2.passengerUnit.AddEffect(effect);
+        }
+    }
+
+    public static void CleanseUnit(GameState gameState, UnitState unit)
+    {
+        unit.effects = new Il2Gen.List<UnitEffect>();
+    }
+
+    public static void HealUnit(GameState gameState, UnitState unit, int amount)
+    {
+        var maxhp = unit.GetMaxHealth(gameState);
+        var currhp = unit.health;
+        if (currhp >= maxhp)
+        {
+            return;
+        }
+        var diff = maxhp - currhp;
+        if (diff < amount)
+        {
+            amount = diff;
+        }
+        if (unit.HasEffect(UnitEffect.Poisoned))
+        {
+            amount = 0;
+            unit.RemoveEffect(UnitEffect.Poisoned);
+        }
+        unit.health += (ushort)amount;
+        Tile tile = MapRenderer.Current.GetTileInstance(unit.coordinates);
+        tile.Heal(amount);
+    }
+
+
+    public static List<TechData> polibGetUnlockableTech(PlayerState player)
+    {
+        var gld = GameManager.GameState.GameLogicData;
+        if (player.tribe == TribeData.Type.None)
+        {
+            return null;
+        }
+        TribeData tribe;
+        if (GameManager.GameState.GameLogicData.TryGetData(player.tribe, out tribe))
+        {
+            List<TechData> list = new List<TechData>();
+            for (int i = 0; i < player.availableTech.Count; i++)
+            {
+                TechData @override;
+                if (gld.TryGetData(player.availableTech[i], out @override))
+                {
+                    @override = gld.GetOverride(@override, tribe);
+                    foreach (TechData techData in @override.techUnlocks)
+                    {
+                        TechData override2 = gld.GetOverride(techData, tribe);
+                        if (!player.HasTech(override2.type) && !list.Contains(override2))
+                        {
+                            list.Add(override2);
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+        return null;
+    }
+
+    public static Parse.PolibCityRewardData SetVanillaCityRewardDefaults(CityReward reward) //dont laugh
+    {
+        Parse.PolibCityRewardData rewardData = new Parse.PolibCityRewardData();
+        switch (reward)
+        {
+            case CityReward.Workshop:
+                {
+                    rewardData = new Parse.PolibCityRewardData
+                    {
+                        productionModifier = 1,
+                        level = 1,
+                        order = 0
+                    };
+                    break;
+                }
+            case CityReward.Explorer:
+                {
+                    rewardData = new Parse.PolibCityRewardData
+                    {
+                        scoutSpawnAmount = 1,
+                        scoutMoveAmount = 15,
+                        level = 1,
+                        order = 1
+                    };
+                    break;
+                }
+            case CityReward.Resources:
+                {
+                    rewardData = new Parse.PolibCityRewardData
+                    {
+                        currencyReward = 5,
+                        level = 2,
+                        order = 1
+                    };
+                    break;
+                }
+            case CityReward.CityWall:
+                {
+                    rewardData = new Parse.PolibCityRewardData
+                    {
+                        defenceBoostReward = 40,
+                        level = 2,
+                        order = 0
+                    };
+                    break;
+                }
+            case CityReward.PopulationGrowth:
+                {
+                    rewardData = new Parse.PolibCityRewardData
+                    {
+                        populationReward = 3,
+                        level = 3,
+                        order = 0
+                    };
+                    break;
+                }
+            case CityReward.BorderGrowth:
+                {
+                    rewardData = new Parse.PolibCityRewardData
+                    {
+                        borderGrowthAmount = 1,
+                        level = 3,
+                        order = 1
+                    };
+                    break;
+                }
+            case CityReward.Park:
+                {
+                    rewardData = new Parse.PolibCityRewardData
+                    {
+                        productionModifier = 1,
+                        scoreReward = 250,
+                        level = 4,
+                        persistence = "post",
+                        order = 0
+                    };
+                    break;
+                }
+            case CityReward.SuperUnit:
+                {
+                    rewardData = new Parse.PolibCityRewardData
+                    {
+                        unitType = UnitData.Type.Giant, //i really like that I dont have to account for unitOverride
+                        level = 4,
+                        persistence = "post",
+                        order = 1
+                    };
+                    break;
+                }
+        }
+        return rewardData;
+    }
+    public static Parse.PolibUnitEffectData SetVanillaUnitEffectDefaults(UnitEffect effect)
+    {
+        Parse.PolibUnitEffectData effectData = new Parse.PolibUnitEffectData();
+        switch (effect)
+        {
+            case UnitEffect.Boosted:
+                {
+                    effectData = new Parse.PolibUnitEffectData
+                    {
+                        movementAdd = 1,
+                        attackAdd = 5,
+                        removal = new List<string> { "action", "attack", "hurt" }
+                    };
+                    break;
+                }
+            case UnitEffect.Poisoned:
+                {
+                    effectData = new Parse.PolibUnitEffectData
+                    {
+                        defenceMult = 7,
+                        removal = new List<string> { "heal" }
+                    };
+                    break;
+                }
+            case UnitEffect.Bubble:
+                {
+                    effectData = new Parse.PolibUnitEffectData
+                    {
+                        movementAdd = 1,
+                        removal = new List<string> { "nonflooded", "hurt" }
+                    };
+                    break;
+                }
+            case UnitEffect.Frozen:
+                {
+                    effectData = new Parse.PolibUnitEffectData
+                    {
+                        freezing = true,
+                        removal = new List<string> { "endturn" }
+                    };
+                    break;
+                }
+            case UnitEffect.Petrified:
+                {
+                    effectData = new Parse.PolibUnitEffectData
+                    {
+                        freezing = true,
+                        removal = new List<string> { "endturn" }
+                    };
+                    break;
+                }
+        }
+        return effectData;
+
+    }
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(AI), "CheckForTechNeeds")]
+    public static bool Logshit(GameState gameState, PlayerState player, List<TileData> playerEmpire, Il2Gen.Dictionary<TechData.Type, int> neededTech)
+    {
+        int num = 0;
+        int num2 = 0;
+        for (int i = 0; i < gameState.Map.Tiles.Length; i++)
+        {
+            TileData tileData = gameState.Map.Tiles[i];
+            bool explored = tileData.GetExplored(player.Id);
+            if (explored)
+            {
+                bool flag = tileData.owner == player.Id;
+                if (flag)
+                {
+                    bool flag2 = tileData.HasImprovement(ImprovementData.Type.City) && !tileData.IsConnected;
+                    if (flag2)
+                    {
+                        num2++;
+                    }
+                    bool flag3 = tileData.terrain == Polytopia.Data.TerrainData.Type.Field || tileData.terrain == Polytopia.Data.TerrainData.Type.Forest;
+                    if (flag3)
+                    {
+                        num++;
+                    }
+                }
+                bool flag4 = !tileData.CanBeAccessedByPlayer(gameState, player);
+                if (flag4)
+                {
+                    TechData techThatUnlocks = gameState.GameLogicData.GetTechThatUnlocks(tileData.terrain);
+                    bool flag5 = techThatUnlocks != null;
+                    if (flag5)
+                    {
+                        AI.AddTechNeed(neededTech, techThatUnlocks!.type, 1);
+                    }
+                    else
+                    {
+                        utilGuy?.LogInfo("HOTCHI MAMA, KRIS, [Slow Down] THERE! I JUST SAVED YOUR [$2.99] LIFE FROM A [Null Crash1997]!! ALSO, WHO IS [Lougg Kaard]??");
+                    }
+                }
+                bool flag6 = tileData.resource != null && gameState.GameLogicData.IsResourceVisibleToPlayer(tileData.resource.type, player);
+                if (flag6)
+                {
+                    Il2Gen.List<ImprovementData> improvementForResource = gameState.GameLogicData.GetImprovementForResource(tileData.resource!.type);
+                    for (int j = 0; j < improvementForResource.Count; j++)
+                    {
+                        ImprovementData improvementData = improvementForResource[j];
+                        bool flag7 = improvementData != null && improvementData.HasAbility(ImprovementAbility.Type.Freelance) && !gameState.GameLogicData.IsUnlocked(improvementData.type, player);
+                        if (flag7)
+                        {
+                            TribeData tribeData = gameState.GameLogicData.GetTribeData(player.tribe);
+                            TechData techThatUnlocks2 = gameState.GameLogicData.GetTechThatUnlocks(improvementData, tribeData);
+                            AI.AddTechNeed(neededTech, techThatUnlocks2.type, 5);
+                        }
+                    }
+                }
+            }
+        }
+        bool flag8 = num > 0;
+        if (flag8)
+        {
+            int num3 = num * (1 + num2);
+            AI.AddTechNeed(neededTech, TechData.Type.Roads, num3);
+        }
+        return false;
     }
 }
