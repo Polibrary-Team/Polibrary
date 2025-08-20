@@ -448,11 +448,6 @@ public static class Parse
                     {
                         rewardList.Add(cityReward);
                     }
-                    else
-                    {
-                        LogMan1997!.LogInfo($"{cityReward} is already in the list, so obviously we don't add it in again");
-                    }
-                    LogMan1997!.LogInfo($"added {cityReward} to list, list length: {rewardList.Count} (shouldn't be 8)");
                     cityRewardDict[cityReward] = cityRewardData;
                 }
             }

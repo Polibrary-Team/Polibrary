@@ -422,4 +422,9 @@ public static class PolibUtils
         }
         return false;
     }
+
+    public static ImprovementData DataFromState(ImprovementState improvement, GameState state)
+    {
+        return state.GameLogicData.GetImprovementData(improvement.type);
+    }
 }
