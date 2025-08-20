@@ -5,7 +5,7 @@ Download the **verified** .polymod file from the Polymod discord server, in the 
 
 Alternatively, you could assemble your own mod from this github repo, using experimental and **unverified** source code, we sadly have no control over that (wink wink nudge nudge). This is also against our End User Liscence Agreement that is explained in this video: https://www.youtube.com/watch?v=xvFZjo5PgG0&list=RDxvFZjo5PgG0&start_radio=1
 
-(Note: WITH UNVERIFIED CODE, IF YOU GO OUT OF YOUR WAY TO GET IT, **IT IS YOUR DAMN RESPONSIBILITY TO CHECK FOR MALWARE!!!** WE AREN'T EVIL, BUT THATS WHAT ALL EVIL PEOPLE SAY. IF YOU DON'T HAVE SUFFICIENT KNOWLEDGE TO CHECK, JUST STICK TO VERIFIED VERSIONS. **YOU HAVE BEEN WARNED.**) (See exploit? We warned them! Pretty fucking clear warning!)
+(Note: With unverified code, If you know its unverified, **IT IS YOUR DAMN RESPONSIBILITY TO CHECK FOR MALWARE!!!** We aren't evil, but thats what all evil people say. If you don't have sufficient knowledge to check, just stick to the verified versions. **YOU HAVE BEEN WARNED.**) (See exploit? We warned them! Pretty fucking clear warning!)
 
 (2nd Note: If you develop your mod with the unverified version you "stole" from us without our consent (so its not our fault, exploit!!), if you want to publish your mod, you may have to wait for the release for others to use your mod if it contains new stuff from the unverified version of Polibrary. Usage of those mods should be merely for giving us feedback, getting insight on the new features, or just making personal mods.)
 
