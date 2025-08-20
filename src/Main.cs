@@ -37,13 +37,7 @@ public static class Main
     private static ManualLogSource modLogger;
     public static void Load(ManualLogSource logger)
     {
-        Harmony.CreateAndPatchAll(typeof(Main));
-        Harmony.CreateAndPatchAll(typeof(Parse));
-        Harmony.CreateAndPatchAll(typeof(UnitManager));
-        Harmony.CreateAndPatchAll(typeof(TribeManager));
-        Harmony.CreateAndPatchAll(typeof(ImprovementManager));
-        Harmony.CreateAndPatchAll(typeof(CityRewardManager));
-        Harmony.CreateAndPatchAll(typeof(PolibUtils));
+        new Harmony("com.polibraryteam.polibrary").PatchAll();
         modLogger = logger;
         logger.LogMessage("Polibrary.dll loaded.");
         PolyMod.Loader.AddPatchDataType("cityRewardData", typeof(CityReward)); //casual fapingvin carry
