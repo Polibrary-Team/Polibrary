@@ -43,6 +43,7 @@ public static class Main
         Harmony.CreateAndPatchAll(typeof(TribeManager));
         Harmony.CreateAndPatchAll(typeof(ImprovementManager));
         Harmony.CreateAndPatchAll(typeof(CityRewardManager));
+        Harmony.CreateAndPatchAll(typeof(PolibUtils));
         modLogger = logger;
         logger.LogMessage("Polibrary.dll loaded.");
         PolyMod.Loader.AddPatchDataType("cityRewardData", typeof(CityReward)); //casual fapingvin carry
@@ -1005,7 +1006,7 @@ public static class Main
     }
     public static Dictionary<CityReward, PolibCityRewardData> cityRewardDict = new Dictionary<CityReward, PolibCityRewardData>();
     public static Dictionary<TribeData.Type, List<CityRewardOverrideClass>> cityRewardOverrideDict = new Dictionary<TribeData.Type, List<CityRewardOverrideClass>>();
-    public static List<CityReward> rewardList = MakeSystemList<CityReward>(CityRewardData.cityRewards);
+    public static List<CityReward> rewardList = PolibUtils.MakeSystemList<CityReward>(CityRewardData.cityRewards);
     public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new Dictionary<UnitEffect, PolibUnitEffectData>();
     public class PolibUnitAbilityData
     {
@@ -1490,11 +1491,11 @@ public static class Main
         UnitData unitData;
         state.GameLogicData.TryGetData(unit.type, out unitData);
         int boostDefenceOverSpawn = 0;
-        foreach (CityReward reward in GetSpawningRewardsForUnit(unitData.type))
+        foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitData.type))
         {
-            boostDefenceOverSpawn += GetRewardData(reward).boostDefenceOverSpawn;
+            boostDefenceOverSpawn += PolibUtils.GetRewardData(reward).boostDefenceOverSpawn;
         }
-        __result = (unitData.defence + boostDefenceOverSpawn * GetRewardCountForPlayer(unit.owner, GetSpawningRewardsForUnit(unitData.type))) * unit.GetDefenceBonus(state);
+        __result = (unitData.defence + boostDefenceOverSpawn * PolibUtils.GetRewardCountForPlayer(unit.owner, PolibUtils.GetSpawningRewardsForUnit(unitData.type))) * unit.GetDefenceBonus(state);
     }
 
     [HarmonyPostfix]
@@ -1514,11 +1515,11 @@ public static class Main
             }
         }
         int boostMovementOverSpawn = 0;
-        foreach (CityReward reward in GetSpawningRewardsForUnit(unitData.type))
+        foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitData.type))
         {
-            boostMovementOverSpawn += GetRewardData(reward).boostMovementOverSpawn;
+            boostMovementOverSpawn += PolibUtils.GetRewardData(reward).boostMovementOverSpawn;
         }
-        __result = ((unitData.GetMovement() + boostMovementOverSpawn * GetRewardCountForPlayer(unitState.owner, GetSpawningRewardsForUnit(unitData.type))) * effectMultiplicative) + effectAdditive;
+        __result = ((unitData.GetMovement() + boostMovementOverSpawn * PolibUtils.GetRewardCountForPlayer(unitState.owner, PolibUtils.GetSpawningRewardsForUnit(unitData.type))) * effectMultiplicative) + effectAdditive;
     }
 
     [HarmonyPostfix]
@@ -1538,11 +1539,11 @@ public static class Main
             }
         }
         int boostAttackOverSpawn = 0;
-        foreach (CityReward reward in GetSpawningRewardsForUnit(unitData.type))
+        foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitData.type))
         {
-            boostAttackOverSpawn += GetRewardData(reward).boostAttackOverSpawn;
+            boostAttackOverSpawn += PolibUtils.GetRewardData(reward).boostAttackOverSpawn;
         }
-        __result = ((unitData.GetAttack() + boostAttackOverSpawn * GetRewardCountForPlayer(unitState.owner, GetSpawningRewardsForUnit(unitData.type)) * 10) * effectMultiplicative) + effectAdditive * 10;
+        __result = ((unitData.GetAttack() + boostAttackOverSpawn * PolibUtils.GetRewardCountForPlayer(unitState.owner, PolibUtils.GetSpawningRewardsForUnit(unitData.type)) * 10) * effectMultiplicative) + effectAdditive * 10;
     }
 
     [HarmonyPostfix]
@@ -1563,11 +1564,11 @@ public static class Main
         }
         */
         int boostMaxHpOverSpawn = 0;
-        foreach (CityReward reward in GetSpawningRewardsForUnit(unitData.type))
+        foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitData.type))
         {
-            boostMaxHpOverSpawn += GetRewardData(reward).boostMaxHpOverSpawn;
+            boostMaxHpOverSpawn += PolibUtils.GetRewardData(reward).boostMaxHpOverSpawn;
         }
-        __result = unitData.health + (unitState.promotionLevel * 50) + (boostMaxHpOverSpawn * GetRewardCountForPlayer(unitState.owner, GetSpawningRewardsForUnit(unitData.type)));
+        __result = unitData.health + (unitState.promotionLevel * 50) + (boostMaxHpOverSpawn * PolibUtils.GetRewardCountForPlayer(unitState.owner, PolibUtils.GetSpawningRewardsForUnit(unitData.type)));
     }
     /*
     [HarmonyPostfix]
@@ -1895,12 +1896,12 @@ public static class Main
             }
         }
 
-        List<CityReward> orderedlist = ToSystemList(list);
+        List<CityReward> orderedlist = PolibUtils.ToSystemList(list);
         System.Comparison<CityReward> comparison = (a, b) => cityRewardDict[a].order.CompareTo(cityRewardDict[b].order);
 
         orderedlist.Sort(comparison);
 
-        Il2CppStructArray<CityReward> array = ArrayFromListIl2Cpp(ToIl2CppList(orderedlist));
+        Il2CppStructArray<CityReward> array = PolibUtils.ArrayFromListIl2Cpp(PolibUtils.ToIl2CppList(orderedlist));
 
         if (array != null || array.Length != 0)
         {
@@ -2016,12 +2017,12 @@ public static class Main
                 }
             }
         }
-        List<CityReward> orderedlist = ToSystemList(list);
+        List<CityReward> orderedlist = PolibUtils.ToSystemList(list);
         System.Comparison<CityReward> comparison = (a, b) => cityRewardDict[a].order.CompareTo(cityRewardDict[b].order);
 
         orderedlist.Sort(comparison);
 
-        Il2CppStructArray<CityReward> array = ArrayFromListIl2Cpp(ToIl2CppList(orderedlist));
+        Il2CppStructArray<CityReward> array = PolibUtils.ArrayFromListIl2Cpp(PolibUtils.ToIl2CppList(orderedlist));
 
         if (array != null || array.Length != 0)
         {
@@ -2365,98 +2366,7 @@ public static class Main
         return effectData;
 
     }
-    public static Il2CppSystem.Collections.Generic.List<T> ToIl2CppList<T>(System.Collections.Generic.List<T> sysList)
-    {
-        var il2cppList = new Il2CppSystem.Collections.Generic.List<T>();
-        for (int i = 0; i < sysList.Count; i++)
-        {
-            il2cppList.Add(sysList[i]);
-        }
-        return il2cppList;
-    }
-    public static List<T> ToSystemList<T>(Il2Gen.List<T> il2cppList)
-    {
-        var sysList = new List<T>(il2cppList.Count);
-        for (int i = 0; i < il2cppList.Count; i++)
-        {
-            sysList.Add(il2cppList[i]);
-        }
-        return sysList;
-    }
-    public static T[] ArrayFromListIl2Cpp<T>(Il2Gen.List<T> il2cppList)
-    {
-        T[] array = new T[il2cppList.Count];
-        for (int i = 0; i < il2cppList.Count; i++)
-        {
-            array[i] = il2cppList[i];
-        }
-        return array;
-    }
-    public static T[] ArrayFromListSystem<T>(List<T> sysList)
-    {
-        T[] array = new T[sysList.Count];
-        for (int i = 0; i < sysList.Count; i++)
-        {
-            array[i] = sysList[i];
-        }
-        return array;
-    }
-    public static T[] MakeSystemArray<T>(T value)
-    {
-        return new T[] { value };
-    }
-    public static List<T> MakeSystemList<T>(T[] array)
-    {
-        return new List<T>(array);
-    }
-    public static int GetRewardCountForPlayer(byte playerId, CityReward[] targetRewards)
-    {
-        GameManager.GameState.TryGetPlayer(playerId, out var playerState);
-        Il2Gen.List<TileData> tiles = playerState.GetCityTiles(GameManager.GameState);
-        int num = 0;
-        foreach (TileData tile in tiles)
-        {
-            Il2Gen.List<CityReward> rewards = tile.improvement.rewards;
-            foreach (CityReward checkedReward in rewards)
-            {
-                if (targetRewards != null)
-                {
-                    foreach (CityReward compareToThisReward in targetRewards)
-                    {
-                        if (checkedReward == compareToThisReward)
-                        {
-                            num++;
-                        }
-                    }
-                }
-            }
-        }
-        return num;
-    }
-    public static int GetRewardCountForPlayer(byte playerId, CityReward targetReward)
-    {
-        return GetRewardCountForPlayer(playerId, MakeSystemArray(targetReward));
-    }
-    public static CityReward[] GetSpawningRewardsForUnit(UnitData.Type unit)
-    {
-        List<CityReward> list = new List<CityReward>();
-        foreach (CityReward reward in rewardList)
-        {
-            if (cityRewardDict.TryGetValue(reward, out var cityRewardData))
-            {
-                if (cityRewardData.unitType == unit)
-                {
-                    list.Add(reward);
-                }
-            }
-        }
-        return ArrayFromListSystem(list);
-    }
-    public static PolibCityRewardData GetRewardData(CityReward reward)
-    {
-        cityRewardDict.TryGetValue(reward, out var data);
-        return data;
-    }
+    
 
 
 
