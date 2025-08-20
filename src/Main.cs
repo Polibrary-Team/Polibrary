@@ -38,6 +38,11 @@ public static class Main
     public static void Load(ManualLogSource logger)
     {
         Harmony.CreateAndPatchAll(typeof(Main));
+        Harmony.CreateAndPatchAll(typeof(Parse));
+        Harmony.CreateAndPatchAll(typeof(UnitManager));
+        Harmony.CreateAndPatchAll(typeof(TribeManager));
+        Harmony.CreateAndPatchAll(typeof(ImprovementManager));
+        Harmony.CreateAndPatchAll(typeof(CityRewardManager));
         modLogger = logger;
         logger.LogMessage("Polibrary.dll loaded.");
         PolyMod.Loader.AddPatchDataType("cityRewardData", typeof(CityReward)); //casual fapingvin carry
@@ -140,7 +145,7 @@ public static class Main
         }
     }*/
 
-    public static bool CanDestroyDiNuovo(TileData tile, GameState gameState)
+    public static bool CanDestroyDiNuovo(TileData tile, GameState gameState) //is that fucking italian?
     {
         if (tile == null || tile.improvement == null)
         {
@@ -433,7 +438,7 @@ public static class Main
     }
 
     [HarmonyPostfix] //retaliation calculation is BUUULLSHIT!
-    [HarmonyPatch(typeof(BattleHelpers), nameof(BattleHelpers.GetBattleResults))]
+    [HarmonyPatch(typeof(BattleHelpers), nameof(BattleHelpers.GetBattleResults))] //yeah, it is, like many things in poly source code
     public static void InterceptRetaliationDamage(GameState gameState, UnitState attackingUnit, UnitState defendingUnit, ref BattleResults __result)
     {
         bool flag = (int)attackingUnit.health <= __result.retaliationDamage;
@@ -449,7 +454,7 @@ public static class Main
             // FUUUUUUUUUUCK is this really the only way??
             // if damage calculator is ever changed then this is worthless!!!
             // But afaik only battlehelpers calculates damage, but it sets it to 0 if the unit would die
-            long num = 45L;
+            long num = 45L; //o7 fap
             long num2 = (long)attackingUnit.GetMaxHealth(gameState);
             long num3 = (long)defendingUnit.GetMaxHealth(gameState);
             long num4 = (long)(attackingUnit.GetAttack(gameState) * (int)attackingUnit.health * 100) / num2;
@@ -473,7 +478,7 @@ public static class Main
     #endregion*/
 
     #region Lazy
-    [HarmonyPostfix]
+    [HarmonyPostfix] //literally me
     [HarmonyPriority(Priority.Last)]
     [HarmonyPatch(typeof(BattleHelpers), nameof(BattleHelpers.GetBattleResults))]
     public static void Lazy(GameState gameState, UnitState attackingUnit, UnitState defendingUnit, ref BattleResults __result)
@@ -509,7 +514,7 @@ public static class Main
 
     [HarmonyPrefix]
     [HarmonyPriority(Priority.Last)]
-    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
+    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))] //dude why tf do you have 176387126 different patches for ts??
     private static void GameLogicData_Parse(GameLogicData __instance, JObject rootObject)
     {
         foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
@@ -699,7 +704,7 @@ public static class Main
 
     public static void CleanseUnit(GameState gameState, UnitState unit)
     {
-        unit.effects = new Il2CppSystem.Collections.Generic.List<UnitEffect>();
+        unit.effects = new Il2CppSystem.Collections.Generic.List<UnitEffect>(); //alias PLEASE!!!
     }
 
     public static void HealUnit(GameState gameState, UnitState unit, int amount)
@@ -848,7 +853,7 @@ public static class Main
     public static void ExcludeAgentsFromCities(ref Il2CppSystem.Collections.Generic.List<TrainCommand> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable = false)
     {
         //Safety first
-        if (player.Id != gameState.CurrentPlayer)
+        if (player.Id != gameState.CurrentPlayer) //thats cap, if it crashes then why doesnt the user learn to code and fix it themselves, if they whine so much!
         {
             return;
         }
@@ -955,7 +960,7 @@ public static class Main
     /// MODULARITY
     /// 
     /// HERE WE GO
-    /// 
+    /// don't be so enthusiastic bud
 
     public static Dictionary<TribeData.Type, int> startingStarsDict = new Dictionary<TribeData.Type, int>(); //its like excel, but polyscript and hard
     public static Dictionary<TribeData.Type, string> leaderNameDict = new Dictionary<TribeData.Type, string>();
