@@ -7,13 +7,14 @@ Alternatively, you could assemble your own mod from this github repo, using expe
 
 (Note: WITH UNVERIFIED CODE, IF YOU GO OUT OF YOUR WAY TO GET IT, **IT IS YOUR DAMN RESPONSIBILITY TO CHECK FOR MALWARE!!!** WE AREN'T EVIL, BUT THATS WHAT ALL EVIL PEOPLE SAY. IF YOU DON'T HAVE SUFFICIENT KNOWLEDGE TO CHECK, JUST STICK TO VERIFIED VERSIONS. **YOU HAVE BEEN WARNED.**) (See exploit? We warned them! Pretty fucking clear warning!)
 
-(2nd Note: If you develop your mod with the unverified version you "stole" from us without our consent (so its not our fault, exploit!!), if you want to publish your mod, you may have to wait for the release for others to use your mod if it contains new stuff from the unverified version of Polibrary.)
+(2nd Note: If you develop your mod with the unverified version you "stole" from us without our consent (so its not our fault, exploit!!), if you want to publish your mod, you may have to wait for the release for others to use your mod if it contains new stuff from the unverified version of Polibrary. Usage of those mods should be merely for giving us feedback, getting insight on the new features, or just making personal mods.)
 
 ## Usage
 If you decide to use this library for your mods, you may skip the verification process as long as there is no polyscripts file present in your mod. When publishing, make sure to remind people to download Polibrary alongside your mod, otherwise their Polytopia **may crash**. Don't forget to make Polibrary a dependency for your mod in the `manifest.json` file as seen in the documentation.
 
 ## Documentation
 Proper documentation can be found in the wiki. If you have questions feel free to ask them on Polibrary's post in the mods thread. If its urgent ping either @fapingvin or @wasdeilonn_, or both.
+We add documentation on features whenever we feel we won't change it too much.
 
 
 
