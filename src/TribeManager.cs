@@ -169,4 +169,19 @@ public static class TribeManager
         }
         return false;
     }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(GameStateUtils), nameof(GameStateUtils.SetPlayerNames))]
+    public static void OverridePlayerNames(GameState gameState)
+    {
+        foreach (PlayerState playerState in gameState.PlayerStates)
+        {
+            TribeData tribeData;
+            gameState.GameLogicData.TryGetData(playerState.tribe, out tribeData);
+            if (string.IsNullOrEmpty(playerState.GetNameInternal()) && Parse.leaderNameDict.TryGetValue(tribeData.type, out string name))
+            {
+                playerState.UserName = name;
+            }
+        }
+    }
 }
