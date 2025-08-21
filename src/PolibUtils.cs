@@ -35,6 +35,7 @@ public static class PolibUtils
     private static ManualLogSource utilGuy;
     public static void Load(ManualLogSource logger)
     {
+        Harmony.CreateAndPatchAll(typeof(PolibUtils));
         utilGuy = logger;
         utilGuy.LogInfo("I ran out of ideas");
     }

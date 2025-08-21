@@ -38,6 +38,7 @@ public static class UnitManager
         steve = logger;
         steve.LogInfo("I");
         steve.LogInfo("am Steve");
+        Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
 
     [HarmonyPrefix]

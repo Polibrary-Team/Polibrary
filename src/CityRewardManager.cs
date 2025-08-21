@@ -37,6 +37,7 @@ public static class CityRewardManager
     {
         nubert = logger;
         nubert.LogInfo("I'm nubert. Everyone loves me. Even c#");
+        Harmony.CreateAndPatchAll(typeof(CityRewardManager));
     }
 
     //MAN I SURE HOPE CITYREWARD ISN'T CODED LIKE HOT FUCKING GARBAGE, OH WAIT!! IT IS!! ITS ALL HARD CODED!!! YAAAAYYY!!!!

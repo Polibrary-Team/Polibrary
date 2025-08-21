@@ -35,6 +35,7 @@ public static class Parse
     private static ManualLogSource LogMan1997;
     public static void Load(ManualLogSource logger)
     {
+        Harmony.CreateAndPatchAll(typeof(Parse));
         LogMan1997 = logger;
         LogMan1997.LogInfo("KRIS DON'T [Get The Heebie Jeebies] I'M STILL HERE");
         LogMan1997.LogInfo("BUT NOW, I'M NOT [Calling] THE [[BIG SHOTS]] ANYMORE!!");

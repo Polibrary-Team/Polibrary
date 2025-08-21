@@ -34,7 +34,7 @@ public static class Main
 {
 
 
-    private static ManualLogSource modLogger;
+    public static ManualLogSource modLogger;
     public static void Load(ManualLogSource logger)
     {
         new Harmony("com.polibraryteam.polibrary").PatchAll();

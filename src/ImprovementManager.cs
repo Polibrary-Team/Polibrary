@@ -39,6 +39,7 @@ public static class ImprovementManager
         GabrielLogOfHell.LogInfo("MACHINE, WHERE AM I?");
         GabrielLogOfHell.LogInfo("WHY ARE THERE MULTIPLE SCROLLS SCATTERED EVERYWHERE?");
         GabrielLogOfHell.LogInfo("MACHINE, IS THIS SOME KIND OF POLY-SCRIPT?");
+        Harmony.CreateAndPatchAll(typeof(ImprovementManager));
     }
 
     [HarmonyPostfix]
