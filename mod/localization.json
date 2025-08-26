@@ -156,5 +156,9 @@
     "building_ability_polib__woundedbuilder": {
         "English": "The unit on this tile must not have full health to do this.",
         "Italian (Italy)": "L'unità su questa tessera non deve avere salute piena per eseguire questa azione."
+    },
+    "building_ability_polib__nobuilder": {
+        "English": "There must be no units on this tile to do this.",
+        "Italian (Italy)": "Non devono esserci unità su questa tessera per eseguire questa azione."
     }
 }

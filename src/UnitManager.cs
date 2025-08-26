@@ -38,6 +38,7 @@ public static class UnitManager
         steve = logger;
         steve.LogInfo("I");
         steve.LogInfo("am Steve");
+        // I'm keeping this logger alive cuz its the funniest -fapingvin
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
 

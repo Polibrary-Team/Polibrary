@@ -37,8 +37,8 @@ public static class ImprovementManager
     {
         GabrielLogOfHell = logger;
         GabrielLogOfHell.LogInfo("MACHINE, WHERE AM I?");
-        GabrielLogOfHell.LogInfo("WHY ARE THERE MULTIPLE SCROLLS SCATTERED EVERYWHERE?");
-        GabrielLogOfHell.LogInfo("MACHINE, IS THIS SOME KIND OF POLY-SCRIPT?");
+        //GabrielLogOfHell.LogInfo("WHY ARE THERE MULTIPLE SCROLLS SCATTERED EVERYWHERE?");
+        //GabrielLogOfHell.LogInfo("MACHINE, IS THIS SOME KIND OF POLY-SCRIPT?");
         Harmony.CreateAndPatchAll(typeof(ImprovementManager));
     }
 
@@ -68,6 +68,21 @@ public static class ImprovementManager
                 return;
             }
             if (tile.unit.health != tile.unit.GetMaxHealth(gameState))
+            {
+                __result = false;
+                return;
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
+    public static void polib_nobuilder(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
+    {
+        if (__result == false) return;
+        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_nobuilder")))
+        {
+            if (tile.unit != null)
             {
                 __result = false;
                 return;

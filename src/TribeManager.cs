@@ -38,8 +38,8 @@ public static class TribeManager
         Harmony.CreateAndPatchAll(typeof(TribeManager));
         wingLogster = logger;
         wingLogster.LogInfo("I'm wing gaster");
-        wingLogster.LogInfo("UHH I MEAN");
-        wingLogster.LogInfo("✋︎ ✂︎♌︎♏︎♐︎❒︎♓︎♏︎■︎♎︎♏︎♎︎✂︎ ⍓︎□︎◆︎❒︎ ❍︎□︎⧫︎♒︎♏︎❒︎ ●︎♋︎⬧︎⧫︎ ■︎♓︎♑︎♒︎⧫︎");
+        //wingLogster.LogInfo("UHH I MEAN");
+        //wingLogster.LogInfo("✋︎ ✂︎♌︎♏︎♐︎❒︎♓︎♏︎■︎♎︎♏︎♎︎✂︎ ⍓︎□︎◆︎❒︎ ❍︎□︎⧫︎♒︎♏︎❒︎ ●︎♋︎⬧︎⧫︎ ■︎♓︎♑︎♒︎⧫︎");
     }
 
     //tribe startingstars patch
@@ -170,6 +170,7 @@ public static class TribeManager
         return false;
     }
 
+    // Simpler than it seems, and it seems very simple (Fapingvin, 2025)
     [HarmonyPrefix]
     [HarmonyPatch(typeof(GameStateUtils), nameof(GameStateUtils.SetPlayerNames))]
     public static void OverridePlayerNames(GameState gameState)

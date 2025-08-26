@@ -85,6 +85,9 @@
 		},
 		"polib_fullhealthbuilder": {
 			"idx": -1
+		},
+		"polib_nobuilder": {
+			"idx": -1
 		}
 	}
 }
