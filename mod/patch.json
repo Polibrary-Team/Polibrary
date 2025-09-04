@@ -88,6 +88,12 @@
 		},
 		"polib_nobuilder": {
 			"idx": -1
+		},
+		"polib_needsfriendly": {
+			"idx": -1
+		},
+		"polib_needsenemy": {
+			"idx": -1
 		}
 	}
 }

@@ -160,5 +160,13 @@
     "building_ability_polib__nobuilder": {
         "English": "There must be no units on this tile to do this.",
         "Italian (Italy)": "Non devono esserci unità su questa tessera per eseguire questa azione."
+    },
+    "building_ability_polib__needsfriendly": {
+        "English": "Must have at least one of your units nearby to do this.",
+        "Italian (Italy)": "Devi avere almeno una delle tue unità nelle vicinanze per eseguire questa azione."
+    },
+    "building_ability_polib__needsenemy": {
+        "English": "Must have at least one foreign unit nearby to do this.",
+        "Italian (Italy)": "Devi avere almeno una unità straniera nelle vicinanze per eseguire questa azione."
     }
 }

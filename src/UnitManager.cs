@@ -66,7 +66,7 @@ public static class UnitManager
             else if (tile.owner == unit.owner && tile.improvement != null && tile.improvement.type == ImprovementData.Type.City && tile.improvement.rewards != null)
             {
                 int def2 = 0;
-                steve!.LogInfo(tile.improvement.rewards.Count);
+                //steve!.LogInfo(tile.improvement.rewards.Count);
                 foreach (CityReward reward in tile.improvement.rewards)
                 {
                     if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))

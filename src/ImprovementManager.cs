@@ -73,6 +73,44 @@ public static class ImprovementManager
                 return;
             }
         }
+        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_needsfriendly")))
+        {
+            bool f_success = false;
+            foreach (var tile2 in gameState.Map.GetTileNeighbors(tile.coordinates))
+            {
+                if (tile2 != null || tile2.coordinates != WorldCoordinates.NULL_COORDINATES)
+                {
+                    if (tile2.unit != null && tile2.unit.owner == playerState.Id)
+                    {
+                        f_success = true;
+                    }
+                }
+            }
+            if (!f_success)
+            {
+                __result = false;
+                return;
+            }
+        }
+        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_needsenemy")))
+        {
+            bool f_success = false;
+            foreach (var tile2 in gameState.Map.GetTileNeighbors(tile.coordinates))
+            {
+                if (tile2 != null || tile2.coordinates != WorldCoordinates.NULL_COORDINATES)
+                {
+                    if (tile2.unit != null && tile2.unit.owner != playerState.Id)
+                    {
+                        f_success = true;
+                    }
+                }
+            }
+            if (!f_success)
+            {
+                __result = false;
+                return;
+            }
+        }
     }
 
     [HarmonyPostfix]
@@ -89,6 +127,8 @@ public static class ImprovementManager
             }
         }
     }
+
+    #region GLD Builders
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
@@ -140,6 +180,8 @@ public static class ImprovementManager
             }
         }
     }
+
+    #endregion
 
     #region Demolishable
     [HarmonyPostfix]
