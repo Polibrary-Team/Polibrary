@@ -263,6 +263,16 @@ public static class ImprovementManager
                 gameState.ActionStack.Add(new ResearchAction(player.Id, tech.type, 0));
             }
         }
+        if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_reveal")))
+        {
+            foreach (var tile2 in gameState.Map.GetArea(tile.coordinates, 2, true, true))
+            {
+                if (tile2 != null && tile2.coordinates != WorldCoordinates.NULL_COORDINATES)
+                {
+                    gameState.ActionStack.Add(new ExploreAction(player.Id, tile2.coordinates));
+                }
+            }
+        }
 
     }
 

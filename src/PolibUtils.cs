@@ -178,7 +178,7 @@ public static class PolibUtils
     }
 
 
-    public static List<TechData> polibGetUnlockableTech(PlayerState player)
+    public static List<TechData> polibGetUnlockableTech(PlayerState player) //Broken in beta so that's why I made this btw (fapingvin)
     {
         var gld = GameManager.GameState.GameLogicData;
         if (player.tribe == TribeData.Type.None)
@@ -210,7 +210,7 @@ public static class PolibUtils
         return null;
     }
 
-    public static Parse.PolibCityRewardData SetVanillaCityRewardDefaults(CityReward reward) //dont laugh
+    public static Parse.PolibCityRewardData SetVanillaCityRewardDefaults(CityReward reward) //dont laugh // Wtf??? I will laugh >:)
     {
         Parse.PolibCityRewardData rewardData = new Parse.PolibCityRewardData();
         switch (reward)

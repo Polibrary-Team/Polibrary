@@ -168,5 +168,9 @@
     "building_ability_polib__needsenemy": {
         "English": "Must have at least one foreign unit nearby to do this.",
         "Italian (Italy)": "Devi avere almeno una unità straniera nelle vicinanze per eseguire questa azione."
+    },
+    "building_ability_polib__reveal": {
+        "English": "Reveals surrounding tiles in a 5x5 area when done.",
+        "Italian (Italy)": "Rivela tessere vicine in un'area 5x5 eseguendo questa azione."
     }
 }
