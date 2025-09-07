@@ -40,6 +40,7 @@ public static class ImprovementManager
         //GabrielLogOfHell.LogInfo("WHY ARE THERE MULTIPLE SCROLLS SCATTERED EVERYWHERE?");
         //GabrielLogOfHell.LogInfo("MACHINE, IS THIS SOME KIND OF POLY-SCRIPT?");
         Harmony.CreateAndPatchAll(typeof(ImprovementManager));
+
     }
 
     [HarmonyPostfix]
@@ -332,5 +333,19 @@ public static class ImprovementManager
             __result = false;
         }
     }
+    #endregion
+
+    #region Custom Description
+    
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(BuildingUtils), nameof(BuildingUtils.GetInfo))]
+    public static void SetImprovementInfo(ref string __result, SkinType skinOfCurrentLocalPlayer, ImprovementData improvementData, ImprovementState improvementState = null, PlayerState owner = null, TileData tileData = null)
+    {
+        if (Parse.ImpCustomLocKey.TryGetValue(improvementData.type, out var key))
+        {
+            __result = Localization.GetSkinned(skinOfCurrentLocalPlayer, key, new Il2CppReferenceArray<Il2CppSystem.Object>(null));
+        }
+    }
+
     #endregion
 }
