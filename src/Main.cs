@@ -46,7 +46,7 @@ public static class Main
         PolyMod.Loader.AddPatchDataType("unitAbilityData", typeof(UnitAbility.Type)); //...casual...      ...fapingvin carry...       ...again
     }
 
-    
+
     //                    ██                   
     //                  ██████                 
     //                 ███  ███                
@@ -69,7 +69,7 @@ public static class Main
     //
     // Beyond lies the code graveyard
     // Enter with caution!
-    
+
 
 
     /*
@@ -90,9 +90,9 @@ public static class Main
         LogMan1997?.LogInfo($"Tried naming tribes");
     }*/
 
-    
 
-    
+
+
     /*
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetSightRange))]
@@ -284,7 +284,6 @@ public static class Main
         return false;
     }*/
 
-    
 
 
 
@@ -298,12 +297,6 @@ public static class Main
 
 
 
-    
-
-    
-
-    
-    
 
 
 
@@ -312,7 +305,15 @@ public static class Main
 
 
 
-//I snuck this in, and he didn't even realize! I'm so sneaky! He'll never figure it out!
+
+
+
+
+
+
+
+    //I snuck this in, and he didn't even realize! I'm so sneaky! He'll never figure it out!
+    //he figured it out 
     /*
 
 

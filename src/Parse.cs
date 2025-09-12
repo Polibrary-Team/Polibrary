@@ -26,6 +26,7 @@ using Il2CppSystem.Linq;
 
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
+using MS.Internal.Xml.XPath;
 
 
 namespace Polibrary;

@@ -428,4 +428,51 @@ public static class PolibUtils
     {
         return state.GameLogicData.GetImprovementData(improvement.type);
     }
+
+
+    #region ParseUtils
+
+    public static void ParseToTribeData<T> (JObject rootObject, string fieldName, Dictionary<TribeData.Type, T> dict)
+    {
+        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
+        {
+            JObject token = jtoken.TryCast<JObject>();
+            if (token != null)
+            {
+                if (EnumCache<TribeData.Type>.TryGetType(token.Path.Split('.').Last(), out var tribeType))
+                {
+                    if (token[fieldName] != null)
+                    {
+                        T amount = token[fieldName]!.ToObject<T>();
+                        dict[tribeType] = amount;
+                        token.Remove(fieldName);
+                    }
+                }
+            }
+        }
+    }
+    public static void ParseToTribeData<T>(JObject rootObject, string[] fieldNames, Dictionary<TribeData.Type, T> dict)
+    {
+        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
+        {
+            JObject token = jtoken.TryCast<JObject>();
+            if (token != null)
+            {
+                if (EnumCache<TribeData.Type>.TryGetType(token.Path.Split('.').Last(), out var tribeType))
+                {
+                    foreach (string fieldName in fieldNames)
+                    {
+                        if (token[fieldName] != null)
+                        {
+                            T amount = token[fieldName]!.ToObject<T>();
+                            dict[tribeType] = amount;
+                            token.Remove(fieldName);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #endregion
 }
