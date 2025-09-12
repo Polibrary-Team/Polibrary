@@ -63,6 +63,8 @@ public static class TribeManager
             }
         }
     }
+
+    
     //my lil'  startingResourceGeneratorThingy rewrite
     //whatever you do, DO NOT TOUCH IT!!! IT ***WILL*** BREAK!!!
     //man I really thought this was one of my bigger features. And then I was introduced to cityRewards
@@ -71,6 +73,7 @@ public static class TribeManager
     public static bool MapGenerator_addStartingResourcesToCapital(MapGenerator __instance, MapData map, GameState gameState, PlayerState player, ResourceData startingResource, int minResourcesCount = 2)
     {
         TribeData tribeData;
+
         if (!PolytopiaDataManager.GetGameLogicData(VersionManager.GetGameLogicDataVersionFromGameVersion(gameState.Version)).TryGetData(player.tribe, out tribeData))
         {
             wingLogster!.LogInfo($"HEY     EVERY      !! WE DIDNT [Fifty Percent Off]ING GET THE [TribeData] OF TRIBE {player.tribe}!!");
