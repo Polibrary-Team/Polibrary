@@ -37,7 +37,7 @@ public static class TribeManager
     {
         Harmony.CreateAndPatchAll(typeof(TribeManager));
         wingLogster = logger;
-        wingLogster.LogInfo("I'm wing gaster");
+        //wingLogster.LogInfo("I'm wing gaster");
         //wingLogster.LogInfo("UHH I MEAN");
         //wingLogster.LogInfo("✋︎ ✂︎♌︎♏︎♐︎❒︎♓︎♏︎■︎♎︎♏︎♎︎✂︎ ⍓︎□︎◆︎❒︎ ❍︎□︎⧫︎♒︎♏︎❒︎ ●︎♋︎⬧︎⧫︎ ■︎♓︎♑︎♒︎⧫︎");
     }

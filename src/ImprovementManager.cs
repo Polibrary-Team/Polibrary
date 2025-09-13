@@ -36,7 +36,7 @@ public static class ImprovementManager
     public static void Load(ManualLogSource logger)
     {
         GabrielLogOfHell = logger;
-        GabrielLogOfHell.LogInfo("MACHINE, WHERE AM I?");
+        //GabrielLogOfHell.LogInfo("MACHINE, WHERE AM I?");
         //GabrielLogOfHell.LogInfo("WHY ARE THERE MULTIPLE SCROLLS SCATTERED EVERYWHERE?");
         //GabrielLogOfHell.LogInfo("MACHINE, IS THIS SOME KIND OF POLY-SCRIPT?");
         Harmony.CreateAndPatchAll(typeof(ImprovementManager));

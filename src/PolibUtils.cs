@@ -38,7 +38,7 @@ public static class PolibUtils
     {
         Harmony.CreateAndPatchAll(typeof(PolibUtils));
         utilGuy = logger;
-        utilGuy.LogInfo("I ran out of ideas");
+        //utilGuy.LogInfo("I ran out of ideas");
     }
     public static Il2CppSystem.Collections.Generic.List<T> ToIl2CppList<T>(System.Collections.Generic.List<T> sysList)
     {
@@ -398,7 +398,7 @@ public static class PolibUtils
                         utilGuy?.LogInfo("HOTCHI MAMA, KRIS, [Slow Down] THERE! I JUST SAVED YOUR [$2.99] LIFE FROM A [Null Crash1997]!! ALSO, WHO IS [Lougg Kaard]??");
                     }
                 }
-                bool flag6 = tileData.resource != null && IsResourceVisibleToPlayer2ElectricBoogaloo(gameState.GameLogicData, tileData.resource.type, player);
+                bool flag6 = tileData.resource != null && gameState.GameLogicData.IsResourceVisibleToPlayer(tileData.resource.type, player, gameState);
                 if (flag6)
                 {
                     Il2Gen.List<ImprovementData> improvementForResource = gameState.GameLogicData.GetImprovementForResource(tileData.resource!.type);
@@ -425,13 +425,12 @@ public static class PolibUtils
         return false;
     }
 
+    #region Unnecessary stuff
     public static bool IsResourceVisibleToPlayer2ElectricBoogaloo(GameLogicData gld, ResourceData.Type resourceType, PlayerState player)
     {
-        return gld.GetUnlockedImprovements(player).ContainsImprovementRequiredForResource(resourceType) || polibGetUnlockableImprovements(gld, player).ContainsImprovementRequiredForResource(resourceType);
+        return gld.GetUnlockedImprovements(player).ContainsImprovementRequiredForResource(resourceType) || gld.GetUnlockableImprovements(player, GameManager.GameState).ContainsImprovementRequiredForResource(resourceType);
     }
 
-    // TEMPORARY SOLUTION!!!!!!!!!!!!!!
-    // DO NOT KEEP LONGTERM, JUST UNTIL Polytopia.Data is updated
     public static Il2Gen.List<ImprovementData> polibGetUnlockableImprovements(GameLogicData gld, PlayerState player)
     {
         var unlockedTech = gld.GetUnlockedTech(player);
@@ -468,6 +467,8 @@ public static class PolibUtils
         }
         return null;
     }
+
+    #endregion Unnecessary stuff
 
     public static ImprovementData DataFromState(ImprovementState improvement, GameState state)
     {

@@ -36,7 +36,7 @@ public static class CityRewardManager
     public static void Load(ManualLogSource logger)
     {
         nubert = logger;
-        nubert.LogInfo("I'm nubert. Everyone loves me. Even c#");
+        //nubert.LogInfo("I'm nubert. Everyone loves me. Even c#");
         Harmony.CreateAndPatchAll(typeof(CityRewardManager));
     }
 

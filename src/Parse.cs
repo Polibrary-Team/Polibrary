@@ -38,7 +38,7 @@ public static class Parse
     {
         Harmony.CreateAndPatchAll(typeof(Parse));
         LogMan1997 = logger;
-        LogMan1997.LogInfo("KRIS DON'T [Get The Heebie Jeebies] I'M STILL HERE");
+        //LogMan1997.LogInfo("KRIS DON'T [Get The Heebie Jeebies] I'M STILL HERE");
         //LogMan1997.LogInfo("BUT NOW, I'M NOT [Calling] THE [[BIG SHOTS]] ANYMORE!!");
         //LogMan1997.LogInfo("[They] HAVE [Demoted] ME TO PERFORM [Medium] SHOTS??? I'M NO LONGER [XXL Family Size with 20% more value]!!!");
     }

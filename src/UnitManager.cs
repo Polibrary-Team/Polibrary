@@ -36,9 +36,10 @@ public static class UnitManager
     public static void Load(ManualLogSource logger)
     {
         steve = logger;
-        steve.LogInfo("I");
-        steve.LogInfo("am Steve");
+        //steve.LogInfo("I");
+        //steve.LogInfo("am Steve");
         // I'm keeping this logger alive cuz its the funniest -fapingvin
+        // nvm let's see if he notices
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
 
