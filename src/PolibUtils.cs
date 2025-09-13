@@ -26,6 +26,7 @@ using Il2CppSystem.Linq;
 
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
+using UnityEngine.Rendering.RenderGraphModule.NativeRenderPassCompiler;
 
 
 namespace Polibrary;
@@ -358,8 +359,8 @@ public static class PolibUtils
 
     }
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(AI), "CheckForTechNeeds")]
-    public static bool Logshit(GameState gameState, PlayerState player, List<TileData> playerEmpire, Il2Gen.Dictionary<TechData.Type, int> neededTech)
+    [HarmonyPatch(typeof(AI), nameof(AI.CheckForTechNeeds))]
+    public static bool Logshit(AI __instance, GameState gameState, PlayerState player, Il2Gen.List<TileData> playerEmpire, Il2Gen.Dictionary<TechData.Type, int> neededTech)
     {
         int num = 0;
         int num2 = 0;
@@ -397,7 +398,7 @@ public static class PolibUtils
                         utilGuy?.LogInfo("HOTCHI MAMA, KRIS, [Slow Down] THERE! I JUST SAVED YOUR [$2.99] LIFE FROM A [Null Crash1997]!! ALSO, WHO IS [Lougg Kaard]??");
                     }
                 }
-                bool flag6 = tileData.resource != null && gameState.GameLogicData.IsResourceVisibleToPlayer(tileData.resource.type, player);
+                bool flag6 = tileData.resource != null && IsResourceVisibleToPlayer2ElectricBoogaloo(gameState.GameLogicData, tileData.resource.type, player);
                 if (flag6)
                 {
                     Il2Gen.List<ImprovementData> improvementForResource = gameState.GameLogicData.GetImprovementForResource(tileData.resource!.type);
@@ -422,6 +423,11 @@ public static class PolibUtils
             AI.AddTechNeed(neededTech, TechData.Type.Roads, num3);
         }
         return false;
+    }
+
+    public static bool IsResourceVisibleToPlayer2ElectricBoogaloo(GameLogicData gld, ResourceData.Type resourceType, PlayerState player)
+    {
+        return gld.GetUnlockedImprovements(player).ContainsImprovementRequiredForResource(resourceType) || gld.GetUnlockableImprovements(player).ContainsImprovementRequiredForResource(resourceType);
     }
 
     public static ImprovementData DataFromState(ImprovementState improvement, GameState state)
