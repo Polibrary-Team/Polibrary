@@ -427,7 +427,46 @@ public static class PolibUtils
 
     public static bool IsResourceVisibleToPlayer2ElectricBoogaloo(GameLogicData gld, ResourceData.Type resourceType, PlayerState player)
     {
-        return gld.GetUnlockedImprovements(player).ContainsImprovementRequiredForResource(resourceType) || gld.GetUnlockableImprovements(player).ContainsImprovementRequiredForResource(resourceType);
+        return gld.GetUnlockedImprovements(player).ContainsImprovementRequiredForResource(resourceType) || polibGetUnlockableImprovements(gld, player).ContainsImprovementRequiredForResource(resourceType);
+    }
+
+    // TEMPORARY SOLUTION!!!!!!!!!!!!!!
+    // DO NOT KEEP LONGTERM, JUST UNTIL Polytopia.Data is updated
+    public static Il2Gen.List<ImprovementData> polibGetUnlockableImprovements(GameLogicData gld, PlayerState player)
+    {
+        var unlockedTech = gld.GetUnlockedTech(player);
+        TribeData tribe;
+        if (unlockedTech != null && gld.TryGetData(player.tribe, out tribe))
+        {
+            Il2Gen.List<ImprovementData> list = new Il2Gen.List<ImprovementData>();
+            for (int i = 0; i < unlockedTech.Count; i++)
+            {
+                for (int j = 0; j < unlockedTech[i].improvementUnlocks.Count; j++)
+                {
+                    ImprovementData @override = gld.GetOverride(unlockedTech[i].improvementUnlocks[j], tribe);
+                    if (!@override.hidden)
+                    {
+                        list.Add(@override);
+                    }
+                }
+            }
+            if (player.tasks != null && player.tasks.Count > 0)
+            {
+                for (int k = 0; k < player.tasks.Count; k++)
+                {
+                    TaskData taskData;
+                    if (player.tasks[k].IsCompleted && gld.TryGetData(player.tasks[k].GetTaskType(), out taskData) && taskData.improvementUnlocks != null && taskData.improvementUnlocks.Count != 0)
+                    {
+                        foreach (var unlock in taskData.improvementUnlocks)
+                        {
+                            list.Add(unlock);
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+        return null;
     }
 
     public static ImprovementData DataFromState(ImprovementState improvement, GameState state)
@@ -438,7 +477,7 @@ public static class PolibUtils
 
     #region ParseUtils
 
-    public static void ParseToTribeData<T> (JObject rootObject, string fieldName, Dictionary<TribeData.Type, T> dict)
+    public static void ParseToTribeData<T>(JObject rootObject, string fieldName, Dictionary<TribeData.Type, T> dict)
     {
         foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
         {
