@@ -47,7 +47,6 @@ public static class Parse
     public static Dictionary<ImprovementData.Type, string> NoBuildersDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<ImprovementData.Type, string> ImpBuildersDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<ImprovementData.Type, string> ImpCustomLocKey = new Dictionary<ImprovementData.Type, string>();
-    public static Dictionary<TribeData.Type, int> startingStarsDict = new Dictionary<TribeData.Type, int>(); //its like excel, but polyscript and hard
     public static Dictionary<TribeData.Type, string> leaderNameDict = new Dictionary<TribeData.Type, string>();
     public static Dictionary<ImprovementData.Type, int> defenceBoostDict = new Dictionary<ImprovementData.Type, int>();
     public static Dictionary<TribeData.Type, List<(ResourceData.Type, int)>> startingResources = new Dictionary<TribeData.Type, List<(ResourceData.Type, int)>>();
@@ -219,13 +218,6 @@ public static class Parse
             {
                 if (EnumCache<TribeData.Type>.TryGetType(token.Path.Split('.').Last(), out var tribeType))
                 {
-                    if (token["startingStars"] != null)
-                    {
-                        int amount = token["startingStars"]!.ToObject<int>();
-                        startingStarsDict[tribeType] = amount;
-                        token.Remove("startingStars");
-                    }
-
                     if (token["leaderName"] != null)
                     {
                         string leaderName = token["leaderName"]!.ToObject<string>();
@@ -233,6 +225,7 @@ public static class Parse
                         token.Remove("leaderName");
                     }
 
+                    /*
                     List<(ResourceData.Type, int)> startingResourcesList = new List<(ResourceData.Type, int)>();
                     if (token["startingResources"] != null)
                     {
@@ -267,6 +260,7 @@ public static class Parse
                     {
                         startingResources[tribeType] = new List<(ResourceData.Type, int)> { (ResourceData.Type.Fruit, -1) };
                     }
+                    */
 
                     List<CityRewardOverrideClass> overlist = new List<CityRewardOverrideClass>();
                     foreach (JToken overtoken in token.SelectTokens("$.cityRewardOverrides.*").ToList())

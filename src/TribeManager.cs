@@ -42,32 +42,11 @@ public static class TribeManager
         //wingLogster.LogInfo("✋︎ ✂︎♌︎♏︎♐︎❒︎♓︎♏︎■︎♎︎♏︎♎︎✂︎ ⍓︎□︎◆︎❒︎ ❍︎□︎⧫︎♒︎♏︎❒︎ ●︎♋︎⬧︎⧫︎ ■︎♓︎♑︎♒︎⧫︎");
     }
 
-    //tribe startingstars patch
-    [HarmonyPostfix]  //in this method it doesnt matter which one you use
-    [HarmonyPatch(typeof(StartMatchAction), nameof(StartMatchAction.ExecuteDefault))] //"dude polyscript is easy you just gotta polyscript"
-    private static void StartMatchAction_ExecuteDefault(StartMatchAction __instance) // code helped alot by fapingvin
-    {
-        GameState state = GameManager.GameState; //lets get this bread, but instead of bread its the gameState
-
-        if (GameManager.Client.clientType == ClientBase.ClientType.Local || GameManager.Client.clientType == ClientBase.ClientType.PassAndPlay) //check if not online multiplayer (important step because john klipi did it so its probably important)
-        {
-            foreach (PlayerState playerState in GameManager.GameState.PlayerStates) //make it apply to everyone (note: polytopia can have more than one players/bots, dumbass)
-            {
-                TribeData tribeData; //i was terrorized into adding this in by VS Code, it says its needed, i think it needs to touch fucking grass for once
-                state.GameLogicData.TryGetData(playerState.tribe, out tribeData); //get the tribedata of current player
-
-                if (Parse.startingStarsDict.TryGetValue(tribeData.type, out int stars)) //try to get the value from the dictionary we created (the value from the gld)
-                {
-                    playerState.Currency = stars;
-                }
-            }
-        }
-    }
-
-    
+    /*
     //my lil'  startingResourceGeneratorThingy rewrite
     //whatever you do, DO NOT TOUCH IT!!! IT ***WILL*** BREAK!!!
     //man I really thought this was one of my bigger features. And then I was introduced to cityRewards
+    
     [HarmonyPrefix]
     [HarmonyPatch(typeof(MapGenerator), nameof(MapGenerator.addStartingResourcesToCapital))]
     public static bool MapGenerator_addStartingResourcesToCapital(MapGenerator __instance, MapData map, GameState gameState, PlayerState player, ResourceData startingResources, int minResourcesCount = 2)
@@ -172,9 +151,10 @@ public static class TribeManager
         }
         return false;
     }
+    */
 
     // Simpler than it seems, and it seems very simple (Fapingvin, 2025)
-    [HarmonyPrefix]
+    [HarmonyPrefix] //na azt jól megmondtad
     [HarmonyPatch(typeof(GameStateUtils), nameof(GameStateUtils.SetPlayerNames))]
     public static void OverridePlayerNames(GameState gameState)
     {
