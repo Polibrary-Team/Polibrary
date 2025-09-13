@@ -40,7 +40,7 @@ public static class Main
         new Harmony("com.polibraryteam.polibrary").PatchAll();
         modLogger = logger;
         logger.LogMessage("Polibrary.dll loaded.");
-        modLogger.LogMessage("Version 2.1");
+        modLogger.LogMessage("Version 2.1-pre");
         PolyMod.Loader.AddPatchDataType("cityRewardData", typeof(CityReward)); //casual fapingvin carry
         PolyMod.Loader.AddPatchDataType("unitEffectData", typeof(UnitEffect)); //casual fapingvin carry... ...again
         PolyMod.Loader.AddPatchDataType("unitAbilityData", typeof(UnitAbility.Type)); //...casual...      ...fapingvin carry...       ...again
