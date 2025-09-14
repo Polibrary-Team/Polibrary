@@ -211,7 +211,8 @@ public static class Parse
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
     private static void GameLogicData_Parse6(GameLogicData __instance, JObject rootObject) //in this world, its analfuck, or be analfucked
     {
-        PolibUtils.ParseToTribeData<string>(rootObject, "leaderName", leaderNameDict);
+        PolibUtils.ParsePerEach<TribeData.Type, string>(rootObject, "tribeData", "leaderName", leaderNameDict);
+        
         foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
         {
             JObject token = jtoken.TryCast<JObject>();
@@ -219,7 +220,7 @@ public static class Parse
             {
                 if (EnumCache<TribeData.Type>.TryGetType(token.Path.Split('.').Last(), out var tribeType))
                 {
-                    
+
 
                     /*
                     List<(ResourceData.Type, int)> startingResourcesList = new List<(ResourceData.Type, int)>();

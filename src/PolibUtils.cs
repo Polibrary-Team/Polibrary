@@ -478,49 +478,28 @@ public static class PolibUtils
 
     #region ParseUtils
 
-    public static void ParseToTribeData<T>(JObject rootObject, string fieldName, Dictionary<TribeData.Type, T> dict)
+    public static void ParsePerEach<targetType, T>(JObject rootObject, string categoryName, string fieldName, Dictionary<targetType, T> dict)
+        where targetType : struct, System.IConvertible
     {
-        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList())
+        foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
         {
             JObject token = jtoken.TryCast<JObject>();
             if (token != null)
             {
-                if (EnumCache<TribeData.Type>.TryGetType(token.Path.Split('.').Last(), out var tribeType))
+                if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
                 {
                     if (token[fieldName] != null)
                     {
                         T v = token[fieldName]!.ToObject<T>();
-                        dict[tribeType] = v;
+                        dict[type] = v;
                         token.Remove(fieldName);
-                        utilGuy!.LogInfo($"Parsed variable {v} into dict {dict} with key {tribeType}");
+                        utilGuy!.LogInfo($"Parsed variable {v} into dict {dict} with key {type}");
                     }
                 }
             }
         }
     }
-    public static void ParseToTribeData<T>(JObject rootObject, string[] fieldNames, Dictionary<TribeData.Type, T> dict)
-    {
-        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<TribeData.Type>.TryGetType(token.Path.Split('.').Last(), out var tribeType))
-                {
-                    foreach (string fieldName in fieldNames)
-                    {
-                        if (token[fieldName] != null)
-                        {
-                            T v = token[fieldName]!.ToObject<T>();
-                            dict[tribeType] = v;
-                            token.Remove(fieldName);
-                            utilGuy!.LogInfo($"Parsed variable {v} into dict {dict} with key {tribeType}");
-                        }
-                    }
-                }
-            }
-        }
-    }
+    
 
-    #endregion
+    #endregion ParseUtils
 }
