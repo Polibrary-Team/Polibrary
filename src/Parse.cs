@@ -219,14 +219,7 @@ public static class Parse
             {
                 if (EnumCache<TribeData.Type>.TryGetType(token.Path.Split('.').Last(), out var tribeType))
                 {
-                    /*
-                    if (token["leaderName"] != null)
-                    {
-                        string leaderName = token["leaderName"]!.ToObject<string>();
-                        leaderNameDict[tribeType] = leaderName;
-                        token.Remove("leaderName");
-                    }
-                    */
+                    
 
                     /*
                     List<(ResourceData.Type, int)> startingResourcesList = new List<(ResourceData.Type, int)>();
