@@ -212,6 +212,7 @@ public static class Parse
     private static void GameLogicData_Parse6(GameLogicData __instance, JObject rootObject) //in this world, its analfuck, or be analfucked
     {
         PolibUtils.ParsePerEach<TribeData.Type, string>(rootObject, "tribeData", "leaderName", leaderNameDict);
+        PolibUtils.ParsePerEach<ImprovementData.Type, int>(rootObject, "improvementData", "defenceBoost", defenceBoostDict);
         
         foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
         {
@@ -279,22 +280,7 @@ public static class Parse
                 }
             }
         }
-        foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var improvementType))
-                {
-                    if (token["defenceBoost"] != null)
-                    {
-                        int amount = token["defenceBoost"]!.ToObject<int>();
-                        defenceBoostDict[improvementType] = amount;
-                        token.Remove("defenceBoost");
-                    }
-                }
-            }
-        }
+        
 
         foreach (CityReward reward in CityRewardData.cityRewards) //default for vanilla cityRewards
         {
