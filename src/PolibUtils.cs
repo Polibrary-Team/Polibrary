@@ -480,7 +480,7 @@ public static class PolibUtils
 
     public static void ParseToTribeData<T>(JObject rootObject, string fieldName, Dictionary<TribeData.Type, T> dict)
     {
-        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
+        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList())
         {
             JObject token = jtoken.TryCast<JObject>();
             if (token != null)
@@ -489,9 +489,10 @@ public static class PolibUtils
                 {
                     if (token[fieldName] != null)
                     {
-                        T amount = token[fieldName]!.ToObject<T>();
-                        dict[tribeType] = amount;
+                        T v = token[fieldName]!.ToObject<T>();
+                        dict[tribeType] = v;
                         token.Remove(fieldName);
+                        utilGuy!.LogInfo($"Parsed variable {v} into dict {dict} with key {tribeType}");
                     }
                 }
             }
@@ -499,7 +500,7 @@ public static class PolibUtils
     }
     public static void ParseToTribeData<T>(JObject rootObject, string[] fieldNames, Dictionary<TribeData.Type, T> dict)
     {
-        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
+        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList())
         {
             JObject token = jtoken.TryCast<JObject>();
             if (token != null)
@@ -510,9 +511,10 @@ public static class PolibUtils
                     {
                         if (token[fieldName] != null)
                         {
-                            T amount = token[fieldName]!.ToObject<T>();
-                            dict[tribeType] = amount;
+                            T v = token[fieldName]!.ToObject<T>();
+                            dict[tribeType] = v;
                             token.Remove(fieldName);
+                            utilGuy!.LogInfo($"Parsed variable {v} into dict {dict} with key {tribeType}");
                         }
                     }
                 }
