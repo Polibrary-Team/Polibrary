@@ -64,7 +64,7 @@ public static class UnitManager
             {
                 finaldef = def; //python users got triggered here
             }
-            else if (tile.owner == unit.owner && tile.improvement != null && tile.improvement.type == ImprovementData.Type.City && tile.improvement.rewards != null)
+            else if (tile.owner == unit.owner && tile.improvement != null && tile.improvement.type == ImprovementData.Type.City && tile.improvement.rewards != null && unit.HasAbility(UnitAbility.Type.Fortify))
             {
                 int def2 = 0;
                 //steve!.LogInfo(tile.improvement.rewards.Count);
