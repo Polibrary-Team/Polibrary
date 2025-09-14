@@ -324,6 +324,10 @@ public static class UnitManager
         UnitState aggressor;
         gameState.TryGetUnit(__instance.UnitId, out aggressor);
         TileData tile = gameState.Map.GetTile(__instance.Target);
+        if (tile.unit == null) //Flee!
+        {
+            return;
+        }
         UnitState unit = tile.unit;
         PlayerState playerState;
         gameState.TryGetPlayer(__instance.PlayerId, out playerState);
