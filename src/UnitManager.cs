@@ -36,10 +36,16 @@ public static class UnitManager
     public static void Load(ManualLogSource logger)
     {
         steve = logger;
-        //steve.LogInfo("I");
-        //steve.LogInfo("am Steve");
+        steve.LogInfo("I");
+        steve.LogInfo("am Steve");
         // I'm keeping this logger alive cuz its the funniest -fapingvin
         // nvm let's see if he notices
+
+        //Dear Fapingvin,
+        //stop fucking with steve!!!!
+        //
+        //Signed, wasd_
+
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
 
@@ -162,7 +168,7 @@ public static class UnitManager
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetMaxHealth))]
     public static void GetMaxHealth(this UnitState unitState, GameState gameState, ref int __result) //man voidmongers using modularity will get me SOO much downloads!!
     {
-        if (unitState.passengerUnit != null && !unitState.HasAbility(UnitAbility.Type.Protect, gameState))
+        if (unitState.passengerUnit != null && !unitState.HasAbility(UnitAbility.Type.Protect, gameState)) //it in fact did not get me downloads
         {
             unitState = unitState.passengerUnit;
         }
@@ -316,7 +322,7 @@ public static class UnitManager
 
     #endregion
 
-    #region InciteFear
+    #region Scawy
     [HarmonyPostfix]
     [HarmonyPatch(typeof(AttackCommand), nameof(AttackCommand.ExecuteDefault))]
     public static void InciteFear(AttackCommand __instance, GameState gameState)
@@ -418,7 +424,7 @@ public static class UnitManager
 
 
     /* We can't use TileData.CanDestroy since it won't destroy enemy improvements so messy
-    [HarmonyPostfix]
+    [HarmonyPostfix] //ig its because the destroy in chivalry could destroy enemy improvements as well, so ig it makes sense
     [HarmonyPatch(typeof(TileData), nameof(TileData.CanDestroy))]
     public static void Indestructible(ref bool __result, TileData __instance, GameState gameState, PlayerState player)
     {
@@ -452,7 +458,7 @@ public static class UnitManager
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PathFinder), nameof(PathFinder.GetMoveOptions))]
     public static void PolyBlock(this GameState gameState, WorldCoordinates start, int maxCost, UnitState unit, ref Il2CppSystem.Collections.Generic.List<WorldCoordinates> __result)
-    {
+    { //netherite block
         Il2CppSystem.Collections.Generic.List<WorldCoordinates> newlist = new Il2CppSystem.Collections.Generic.List<WorldCoordinates>();
 
         for (int i = 0; i < __result.Count; i++)

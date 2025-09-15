@@ -23,6 +23,9 @@ using System.Reflection;
 using UnityEngine.EventSystems;
 using Newtonsoft.Json.Linq;
 using Il2CppSystem.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System.Collections.Generic;
 
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
@@ -499,8 +502,23 @@ public static class PolibUtils
             }
         }
     }
-    
-    
+
+    public static void ParseClassPerEach<targetType, T>(JObject rootObject, string categoryName, string fieldName, Dictionary<targetType, T> dict)
+        where targetType : struct, System.IConvertible
+    {
+        foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
+        {
+            JObject token = jtoken.TryCast<JObject>();
+            if (token != null)
+            {
+                if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
+                {
+                    T osztaly = token.ToObject<T>(); //bro nem engedi h classt irjak hogy szopná le a büdös lompos faszt
+
+                }
+            }
+        }
+    }
 
     #endregion ParseUtils
 }
