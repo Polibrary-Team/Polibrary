@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using UnityEngine.Rendering.RenderGraphModule.NativeRenderPassCompiler;
+using pbb = PolytopiaBackendBase.Common;
 
 
 namespace Polibrary;
@@ -185,7 +186,7 @@ public static class PolibUtils
     public static List<TechData> polibGetUnlockableTech(PlayerState player) //Broken in beta so that's why I made this btw (fapingvin)
     {
         var gld = GameManager.GameState.GameLogicData;
-        if (player.tribe == TribeData.Type.None)
+        if (player.tribe == pbb.TribeType.None)
         {
             return null;
         }

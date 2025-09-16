@@ -27,6 +27,7 @@ using Il2CppSystem.Linq;
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using MS.Internal.Xml.XPath;
+using pbb = PolytopiaBackendBase.Common;
 
 
 namespace Polibrary;
@@ -47,9 +48,9 @@ public static class Parse
     public static Dictionary<ImprovementData.Type, string> NoBuildersDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<ImprovementData.Type, string> ImpBuildersDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<ImprovementData.Type, string> ImpCustomLocKey = new Dictionary<ImprovementData.Type, string>();
-    public static Dictionary<TribeData.Type, string> leaderNameDict = new Dictionary<TribeData.Type, string>();
+    public static Dictionary<pbb.TribeType, string> leaderNameDict = new Dictionary<pbb.TribeType, string>();
     public static Dictionary<ImprovementData.Type, int> defenceBoostDict = new Dictionary<ImprovementData.Type, int>();
-    public static Dictionary<TribeData.Type, List<(ResourceData.Type, int)>> startingResources = new Dictionary<TribeData.Type, List<(ResourceData.Type, int)>>();
+    public static Dictionary<pbb.TribeType, List<(ResourceData.Type, int)>> startingResources = new Dictionary<pbb.TribeType, List<(ResourceData.Type, int)>>();
     public class PolibCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
     {
         public int productionModifier { get; set; }
@@ -88,7 +89,7 @@ public static class Parse
         public bool freezing { get; set; }
     }
     public static Dictionary<CityReward, PolibCityRewardData> cityRewardDict = new Dictionary<CityReward, PolibCityRewardData>();
-    public static Dictionary<TribeData.Type, List<CityRewardOverrideClass>> cityRewardOverrideDict = new Dictionary<TribeData.Type, List<CityRewardOverrideClass>>();
+    public static Dictionary<pbb.TribeType, List<CityRewardOverrideClass>> cityRewardOverrideDict = new Dictionary<pbb.TribeType, List<CityRewardOverrideClass>>();
     public static List<CityReward> rewardList = PolibUtils.MakeSystemList<CityReward>(CityRewardData.cityRewards);
     public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new Dictionary<UnitEffect, PolibUnitEffectData>();
     public class PolibUnitAbilityData
@@ -211,7 +212,7 @@ public static class Parse
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
     private static void GameLogicData_Parse6(GameLogicData __instance, JObject rootObject) //in this world, its analfuck, or be analfucked
     {
-        PolibUtils.ParsePerEach<TribeData.Type, string>(rootObject, "tribeData", "leaderName", leaderNameDict);
+        PolibUtils.ParsePerEach<pbb.TribeType, string>(rootObject, "tribeData", "leaderName", leaderNameDict);
         PolibUtils.ParsePerEach<ImprovementData.Type, int>(rootObject, "improvementData", "defenceBoost", defenceBoostDict);
         
         foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
@@ -219,7 +220,7 @@ public static class Parse
             JObject token = jtoken.TryCast<JObject>();
             if (token != null)
             {
-                if (EnumCache<TribeData.Type>.TryGetType(token.Path.Split('.').Last(), out var tribeType))
+                if (EnumCache<pbb.TribeType>.TryGetType(token.Path.Split('.').Last(), out var tribeType))
                 {
 
 

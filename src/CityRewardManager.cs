@@ -26,6 +26,7 @@ using Il2CppSystem.Linq;
 
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
+using pbb = PolytopiaBackendBase.Common;
 
 
 namespace Polibrary;
@@ -130,7 +131,7 @@ public static class CityRewardManager
         GameState state = GameManager.GameState;
 
         PlayerState playerState;
-        TribeData.Type tribeType = TribeData.Type.Aimo;
+        pbb.TribeType tribeType = pbb.TribeType.Aimo;
         if (state.TryGetPlayer(state.CurrentPlayer, out playerState))
         {
             tribeType = playerState.tribe;
@@ -253,7 +254,7 @@ public static class CityRewardManager
 
         PlayerState playerState;
         state.TryGetPlayer(state.CurrentPlayer, out playerState);
-        TribeData.Type tribeType = TribeData.Type.Aimo;
+        pbb.TribeType tribeType = pbb.TribeType.Aimo;
         if (state.TryGetPlayer(state.CurrentPlayer, out playerState))
         {
             tribeType = playerState.tribe;

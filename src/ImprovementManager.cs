@@ -26,6 +26,7 @@ using Il2CppSystem.Linq;
 
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
+using pbb = PolytopiaBackendBase.Common;
 
 
 namespace Polibrary;
@@ -200,11 +201,11 @@ public static class ImprovementManager
 
         if (tile.CanDestroy(gameState, player) && gameState.GameLogicData.TryGetData(tile.improvement.type, out ImprovementData improvementData))
         {
-            if (!player.HasAbility(PlayerAbility.Type.Destroy, gameState) && improvementData.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_demolishable")) && player.tribe != TribeData.Type.Cymanti)
+            if (!player.HasAbility(PlayerAbility.Type.Destroy, gameState) && improvementData.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_demolishable")) && player.tribe != pbb.TribeType.Cymanti)
             {
                 __result.Add(new DestroyCommand(player.Id, tile.coordinates));
             }
-            if (!tile.improvement.HasEffect(ImprovementEffect.decomposing) && !player.HasAbility(PlayerAbility.Type.Decompose, gameState) && improvementData.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_demolishable")) && player.tribe == TribeData.Type.Cymanti)
+            if (!tile.improvement.HasEffect(ImprovementEffect.decomposing) && !player.HasAbility(PlayerAbility.Type.Decompose, gameState) && improvementData.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_demolishable")) && player.tribe == pbb.TribeType.Cymanti)
             {
                 __result.Add(new DecomposeCommand(player.Id, tile.coordinates));
             }
@@ -339,7 +340,7 @@ public static class ImprovementManager
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(BuildingUtils), nameof(BuildingUtils.GetInfo))]
-    public static void SetImprovementInfo(ref string __result, SkinType skinOfCurrentLocalPlayer, ImprovementData improvementData, ImprovementState improvementState = null, PlayerState owner = null, TileData tileData = null)
+    public static void SetImprovementInfo(ref string __result, pbb.SkinType skinOfCurrentLocalPlayer, ImprovementData improvementData, ImprovementState improvementState = null, PlayerState owner = null, TileData tileData = null)
     {
         if (Parse.ImpCustomLocKey.TryGetValue(improvementData.type, out var key))
         {
