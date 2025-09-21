@@ -52,9 +52,9 @@ public static class CityRewardManager
 
         if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
         {
-            if (cityRewardData.productionModifier != 0)
+            if (cityRewardData.addProduction != 0)
             {
-                state.ActionStack.Add(new ModifyProductionAction(__instance.PlayerId, System.Convert.ToInt16(cityRewardData.productionModifier), __instance.Coordinates));
+                state.ActionStack.Add(new ModifyProductionAction(__instance.PlayerId, System.Convert.ToInt16(cityRewardData.addProduction), __instance.Coordinates));
             }
             if (cityRewardData.currencyReward != 0)
             {

@@ -224,7 +224,7 @@ public static class PolibUtils
                 {
                     rewardData = new Parse.PolibCityRewardData
                     {
-                        productionModifier = 1,
+                        addProduction = 1,
                         level = 1,
                         order = 0
                     };
@@ -255,7 +255,7 @@ public static class PolibUtils
                 {
                     rewardData = new Parse.PolibCityRewardData
                     {
-                        defenceBoostReward = 40,
+                        defenceBoost = 40,
                         level = 2,
                         order = 0
                     };
@@ -285,7 +285,7 @@ public static class PolibUtils
                 {
                     rewardData = new Parse.PolibCityRewardData
                     {
-                        productionModifier = 1,
+                        addProduction = 1,
                         scoreReward = 250,
                         level = 4,
                         persistence = "post",
@@ -504,7 +504,7 @@ public static class PolibUtils
         }
     }
 
-    public static void ParseClassPerEach<targetType, T>(JObject rootObject, string categoryName, string fieldName, Dictionary<targetType, T> dict)
+    public static void ParseClassPerEach<targetType, T>(JObject rootObject, string categoryName, Dictionary<targetType, T> dict)
         where targetType : struct, System.IConvertible
     {
         foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
@@ -515,7 +515,18 @@ public static class PolibUtils
                 if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
                 {
                     T osztaly = token.ToObject<T>(); //bro nem engedi h classt irjak hogy szopná le a büdös lompos faszt
-
+                    List<string> fieldNames = typeof(T)
+                                                .GetFields(BindingFlags.Public | BindingFlags.Instance)
+                                                .Select(field => field.Name)
+                                                .ToList();
+                    foreach (string s in fieldNames)
+                    {
+                        if (token[s] != null)
+                        {
+                            token.Remove(s);
+                            utilGuy.LogInfo($"removed {s} from the json");
+                        }
+                    }
                 }
             }
         }

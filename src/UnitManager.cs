@@ -79,7 +79,7 @@ public static class UnitManager
                 {
                     if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
                     {
-                        def2 = def2 + cityRewardData.defenceBoostReward;
+                        def2 = def2 + cityRewardData.defenceBoost;
                     }
                 }
                 if (def2 != 0)

@@ -53,11 +53,11 @@ public static class Parse
     public static Dictionary<pbb.TribeType, List<(ResourceData.Type, int)>> startingResources = new Dictionary<pbb.TribeType, List<(ResourceData.Type, int)>>();
     public class PolibCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
     {
-        public int productionModifier { get; set; }
+        public int addProduction { get; set; }
         public int currencyReward { get; set; }
         public int populationReward { get; set; }
         public int scoreReward { get; set; }
-        public int defenceBoostReward { get; set; }
+        public int defenceBoost { get; set; }
         public int scoutSpawnAmount { get; set; }
         public int scoutMoveAmount { get; set; } = 15;
         public int borderGrowthAmount { get; set; } //yay now its useful
@@ -301,7 +301,7 @@ public static class Parse
                     {
                         int addProduction = token["addProduction"]!.ToObject<int>();
                         token.Remove("addProduction");
-                        cityRewardData.productionModifier = addProduction;
+                        cityRewardData.addProduction = addProduction;
 
                     }
                     if (token["currencyReward"] != null)
@@ -329,7 +329,7 @@ public static class Parse
                     {
                         int defenceBoost = token["defenceBoost"]!.ToObject<int>();
                         token.Remove("defenceBoost");
-                        cityRewardData.defenceBoostReward = defenceBoost;
+                        cityRewardData.defenceBoost = defenceBoost;
 
                     }
                     if (token["scoutSpawnAmount"] != null)
