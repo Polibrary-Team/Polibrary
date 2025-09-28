@@ -24,7 +24,7 @@
             <SteamDir Condition="'$(SteamDir)' == '' AND '$(OS)' != 'Windows_NT' AND Exists('$(HOME)/.steam/steam')">$(HOME)/.steam/steam</SteamDir>
             <SteamDir Condition="'$(SteamDir)' == '' AND '$(OS)' != 'Windows_NT' AND Exists('$(HOME)/Library/Application Support/Steam')">$(HOME)/Library/Application Support/Steam</SteamDir>
 
-            <PolytopiaModsDir>$(SteamDir)/steamapps/common/The Battle Of Polytopia/Mods</PolytopiaModsDir>
+            <PolytopiaModsDir>$(SteamDir)/steamapps/common/The Battle of Polytopia/Mods</PolytopiaModsDir>
         </PropertyGroup>
 
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModFilesDir)" />

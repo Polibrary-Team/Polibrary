@@ -26,7 +26,7 @@ using Il2CppSystem.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
-
+using System.Text.Json.Nodes;
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using UnityEngine.Rendering.RenderGraphModule.NativeRenderPassCompiler;
@@ -39,12 +39,14 @@ namespace Polibrary;
 public static class PolibUtils
 {
     private static ManualLogSource utilGuy;
+
     public static void Load(ManualLogSource logger)
     {
         Harmony.CreateAndPatchAll(typeof(PolibUtils));
         utilGuy = logger;
         //utilGuy.LogInfo("I ran out of ideas");
     }
+
     public static Il2CppSystem.Collections.Generic.List<T> ToIl2CppList<T>(System.Collections.Generic.List<T> sysList)
     {
         var il2cppList = new Il2CppSystem.Collections.Generic.List<T>();
@@ -52,8 +54,10 @@ public static class PolibUtils
         {
             il2cppList.Add(sysList[i]);
         }
+
         return il2cppList;
     }
+
     public static List<T> ToSystemList<T>(Il2Gen.List<T> il2cppList)
     {
         var sysList = new List<T>(il2cppList.Count);
@@ -61,8 +65,10 @@ public static class PolibUtils
         {
             sysList.Add(il2cppList[i]);
         }
+
         return sysList;
     }
+
     public static T[] ArrayFromListIl2Cpp<T>(Il2Gen.List<T> il2cppList)
     {
         T[] array = new T[il2cppList.Count];
@@ -70,8 +76,10 @@ public static class PolibUtils
         {
             array[i] = il2cppList[i];
         }
+
         return array;
     }
+
     public static T[] ArrayFromListSystem<T>(List<T> sysList)
     {
         T[] array = new T[sysList.Count];
@@ -79,16 +87,20 @@ public static class PolibUtils
         {
             array[i] = sysList[i];
         }
+
         return array;
     }
+
     public static T[] MakeSystemArray<T>(T value)
     {
         return new T[] { value };
     }
+
     public static List<T> MakeSystemList<T>(T[] array)
     {
         return new List<T>(array);
     }
+
     public static int GetRewardCountForPlayer(byte playerId, CityReward[] targetRewards)
     {
         GameManager.GameState.TryGetPlayer(playerId, out var playerState);
@@ -111,12 +123,15 @@ public static class PolibUtils
                 }
             }
         }
+
         return num;
     }
+
     public static int GetRewardCountForPlayer(byte playerId, CityReward targetReward)
     {
         return GetRewardCountForPlayer(playerId, MakeSystemArray(targetReward));
     }
+
     public static CityReward[] GetSpawningRewardsForUnit(UnitData.Type unit)
     {
         List<CityReward> list = new List<CityReward>();
@@ -130,15 +145,20 @@ public static class PolibUtils
                 }
             }
         }
+
         return ArrayFromListSystem(list);
     }
+
     public static Parse.PolibCityRewardData GetRewardData(CityReward reward)
     {
         Parse.cityRewardDict.TryGetValue(reward, out var data);
         return data;
     }
 
-    private static void ApplyEffect(GameState gameState, WorldCoordinates Origin, WorldCoordinates Target, UnitEffect effect)
+    private static void ApplyEffect(GameState gameState,
+        WorldCoordinates Origin,
+        WorldCoordinates Target,
+        UnitEffect effect)
     {
         TileData tile = gameState.Map.GetTile(Origin);
         TileData tile2 = gameState.Map.GetTile(Target);
@@ -148,6 +168,7 @@ public static class PolibUtils
         {
             return;
         }
+
         unit2.AddEffect(effect);
         if (unit2.passengerUnit != null)
         {
@@ -168,29 +189,34 @@ public static class PolibUtils
         {
             return;
         }
+
         var diff = maxhp - currhp;
         if (diff < amount)
         {
             amount = diff;
         }
+
         if (unit.HasEffect(UnitEffect.Poisoned))
         {
             amount = 0;
             unit.RemoveEffect(UnitEffect.Poisoned);
         }
+
         unit.health += (ushort)amount;
         Tile tile = MapRenderer.Current.GetTileInstance(unit.coordinates);
         tile.Heal(amount);
     }
 
 
-    public static List<TechData> polibGetUnlockableTech(PlayerState player) //Broken in beta so that's why I made this btw (fapingvin)
+    public static List<TechData>
+        polibGetUnlockableTech(PlayerState player) //Broken in beta so that's why I made this btw (fapingvin)
     {
         var gld = GameManager.GameState.GameLogicData;
         if (player.tribe == pbb.TribeType.None)
         {
             return null;
         }
+
         TribeData tribe;
         if (GameManager.GameState.GameLogicData.TryGetData(player.tribe, out tribe))
         {
@@ -211,161 +237,172 @@ public static class PolibUtils
                     }
                 }
             }
+
             return list;
         }
+
         return null;
     }
 
-    public static Parse.PolibCityRewardData SetVanillaCityRewardDefaults(CityReward reward) //dont laugh // Wtf??? I will laugh >:)
+    public static Parse.PolibCityRewardData
+        SetVanillaCityRewardDefaults(CityReward reward) //dont laugh // Wtf??? I will laugh >:)
     {
         Parse.PolibCityRewardData rewardData = new Parse.PolibCityRewardData();
         switch (reward)
         {
             case CityReward.Workshop:
+            {
+                rewardData = new Parse.PolibCityRewardData
                 {
-                    rewardData = new Parse.PolibCityRewardData
-                    {
-                        addProduction = 1,
-                        level = 1,
-                        order = 0
-                    };
-                    break;
-                }
+                    addProduction = 1,
+                    level = 1,
+                    order = 0
+                };
+                break;
+            }
             case CityReward.Explorer:
+            {
+                rewardData = new Parse.PolibCityRewardData
                 {
-                    rewardData = new Parse.PolibCityRewardData
-                    {
-                        scoutSpawnAmount = 1,
-                        scoutMoveAmount = 15,
-                        level = 1,
-                        order = 1
-                    };
-                    break;
-                }
+                    scoutSpawnAmount = 1,
+                    scoutMoveAmount = 15,
+                    level = 1,
+                    order = 1
+                };
+                break;
+            }
             case CityReward.Resources:
+            {
+                rewardData = new Parse.PolibCityRewardData
                 {
-                    rewardData = new Parse.PolibCityRewardData
-                    {
-                        currencyReward = 5,
-                        level = 2,
-                        order = 1
-                    };
-                    break;
-                }
+                    currencyReward = 5,
+                    level = 2,
+                    order = 1
+                };
+                break;
+            }
             case CityReward.CityWall:
+            {
+                rewardData = new Parse.PolibCityRewardData
                 {
-                    rewardData = new Parse.PolibCityRewardData
-                    {
-                        defenceBoost = 40,
-                        level = 2,
-                        order = 0
-                    };
-                    break;
-                }
+                    defenceBoost = 40,
+                    level = 2,
+                    order = 0
+                };
+                break;
+            }
             case CityReward.PopulationGrowth:
+            {
+                rewardData = new Parse.PolibCityRewardData
                 {
-                    rewardData = new Parse.PolibCityRewardData
-                    {
-                        populationReward = 3,
-                        level = 3,
-                        order = 0
-                    };
-                    break;
-                }
+                    populationReward = 3,
+                    level = 3,
+                    order = 0
+                };
+                break;
+            }
             case CityReward.BorderGrowth:
+            {
+                rewardData = new Parse.PolibCityRewardData
                 {
-                    rewardData = new Parse.PolibCityRewardData
-                    {
-                        borderGrowthAmount = 1,
-                        level = 3,
-                        order = 1
-                    };
-                    break;
-                }
+                    borderGrowthAmount = 1,
+                    level = 3,
+                    order = 1
+                };
+                break;
+            }
             case CityReward.Park:
+            {
+                rewardData = new Parse.PolibCityRewardData
                 {
-                    rewardData = new Parse.PolibCityRewardData
-                    {
-                        addProduction = 1,
-                        scoreReward = 250,
-                        level = 4,
-                        persistence = "post",
-                        order = 0
-                    };
-                    break;
-                }
+                    addProduction = 1,
+                    scoreReward = 250,
+                    level = 4,
+                    persistence = "post",
+                    order = 0
+                };
+                break;
+            }
             case CityReward.SuperUnit:
+            {
+                rewardData = new Parse.PolibCityRewardData
                 {
-                    rewardData = new Parse.PolibCityRewardData
-                    {
-                        unitType = UnitData.Type.Giant, //i really like that I dont have to account for unitOverride
-                        level = 4,
-                        persistence = "post",
-                        order = 1
-                    };
-                    break;
-                }
+                    unitType = UnitData.Type.Giant, //i really like that I dont have to account for unitOverride
+                    level = 4,
+                    persistence = "post",
+                    order = 1
+                };
+                break;
+            }
         }
+
         return rewardData;
     }
+
     public static Parse.PolibUnitEffectData SetVanillaUnitEffectDefaults(UnitEffect effect)
     {
         Parse.PolibUnitEffectData effectData = new Parse.PolibUnitEffectData();
         switch (effect)
         {
             case UnitEffect.Boosted:
+            {
+                effectData = new Parse.PolibUnitEffectData
                 {
-                    effectData = new Parse.PolibUnitEffectData
-                    {
-                        movementAdd = 1,
-                        attackAdd = 5,
-                        removal = new List<string> { "action", "attack", "hurt" }
-                    };
-                    break;
-                }
+                    movementAdd = 1,
+                    attackAdd = 5,
+                    removal = new List<string> { "action", "attack", "hurt" }
+                };
+                break;
+            }
             case UnitEffect.Poisoned:
+            {
+                effectData = new Parse.PolibUnitEffectData
                 {
-                    effectData = new Parse.PolibUnitEffectData
-                    {
-                        defenceMult = 7,
-                        removal = new List<string> { "heal" }
-                    };
-                    break;
-                }
+                    defenceMult = 7,
+                    removal = new List<string> { "heal" }
+                };
+                break;
+            }
             case UnitEffect.Bubble:
+            {
+                effectData = new Parse.PolibUnitEffectData
                 {
-                    effectData = new Parse.PolibUnitEffectData
-                    {
-                        movementAdd = 1,
-                        removal = new List<string> { "nonflooded", "hurt" }
-                    };
-                    break;
-                }
+                    movementAdd = 1,
+                    removal = new List<string> { "nonflooded", "hurt" }
+                };
+                break;
+            }
             case UnitEffect.Frozen:
+            {
+                effectData = new Parse.PolibUnitEffectData
                 {
-                    effectData = new Parse.PolibUnitEffectData
-                    {
-                        freezing = true,
-                        removal = new List<string> { "endturn" }
-                    };
-                    break;
-                }
+                    freezing = true,
+                    removal = new List<string> { "endturn" }
+                };
+                break;
+            }
             case UnitEffect.Petrified:
+            {
+                effectData = new Parse.PolibUnitEffectData
                 {
-                    effectData = new Parse.PolibUnitEffectData
-                    {
-                        freezing = true,
-                        removal = new List<string> { "endturn" }
-                    };
-                    break;
-                }
+                    freezing = true,
+                    removal = new List<string> { "endturn" }
+                };
+                break;
+            }
         }
+
         return effectData;
 
     }
+
     [HarmonyPrefix]
     [HarmonyPatch(typeof(AI), nameof(AI.CheckForTechNeeds))]
-    public static bool Logshit(AI __instance, GameState gameState, PlayerState player, Il2Gen.List<TileData> playerEmpire, Il2Gen.Dictionary<TechData.Type, int> neededTech)
+    public static bool Logshit(AI __instance,
+        GameState gameState,
+        PlayerState player,
+        Il2Gen.List<TileData> playerEmpire,
+        Il2Gen.Dictionary<TechData.Type, int> neededTech)
     {
         int num = 0;
         int num2 = 0;
@@ -383,12 +420,15 @@ public static class PolibUtils
                     {
                         num2++;
                     }
-                    bool flag3 = tileData.terrain == Polytopia.Data.TerrainData.Type.Field || tileData.terrain == Polytopia.Data.TerrainData.Type.Forest;
+
+                    bool flag3 = tileData.terrain == Polytopia.Data.TerrainData.Type.Field ||
+                                 tileData.terrain == Polytopia.Data.TerrainData.Type.Forest;
                     if (flag3)
                     {
                         num++;
                     }
                 }
+
                 bool flag4 = !tileData.CanBeAccessedByPlayer(gameState, player);
                 if (flag4)
                 {
@@ -400,80 +440,90 @@ public static class PolibUtils
                     }
                     else
                     {
-                        utilGuy?.LogInfo("HOTCHI MAMA, KRIS, [Slow Down] THERE! I JUST SAVED YOUR [$2.99] LIFE FROM A [Null Crash1997]!! ALSO, WHO IS [Lougg Kaard]??");
+                        utilGuy?.LogInfo(
+                            "HOTCHI MAMA, KRIS, [Slow Down] THERE! I JUST SAVED YOUR [$2.99] LIFE FROM A [Null Crash1997]!! ALSO, WHO IS [Lougg Kaard]??");
                     }
                 }
-                bool flag6 = tileData.resource != null && gameState.GameLogicData.IsResourceVisibleToPlayer(tileData.resource.type, player, gameState);
+
+                bool flag6 = tileData.resource != null &&
+                             gameState.GameLogicData.IsResourceVisibleToPlayer(tileData.resource.type, player,
+                                 gameState);
                 if (flag6)
                 {
-                    Il2Gen.List<ImprovementData> improvementForResource = gameState.GameLogicData.GetImprovementForResource(tileData.resource!.type);
+                    Il2Gen.List<ImprovementData> improvementForResource =
+                        gameState.GameLogicData.GetImprovementForResource(tileData.resource!.type);
                     for (int j = 0; j < improvementForResource.Count; j++)
                     {
                         ImprovementData improvementData = improvementForResource[j];
-                        bool flag7 = improvementData != null && improvementData.HasAbility(ImprovementAbility.Type.Freelance) && !gameState.GameLogicData.IsUnlocked(improvementData.type, player);
+                        bool flag7 = improvementData != null &&
+                                     improvementData.HasAbility(ImprovementAbility.Type.Freelance) &&
+                                     !gameState.GameLogicData.IsUnlocked(improvementData.type, player);
                         if (flag7)
                         {
                             TribeData tribeData = gameState.GameLogicData.GetTribeData(player.tribe);
-                            TechData techThatUnlocks2 = gameState.GameLogicData.GetTechThatUnlocks(improvementData, tribeData);
+                            TechData techThatUnlocks2 =
+                                gameState.GameLogicData.GetTechThatUnlocks(improvementData, tribeData);
                             AI.AddTechNeed(neededTech, techThatUnlocks2.type, 5);
                         }
                     }
                 }
             }
         }
+
         bool flag8 = num > 0;
         if (flag8)
         {
             int num3 = num * (1 + num2);
             AI.AddTechNeed(neededTech, TechData.Type.Roads, num3);
         }
+
         return false;
     }
 
-    #region Unnecessary stuff
-    public static bool IsResourceVisibleToPlayer2ElectricBoogaloo(GameLogicData gld, ResourceData.Type resourceType, PlayerState player)
-    {
-        return gld.GetUnlockedImprovements(player).ContainsImprovementRequiredForResource(resourceType) || gld.GetUnlockableImprovements(player, GameManager.GameState).ContainsImprovementRequiredForResource(resourceType);
-    }
-
-    public static Il2Gen.List<ImprovementData> polibGetUnlockableImprovements(GameLogicData gld, PlayerState player)
-    {
-        var unlockedTech = gld.GetUnlockedTech(player);
-        TribeData tribe;
-        if (unlockedTech != null && gld.TryGetData(player.tribe, out tribe))
-        {
-            Il2Gen.List<ImprovementData> list = new Il2Gen.List<ImprovementData>();
-            for (int i = 0; i < unlockedTech.Count; i++)
-            {
-                for (int j = 0; j < unlockedTech[i].improvementUnlocks.Count; j++)
-                {
-                    ImprovementData @override = gld.GetOverride(unlockedTech[i].improvementUnlocks[j], tribe);
-                    if (!@override.hidden)
-                    {
-                        list.Add(@override);
-                    }
-                }
-            }
-            if (player.tasks != null && player.tasks.Count > 0)
-            {
-                for (int k = 0; k < player.tasks.Count; k++)
-                {
-                    TaskData taskData;
-                    if (player.tasks[k].IsCompleted && gld.TryGetData(player.tasks[k].GetTaskType(), out taskData) && taskData.improvementUnlocks != null && taskData.improvementUnlocks.Count != 0)
-                    {
-                        foreach (var unlock in taskData.improvementUnlocks)
-                        {
-                            list.Add(unlock);
-                        }
-                    }
-                }
-            }
-            return list;
-        }
-        return null;
-    }
-
-    #endregion Unnecessary stuff
+    // #region Unnecessary stuff
+    // public static bool IsResourceVisibleToPlayer2ElectricBoogaloo(GameLogicData gld, ResourceData.Type resourceType, PlayerState player)
+    // {
+    //     return gld.GetUnlockedImprovements(player).ContainsImprovementRequiredForResource(resourceType) || gld.GetUnlockableImprovements(player, GameManager.GameState).ContainsImprovementRequiredForResource(resourceType);
+    // }
+    //
+    // public static Il2Gen.List<ImprovementData> polibGetUnlockableImprovements(GameLogicData gld, PlayerState player)
+    // {
+    //     var unlockedTech = gld.GetUnlockedTech(player);
+    //     TribeData tribe;
+    //     if (unlockedTech != null && gld.TryGetData(player.tribe, out tribe))
+    //     {
+    //         Il2Gen.List<ImprovementData> list = new Il2Gen.List<ImprovementData>();
+    //         for (int i = 0; i < unlockedTech.Count; i++)
+    //         {
+    //             for (int j = 0; j < unlockedTech[i].improvementUnlocks.Count; j++)
+    //             {
+    //                 ImprovementData @override = gld.GetOverride(unlockedTech[i].improvementUnlocks[j], tribe);
+    //                 if (!@override.hidden)
+    //                 {
+    //                     list.Add(@override);
+    //                 }
+    //             }
+    //         }
+    //         if (player.tasks != null && player.tasks.Count > 0)
+    //         {
+    //             for (int k = 0; k < player.tasks.Count; k++)
+    //             {
+    //                 TaskData taskData;
+    //                 if (player.tasks[k].IsCompleted && gld.TryGetData(player.tasks[k].GetTaskType(), out taskData) && taskData.improvementUnlocks != null && taskData.improvementUnlocks.Count != 0)
+    //                 {
+    //                     foreach (var unlock in taskData.improvementUnlocks)
+    //                     {
+    //                         list.Add(unlock);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         return list;
+    //     }
+    //     return null;
+    // }
+    //
+    // #endregion Unnecessary stuff
 
     public static ImprovementData DataFromState(ImprovementState improvement, GameState state)
     {
@@ -483,7 +533,10 @@ public static class PolibUtils
 
     #region ParseUtils
 
-    public static void ParsePerEach<targetType, T>(JObject rootObject, string categoryName, string fieldName, Dictionary<targetType, T> dict)
+    public static void ParsePerEach<targetType, T>(JObject rootObject,
+        string categoryName,
+        string fieldName,
+        Dictionary<targetType, T> dict)
         where targetType : struct, System.IConvertible
     {
         foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
@@ -505,44 +558,137 @@ public static class PolibUtils
         }
     }
 
-    public static void ParseClassPerEach<targetType, T>(JObject rootObject, string categoryName, Dictionary<targetType, T> dict)
-        where targetType : struct, System.IConvertible
+    public static void ParseClassPerEach<TEnum, T>(JObject rootObject, string categoryName, Dictionary<TEnum, T> dict)
+        where TEnum : struct, System.IConvertible
         where T : new()
     {
         utilGuy.LogInfo($"started parsing a class");
         foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
         {
             JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
+            if (token == null) continue;
+            utilGuy.LogInfo($"token isn't null yippe");
+            var name = token.Parent.Cast<JProperty>().Name;
+            if (!EnumCache<TEnum>.TryGetType(name, out var type))
             {
-                utilGuy.LogInfo($"token isn't null yippe");
-                if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
-                {
-                    utilGuy.LogInfo($"lookin good so far");
-                    //T osztaly = token.ToObject<T>(); //bro nem engedi h classt irjak hogy szopná le a büdös lompos faszt
-                    //utilGuy.LogInfo($"actually parsed the class");
-                    List<string> fieldNames = typeof(T)
-                                                .GetFields(BindingFlags.Public | BindingFlags.Instance)
-                                                .Select(field => field.Name)
-                                                .ToList();
-                    utilGuy.LogInfo($"got all the names of the fields");
-
-                    T osztaly = new T();
-                    foreach (string s in fieldNames)
-                    {
-                        if (token[s] != null)
-                        {
-                            
-                            token.Remove(s);
-                            utilGuy.LogInfo($"removed {s} from the json");
-                        }
-                    }
-                    dict[type] = osztaly;
-                }
+                utilGuy.LogWarning($"{name} not found in enumCache {typeof(TEnum).Name}");
+                continue;
             }
+            utilGuy.LogInfo($"lookin good so far");
+            // start actually parsing
+            var jsonText = token.ToString();
+            T osztaly = System.Text.Json.JsonSerializer.Deserialize<T>(jsonText);
+            utilGuy.LogInfo($"actually parsed the class");
+
+            dict[type] = osztaly;
         }
+
         utilGuy.LogInfo($"method end");
     }
+    public class PolibUtilsTests
+    {
+        // Define a dummy enum and class for testing outside the method
+        
+        private class TestClass
+        {
+            public int Id;
+            public string Name;
+            public bool IsActive;
 
-    #endregion ParseUtils
+            public TestClass()
+            {
+                // Default constructor for deserialization
+            }
+
+            public TestClass(int id, string name, bool isActive)
+            {
+                Id = id;
+                Name = name;
+                IsActive = isActive;
+            }
+        }
+        private static ManualLogSource _testLogger = BepInEx.Logging.Logger.CreateLogSource("PolibUtilsTests");
+        // [HarmonyPrefix]
+        // [HarmonyPriority(Priority.Last)]
+        // [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))] //dude why tf do you have 176387126 different patches for ts??
+        public static void TestParseClassPerEach()
+        {
+            _testLogger.LogInfo("Starting TestParseClassPerEach...");
+            // Create a sample JSON object
+            string json = @"
+            {
+                ""CityReward"": {
+                    ""Workshop"": {
+                        ""Id"": 10,
+                        ""Name"": ""Workshop"", 
+                        ""IsActive"": false
+                    },
+                    ""Explorer"": {
+                        ""Id"": 11,
+                        ""Name"": ""Explorer"",
+                        ""IsActive"": true
+                    }
+                }
+            }";
+
+            JObject rootObject = JObject.Parse(json);
+            Dictionary<CityReward, TestClass> testDict = new Dictionary<CityReward, TestClass>();
+
+            // Set the utilGuy for logging within the ParseClassPerEach method
+            utilGuy = _testLogger;
+
+            try
+            {
+                ParseClassPerEach(rootObject, "CityReward", testDict);
+
+                // Assertions
+                if (testDict.Count == 2)
+                {
+                    _testLogger.LogInfo($"TestParseClassPerEach: Dictionary count is correct ({testDict.Count}).");
+                }
+                else
+                {
+                    _testLogger.LogError($"TestParseClassPerEach: Dictionary count is incorrect. Expected 2, got {testDict.Count}.");
+                    return;
+                }
+
+                if (testDict.ContainsKey(CityReward.Workshop) && testDict[CityReward.Workshop].Id == 10 && testDict[CityReward.Workshop].Name == "Workshop" && testDict[CityReward.Workshop].IsActive == false)
+                {
+                    _testLogger.LogInfo("TestParseClassPerEach: ItemA parsed correctly.");
+                }
+                else
+                {
+                    _testLogger.LogError($"TestParseClassPerEach: ItemA parsing failed. Expected Workshop (10, Workshop, false), got {(testDict.ContainsKey(CityReward.Workshop) ? $"({testDict[CityReward.Workshop].Id}, {testDict[CityReward.Workshop].Name}, {testDict[CityReward.Workshop].IsActive})" : "not found")}");
+                }
+
+                if (testDict.ContainsKey(CityReward.Explorer) && testDict[CityReward.Explorer].Id == 11 && testDict[CityReward.Explorer].Name == "Explorer" && testDict[CityReward.Explorer].IsActive == true)
+                {
+                    _testLogger.LogInfo("TestParseClassPerEach: ItemB parsed correctly.");
+                }
+                else
+                {
+                    _testLogger.LogError($"TestParseClassPerEach: ItemB parsing failed. Expected Explorer (11, Explorer, true), got {(testDict.ContainsKey(CityReward.Explorer) ? $"({testDict[CityReward.Explorer].Id}, {testDict[CityReward.Explorer].Name}, {testDict[CityReward.Explorer].IsActive})" : "not found")}");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                _testLogger.LogError("an expection occurerd, not trying to fix!!!!!!!");
+                // log ALL possible info
+                _testLogger.LogError($"Exception during TestParseClassPerEach: {ex.Message}");
+                _testLogger.LogError($"Stack Trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    _testLogger.LogError($"Inner Exception: {ex.InnerException.Message}");
+                    _testLogger.LogError($"Inner Exception Stack Trace: {ex.InnerException.StackTrace}");
+                    
+                    // but what about the inner exception inner exception???
+                    // idc
+                }
+                throw;
+            }
+            _testLogger.LogInfo("Finished TestParseClassPerEach.");
+        }
+    }
+
+    #endregion
 }
