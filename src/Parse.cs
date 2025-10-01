@@ -288,8 +288,7 @@ public static class Parse
             cityRewardDict[reward] = PolibUtils.SetVanillaCityRewardDefaults(reward);
         }
 
-        PolibUtils.ParseClassPerEach<CityReward, PolibCityRewardData>(rootObject, "cityRewardData", cityRewardDict);
-        /*
+        
         foreach (JToken jtoken in rootObject.SelectTokens("$.cityRewardData.*").ToList())
         {
             JObject token = jtoken.TryCast<JObject>();
@@ -434,7 +433,7 @@ public static class Parse
                     cityRewardDict[cityReward] = cityRewardData;
                 }
             }
-        } */
+        }
 
         foreach (UnitEffect effect in vanillaUnitEffects)
         {

@@ -504,7 +504,7 @@ public static class PolibUtils
             }
         }
     }
-
+    /*
     public static void ParseClassPerEach<targetType, T>(JObject rootObject, string categoryName, Dictionary<targetType, T> dict)
         where targetType : struct, System.IConvertible
         where T : new()
@@ -542,7 +542,7 @@ public static class PolibUtils
             }
         }
         utilGuy.LogInfo($"method end");
-    }
+    }*/
 
     #endregion ParseUtils
 }

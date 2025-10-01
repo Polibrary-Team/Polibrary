@@ -138,7 +138,6 @@ public static class CityRewardManager
         }
         else { nubert!.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED"); }
 
-
         foreach (CityReward reward in Parse.rewardList)
         {
             if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
@@ -171,7 +170,6 @@ public static class CityRewardManager
                     {
                         list.Add(reward);
                     }
-
                 }
             }
         }
@@ -186,6 +184,11 @@ public static class CityRewardManager
         if (array != null || array.Length != 0)
         {
             __result = array;
+            nubert!.LogInfo(array.Length);
+            foreach (CityReward reward in array)
+            {
+                nubert!.LogInfo(reward);
+            }
             return false;
         }
         else { return true; }
