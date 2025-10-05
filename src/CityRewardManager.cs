@@ -27,6 +27,7 @@ using Il2CppSystem.Linq;
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using pbb = PolytopiaBackendBase.Common;
+using PolytopiaBackendBase.Game.BindingModels;
 
 
 namespace Polibrary;
@@ -41,7 +42,15 @@ public static class CityRewardManager
         Harmony.CreateAndPatchAll(typeof(CityRewardManager));
     }
 
-    //MAN I SURE HOPE CITYREWARD ISN'T CODED LIKE HOT FUCKING GARBAGE, OH WAIT!! IT IS!! ITS ALL HARD CODED!!! YAAAAYYY!!!!
+
+    [HarmonyPrefix] // DO NOT DELETE!!!!!!!!!!!!!
+    [HarmonyPatch(typeof(RewardPopup), nameof(RewardPopup.SetRewards))]
+    public static bool PopupFix(RewardPopup __instance, PlayerState playerState, Il2CppStructArray<CityReward> rewards, bool isReplay = false)
+    {
+        return true;
+    }
+
+
     [HarmonyPrefix]
     [HarmonyPatch(typeof(CityRewardAction), nameof(CityRewardAction.Execute))]
     public static bool CityRewardAction_Execute(GameState state, CityRewardAction __instance)
@@ -49,6 +58,8 @@ public static class CityRewardManager
         CityReward reward = __instance.Reward;
         byte playerId = __instance.PlayerId;
         TileData tile = state.Map.GetTile(__instance.Coordinates);
+
+        Main.modLogger.LogMessage("Executing cityrewardaction " + reward.ToString());
 
         if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
         {
@@ -113,12 +124,13 @@ public static class CityRewardManager
                 }
             }
             tile.improvement.AddReward(reward);
+            Main.modLogger.LogMessage("With success?");
             return false;
         }
         else { return true; }
     }
 
-    
+
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ImprovementDataExtensions), nameof(ImprovementDataExtensions.GetCityRewardsForLevel))] //this is the polyscript equivalent of the pear of anguish (idk what the name is yk that iron shit that they shove up your ass and then they extend it and it opens and it mighty fucks up you arsehole)
@@ -201,6 +213,7 @@ public static class CityRewardManager
     {
         //Is it even a city reward?
         //idk fap you tell me
+        Main.modLogger.LogDebug("Reward? " + s);
         string[] words = s.Split("_");
         if (words[1] != "rewards")
         {
@@ -216,9 +229,10 @@ public static class CityRewardManager
         return false;
     }
 
-    public static CityReward getEnum(string s) //wow talk about naming things clearly
+    public static CityReward getEnum(string s)
     {
-        int a = int.Parse(s.Split("_")[2]); //sure?
+        Main.modLogger.LogDebug("GetEnum s: " + s);
+        int a = int.Parse(s.Split("_")[2]);
         return (CityReward)a;
     }
 
