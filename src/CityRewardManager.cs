@@ -59,7 +59,7 @@ public static class CityRewardManager
         byte playerId = __instance.PlayerId;
         TileData tile = state.Map.GetTile(__instance.Coordinates);
 
-        Main.modLogger.LogMessage("Executing cityrewardaction " + reward.ToString());
+        nubert.LogMessage("Executing cityrewardaction " + reward.ToString());
 
         if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
         {
@@ -124,7 +124,7 @@ public static class CityRewardManager
                 }
             }
             tile.improvement.AddReward(reward);
-            Main.modLogger.LogMessage("With success?");
+            nubert.LogMessage("With success?");
             return false;
         }
         else { return true; }
