@@ -43,7 +43,7 @@ public static class CityRewardManager
     }
 
 
-    [HarmonyPrefix] // DO NOT DELETE!!!!!!!!!!!!!
+    [HarmonyPrefix] // DO NOT DELETE!!!!!!!!!!!!! jesus fap calm down
     [HarmonyPatch(typeof(RewardPopup), nameof(RewardPopup.SetRewards))]
     public static bool PopupFix(RewardPopup __instance, PlayerState playerState, Il2CppStructArray<CityReward> rewards, bool isReplay = false)
     {
