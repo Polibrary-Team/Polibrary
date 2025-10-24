@@ -39,31 +39,7 @@ public class Action
         modLogger = logger;
     }
 
-    public enum ActionMode //HOW its executed
-    {
-        Single,
-        Radial,
-        //stb.
-    }
-    public enum ActionType //WHAT it executes
-    {
-        DealDamage,
-        ApplyEffect,
-        Heal,
-        //stb.
-    }
-
-    #region Variables
-
-    public static MapData mapData;
-    public static WorldCoordinates location;
-    public static WorldCoordinates target;
-    public static ActionMode actionMode;
-    public static ActionType actionType;
-    public static int value;
-
-    
-    #endregion
+    //scrapping the basic action, so only the pScript version will be made
 
     public static void Execute()
     {
