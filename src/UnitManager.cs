@@ -37,8 +37,8 @@ public static class UnitManager
     public static void Load(ManualLogSource logger)
     {
         steve = logger;
-        //steve.LogInfo("I");
-        //steve.LogInfo("am Steve");
+        steve.LogInfo("I");
+        steve.LogInfo("am Steve");
         // I'm keeping this logger alive cuz its the funniest -fapingvin
         // nvm let's see if he notices
 
@@ -48,6 +48,12 @@ public static class UnitManager
         //Signed, wasd_
 
         //nope >:)
+
+        //Dear Fapingvin,
+        //I may be "banned" (wink wink nudge nudge shove shove cough cough), but steve does not tolerate mischief, and I am able to act in his name.
+        //= as klipi would put it, i will touch you
+        //
+        //Signed, wasd_
 
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
