@@ -126,7 +126,7 @@ public static class UnitManager
 
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetMovement), new System.Type[] { typeof(UnitState), typeof(GameState) })]
+    [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetMovement))]
     public static void UnitDataExtensions_GetMovement(this UnitState unitState, GameState gameState, ref int __result)
     {
         
@@ -147,7 +147,7 @@ public static class UnitManager
         {
             boostMovementOverSpawn += PolibUtils.GetRewardData(reward).boostMovementOverSpawn;
         }
-        __result = ((unitData.GetMovement() + boostMovementOverSpawn * PolibUtils.GetRewardCountForPlayer(unitState.owner, PolibUtils.GetSpawningRewardsForUnit(unitData.type))) * effectMultiplicative) + effectAdditive;
+        __result = ((unitData.movement + boostMovementOverSpawn * PolibUtils.GetRewardCountForPlayer(unitState.owner, PolibUtils.GetSpawningRewardsForUnit(unitData.type))) * effectMultiplicative) + effectAdditive;
     }
     
 
