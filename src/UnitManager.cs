@@ -127,10 +127,10 @@ public static class UnitManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetMovement), new System.Type[] { typeof(UnitState), typeof(GameState) })]
-    public static void UnitDataExtensions_GetMovement(this UnitState unitState, ref int __result)
+    public static void UnitDataExtensions_GetMovement(this UnitState unitState, GameState gameState, ref int __result)
     {
         UnitData unitData;
-        GameManager.GameState.GameLogicData.TryGetData(unitState.type, out unitData);
+        gameState.GameLogicData.TryGetData(unitState.type, out unitData);
         int effectAdditive = 0;
         int effectMultiplicative = 1;
         foreach (UnitEffect effect in unitState.effects)
