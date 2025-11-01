@@ -39,6 +39,7 @@ public static class UnitManager
         steve = logger;
         steve.LogInfo("I");
         steve.LogInfo("am Steve");
+        steve.LogInfo(", and I (steve) do not like fappy Vins commenting me out.");
         // I'm keeping this logger alive cuz its the funniest -fapingvin
         // nvm let's see if he notices
 
@@ -50,7 +51,7 @@ public static class UnitManager
         //nope >:)
 
         //Dear Fapingvin,
-        //I may be "banned" (wink wink nudge nudge shove shove cough cough), but steve does not tolerate mischief, and I am able to act in his name.
+        //I may be "banned" (wink wink nudge nudge shove shove cough dilouse cough), but steve does not tolerate mischief, and I am able to act in his name.
         //= as klipi would put it, i will touch you
         //
         //Signed, wasd_
@@ -126,10 +127,10 @@ public static class UnitManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetMovement), new System.Type[] { typeof(UnitState), typeof(GameState) })]
-    public static void UnitDataExtensions_GetMovement(this UnitState unitState, GameState gameState, ref int __result)
+    public static void UnitDataExtensions_GetMovement(this UnitState unitState, ref int __result)
     {
         UnitData unitData;
-        gameState.GameLogicData.TryGetData(unitState.type, out unitData);
+        GameManager.GameState.GameLogicData.TryGetData(unitState.type, out unitData);
         int effectAdditive = 0;
         int effectMultiplicative = 1;
         foreach (UnitEffect effect in unitState.effects)
