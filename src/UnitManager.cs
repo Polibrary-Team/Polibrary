@@ -333,7 +333,7 @@ public static class UnitManager
     #endregion
 
     #region Scawy
-    [HarmonyPostfix]
+    [HarmonyPostfix] //i genuinely cant remember if this was me or not -wasd_
     [HarmonyPatch(typeof(AttackCommand), nameof(AttackCommand.ExecuteDefault))]
     public static void InciteFear(AttackCommand __instance, GameState gameState)
     {
@@ -556,7 +556,7 @@ public static class UnitManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PathFinder), nameof(PathFinder.GetMoveOptions))]
-    public static void TrueBounded(this GameState gameState, WorldCoordinates start, int maxCost, UnitState unit, ref Il2CppSystem.Collections.Generic.List<WorldCoordinates> __result)
+    public static void Homesick(this GameState gameState, WorldCoordinates start, int maxCost, UnitState unit, ref Il2CppSystem.Collections.Generic.List<WorldCoordinates> __result)
     {
 
         if (!unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_homesick")))
