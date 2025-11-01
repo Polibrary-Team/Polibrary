@@ -129,6 +129,7 @@ public static class UnitManager
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetMovement), new System.Type[] { typeof(UnitState), typeof(GameState) })]
     public static void UnitDataExtensions_GetMovement(this UnitState unitState, GameState gameState, ref int __result)
     {
+        
         UnitData unitData;
         gameState.GameLogicData.TryGetData(unitState.type, out unitData);
         int effectAdditive = 0;
