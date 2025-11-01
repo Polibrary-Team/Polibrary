@@ -26,6 +26,7 @@ using Il2CppSystem.Linq;
 
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
+using Il2CppSystem.Linq.Expressions;
 
 
 namespace Polibrary;
@@ -41,8 +42,57 @@ public class Action
 
     //scrapping the basic action, so only the pScript version will be made
 
+    public static string[] lines;
+    public static object[] variables;
+
+
+
     public static void Execute()
     {
+        foreach (string line in lines)
+        {
+            ReadLine(line);
+        }
+    }
 
+    static void ReadLine(string line)
+    {
+        string[] commandAndParams;
+
+        if (line.Contains(":"))
+        {
+            commandAndParams = line.Split(":");
+        }
+        else
+        {
+            commandAndParams = line.Split("=");
+        }
+
+        string command = commandAndParams[0].Trim();
+        string[] parameters = commandAndParams[1].Split(" ");
+
+        RunFunction(command, parameters);
+    }
+
+    static void RunFunction(string command, string[] parameters)
+    {
+        switch (command)
+        {
+            case "set":
+                SetVariable(parameters[0], parameters[1], parameters[2]);
+                break;
+            case "log":
+                LogMessage(parameters[0]);
+                break;
+        }
+    }
+    
+    static void SetVariable(string varName, string obj, string value)
+    {
+        
+    }
+    static void LogMessage(string msg)
+    {
+        modLogger.LogInfo(msg);
     }
 }
