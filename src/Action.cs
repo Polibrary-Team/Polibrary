@@ -43,7 +43,7 @@ public class Action
     //scrapping the basic action, so only the pScript version will be made
 
     public static string[] lines;
-    public static object[] variables;
+    public static Dictionary<string, object> variables = new Dictionary<string, object>(); 
 
 
 
@@ -57,19 +57,13 @@ public class Action
 
     static void ReadLine(string line)
     {
-        string[] commandAndParams;
+        string[] commandAndParams; //pl. set:szam int 1
 
-        if (line.Contains(":"))
-        {
-            commandAndParams = line.Split(":");
-        }
-        else
-        {
-            commandAndParams = line.Split("=");
-        }
+        commandAndParams = line.Split(":"); //set / szam int 1
+        
 
-        string command = commandAndParams[0].Trim();
-        string[] parameters = commandAndParams[1].Split(" ");
+        string command = commandAndParams[0]; //set
+        string[] parameters = commandAndParams[1].Split(" "); //szam / int / 1
 
         RunFunction(command, parameters);
     }
@@ -78,10 +72,10 @@ public class Action
     {
         switch (command)
         {
-            case "set":
+            case "set": //sets a variable
                 SetVariable(parameters[0], parameters[1], parameters[2]);
                 break;
-            case "log":
+            case "log": //logs a string
                 LogMessage(parameters[0]);
                 break;
         }
@@ -89,10 +83,51 @@ public class Action
     
     static void SetVariable(string varName, string obj, string value)
     {
-        
+        object valueObj = null;
+        switch (obj)
+        {
+            case "int": //0
+                if (int.TryParse(value, out var parsedInt))
+                {
+                    valueObj = parsedInt;
+                }
+                else LogError("SetVariable", "Invalid int format. Correct format: 0 . eg. set:var int 5");
+                break;
+            
+            case "string": //iamtext //this need redo as it doesnt allow for spaces in the string (would break parsing)
+                valueObj = value;
+                break;
+            
+            case "wcoords": //0;0
+                string[] strings = value.Split(';');
+                WorldCoordinates wcoords = new WorldCoordinates(0, 0);
+
+                if (int.TryParse(strings[0], out int X) && int.TryParse(strings[1], out int Y))
+                {
+                    wcoords.X = X;
+                    wcoords.Y = Y;
+                    valueObj = wcoords;
+                }
+                else LogError("SetVariable", "Invalid wcoords format. Correct format: 0;0 . eg. set:var wcoords 0;0");
+                
+                break;
+            
+            case "unitType":
+                if (EnumCache<UnitData.Type>.TryGetType(value, out var enumValue))
+                {
+                    valueObj = enumValue;
+                }
+                else LogError("SetVariable", $"Couldn't find {value} unit. Check spelling or idk.");
+                break;
+        }
+        variables[varName] = valueObj;
     }
     static void LogMessage(string msg)
     {
         modLogger.LogInfo(msg);
+    }
+    static void LogError(string origin, string msg)
+    {
+        modLogger.LogError($"Error from {origin}: " + msg);
     }
 }
