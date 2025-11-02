@@ -32,7 +32,7 @@ using Il2CppSystem.Linq.Expressions;
 namespace Polibrary;
 
 
-public class Action
+public class pAction
 {
     private static ManualLogSource modLogger;
     public static void Load(ManualLogSource logger)
@@ -63,12 +63,53 @@ public class Action
         
 
         string command = commandAndParams[0]; //set
-        string[] parameters = commandAndParams[1].Split(" "); //szam / int / 1
+        string[] rawparameters = commandAndParams[1].Split(" "); //szam / int / 1
+
+        bool isString = false;
+
+        List<string> untrimmedParams = new List<string>();
+
+
+
+        foreach (string s in rawparameters)
+        {
+            if (s.Length == 0) continue;
+
+            if (isString)
+            {
+                untrimmedParams[untrimmedParams.Count - 1] = untrimmedParams.Last() + s;
+
+                if (s[s.Length - 1] == '§')
+                {
+                    isString = false;
+                }
+                else
+                {
+                    untrimmedParams[untrimmedParams.Count - 1] = untrimmedParams.Last() + " ";
+                }
+            }
+            else
+            {
+                untrimmedParams.Add(s);
+
+                if (s[0] == '§' && s[s.Length - 1] != '§')
+                {
+                    isString = true;
+                    untrimmedParams[untrimmedParams.Count - 1] = untrimmedParams.Last() + " ";
+                }
+            }
+        }
+
+        List<string> parameters = new List<string>();
+        foreach (string s in untrimmedParams)
+        {
+            parameters.Add(s.Trim('§'));
+        }
 
         RunFunction(command, parameters);
     }
 
-    static void RunFunction(string command, string[] parameters)
+    static void RunFunction(string command, List<string> parameters)
     {
         switch (command)
         {
@@ -94,7 +135,7 @@ public class Action
                 else LogError("SetVariable", "Invalid int format. Correct format: 0 . eg. set:var int 5");
                 break;
             
-            case "string": //iamtext //this need redo as it doesnt allow for spaces in the string (would break parsing)
+            case "string": //helloworld! (no spaces allowed) OR §hello world!§ (spaces allowed)
                 valueObj = value;
                 break;
             
