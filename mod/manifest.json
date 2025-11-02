@@ -3,7 +3,7 @@
     "name": "Polibrary",
     "version": "2.1",
     "authors": [
-        "Fapingvin: Main guye 1", "wasd_: Main guye 2", "With help from: exploit, johnklipi"
+        "Fapingvin: Main guye 1", "wasd_: Main guye 2", "With help from: exploit, johnklipi, incomplete_tree"
     ],
     "dependencies": [
         {
@@ -11,5 +11,5 @@
             "min": "2.10.0"
         }
     ],
-    "description": "Polibrary 2.1-pre2. General library of tools for modders."
+    "description": "Polibrary 2.1-pre3. General library of tools for modders."
 }
