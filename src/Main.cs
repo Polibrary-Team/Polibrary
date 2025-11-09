@@ -44,6 +44,14 @@ public static class Main
         PolyMod.Loader.AddPatchDataType("cityRewardData", typeof(CityReward)); //casual fapingvin carry
         PolyMod.Loader.AddPatchDataType("unitEffectData", typeof(UnitEffect)); //casual fapingvin carry... ...again
         PolyMod.Loader.AddPatchDataType("unitAbilityData", typeof(UnitAbility.Type)); //...casual...      ...fapingvin carry...       ...again
+
+        pAction action = new pAction();
+        action.lines = new string[]
+        {
+            "set:variable string §WORKS HELL YEAH!!!§",
+            "log:variable"
+        };
+        action.Execute();
     }
 
 

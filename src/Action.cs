@@ -27,12 +27,13 @@ using Il2CppSystem.Linq;
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using Il2CppSystem.Linq.Expressions;
+using UnityEngine.Rendering.Universal;
 
 
 namespace Polibrary;
 
 
-public class pAction
+class pAction
 {
     private static ManualLogSource modLogger;
     public static void Load(ManualLogSource logger)
@@ -42,20 +43,20 @@ public class pAction
 
     //scrapping the basic action, so only the pScript version will be made
 
-    public static string[] lines;
-    public static Dictionary<string, object> variables = new Dictionary<string, object>(); 
+    public string[] lines;
+    private Dictionary<string, object> variables = new Dictionary<string, object>(); 
 
 
 
-    public static void Execute()
+    public void Execute()
     {
-        foreach (string line in lines)
+        foreach (string line in this.lines)
         {
             ReadLine(line);
         }
     }
 
-    static void ReadLine(string line)
+    private void ReadLine(string line)
     {
         string[] commandAndParams; //pl. set:szam int 1
 
@@ -109,7 +110,7 @@ public class pAction
         RunFunction(command, parameters);
     }
 
-    static void RunFunction(string command, List<string> parameters)
+    private void RunFunction(string command, List<string> parameters)
     {
         switch (command)
         {
@@ -119,10 +120,15 @@ public class pAction
             case "log": //logs a string
                 LogMessage(parameters[0]);
                 break;
+            case "alert":
+                Alert(parameters[0]);
+                break;
         }
     }
+
+    #region commands
     
-    static void SetVariable(string varName, string obj, string value)
+    private void SetVariable(string varName, string obj, string value)
     {
         object valueObj = null;
         switch (obj)
@@ -134,11 +140,11 @@ public class pAction
                 }
                 else LogError("SetVariable", "Invalid int format. Correct format: 0 . eg. set:var int 5");
                 break;
-            
+
             case "string": //helloworld! (no spaces allowed) OR §hello world!§ (spaces allowed)
                 valueObj = value;
                 break;
-            
+
             case "wcoords": //0;0
                 string[] strings = value.Split(';');
                 WorldCoordinates wcoords = new WorldCoordinates(0, 0);
@@ -150,9 +156,9 @@ public class pAction
                     valueObj = wcoords;
                 }
                 else LogError("SetVariable", "Invalid wcoords format. Correct format: 0;0 . eg. set:var wcoords 0;0");
-                
+
                 break;
-            
+
             case "unitType":
                 if (EnumCache<UnitData.Type>.TryGetType(value, out var enumValue))
                 {
@@ -163,12 +169,46 @@ public class pAction
         }
         variables[varName] = valueObj;
     }
-    static void LogMessage(string msg)
+    private void LogMessage(string msg)
     {
-        modLogger.LogInfo(msg);
+        if (IsVariable<string>(msg, out string var))
+        {
+            modLogger.LogInfo(var);
+        }
+        else
+        {
+            modLogger.LogInfo(msg);
+        }
     }
-    static void LogError(string origin, string msg)
+
+    private void Alert(string msg)
     {
-        modLogger.LogError($"Error from {origin}: " + msg);
+        BasicPopup popup = new BasicPopup();
+        popup.Description = msg;
+        popup.Header = "Alert";
+        popup.Show();
     }
+    
+    #endregion
+
+    #region utils
+    private void LogError(string origin, string msg)
+    {
+        modLogger.LogError($"Polibrary: Error from {origin}: " + msg);
+    }
+    private bool IsVariable<T>(string s, out T obj)
+    {
+        if (variables.TryGetValue(s, out var value))
+        {
+            obj = (T)value;
+            if (obj != null)
+            {
+                return true;
+            }
+        }
+
+        obj = default;
+        return false;
+    }
+    #endregion
 }
