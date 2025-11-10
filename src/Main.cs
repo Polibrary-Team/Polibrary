@@ -49,7 +49,7 @@ public static class Main
         action.lines = new string[]
         {
             "set:variable string §WORKS HELL YEAH!!!§",
-            "log:variable"
+            "log:@variable"
         };
         action.Execute();
     }

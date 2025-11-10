@@ -167,11 +167,11 @@ class pAction
                 else LogError("SetVariable", $"Couldn't find {value} unit. Check spelling or idk.");
                 break;
         }
-        variables[varName] = valueObj;
+        variables['@' + varName] = valueObj;
     }
     private void LogMessage(string msg)
     {
-        if (IsVariable<string>(msg, out string var))
+        if (IsVariable(msg, out string var))
         {
             modLogger.LogInfo(var);
         }
@@ -181,7 +181,7 @@ class pAction
         }
     }
 
-    private void Alert(string msg)
+    private void Alert(string msg) //idk how tf this is done in the main game I'll check later (should be as elyrion sanctuary shit)
     {
         BasicPopup popup = new BasicPopup();
         popup.Description = msg;
@@ -198,14 +198,24 @@ class pAction
     }
     private bool IsVariable<T>(string s, out T obj)
     {
-        if (variables.TryGetValue(s, out var value))
+        if (s[0] == 'ص')
         {
-            obj = (T)value;
-            if (obj != null)
+            s = s.Replace('ص', '@'); //you happy? huh? YOU GOT YOUR ARABIC LETTER ARE YOU SATISFIED?
+        }
+        if (s[0] == '@')
+        {
+
+            if (variables.TryGetValue(s, out var value))
             {
-                return true;
+                obj = (T)value;
+                if (obj != null)
+                {
+                    return true;
+                }
             }
         }
+
+        
 
         obj = default;
         return false;
