@@ -28,6 +28,7 @@ using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using Il2CppSystem.Linq.Expressions;
 using UnityEngine.Rendering.Universal;
+using LibCpp2IL.Elf;
 
 
 namespace Polibrary;
@@ -123,6 +124,9 @@ class pAction
             case "alert":
                 Alert(parameters[0]);
                 break;
+            case "setimp":
+                SetImprovement(parameters[0],parameters[1],parameters[2]);
+                break;
         }
     }
 
@@ -145,26 +149,20 @@ class pAction
                 valueObj = value;
                 break;
 
+            case "bool":
+                valueObj = ParseBool(value);
+                break;
+
             case "wcoords": //0;0
-                string[] strings = value.Split(';');
-                WorldCoordinates wcoords = new WorldCoordinates(0, 0);
-
-                if (int.TryParse(strings[0], out int X) && int.TryParse(strings[1], out int Y))
-                {
-                    wcoords.X = X;
-                    wcoords.Y = Y;
-                    valueObj = wcoords;
-                }
-                else LogError("SetVariable", "Invalid wcoords format. Correct format: 0;0 . eg. set:var wcoords 0;0");
-
+                valueObj = ParseWcoords(value);
                 break;
 
             case "unitType":
-                if (EnumCache<UnitData.Type>.TryGetType(value, out var enumValue))
-                {
-                    valueObj = enumValue;
-                }
-                else LogError("SetVariable", $"Couldn't find {value} unit. Check spelling or idk.");
+                valueObj = ParseUnitDataType(value);
+                break;
+
+            case "improvementType":
+                valueObj = ParseImprovementDataType(value);
                 break;
         }
         variables['@' + varName] = valueObj;
@@ -183,10 +181,26 @@ class pAction
 
     private void Alert(string msg) //idk how tf this is done in the main game I'll check later (should be as elyrion sanctuary shit)
     {
-        BasicPopup popup = new BasicPopup();
-        popup.Description = msg;
-        popup.Header = "Alert";
-        popup.Show();
+        
+    }
+
+    private void SetImprovement(string swcoords, string simprovement, string sdeductCost)
+    {
+        WorldCoordinates wcoords;
+        ImprovementData.Type imp;
+        bool deductCost;
+        
+        if (IsVariable<WorldCoordinates>(swcoords, out wcoords)){}
+        else wcoords = ParseWcoords(swcoords);
+
+        if (IsVariable<ImprovementData.Type>(simprovement, out imp)){}
+        else imp = ParseImprovementDataType(simprovement);
+
+        if (IsVariable<bool>(sdeductCost, out deductCost)){}
+        else deductCost = ParseBool(sdeductCost);
+
+        byte playerId = GameManager.GameState.CurrentPlayer;
+        GameManager.GameState.ActionStack.Add(new BuildAction(playerId, imp, wcoords, deductCost));
     }
     
     #endregion
@@ -219,6 +233,62 @@ class pAction
 
         obj = default;
         return false;
+    }
+
+    private WorldCoordinates ParseWcoords(string value)
+    {
+        string[] strings = value.Split(';');
+        WorldCoordinates wcoords = new WorldCoordinates(0, 0);
+
+        if (int.TryParse(strings[0], out int X) && int.TryParse(strings[1], out int Y))
+        {
+            wcoords.X = X;
+            wcoords.Y = Y;
+            return wcoords;
+        }
+        else
+        {
+            LogError("SetVariable", "Invalid wcoords format. Correct format: 0;0 . eg. set:var wcoords 0;0");
+            return default;
+        }
+    }
+    private bool ParseBool(string value)
+    {
+        if (bool.TryParse(value, out var parsedBool))
+        {
+            return parsedBool;
+        }
+        else
+        {
+            LogError("SetVariable", "Invalid bool format. Correct format: true/false . eg. set:var bool false");
+            return true;
+        }
+    }
+
+    private UnitData.Type ParseUnitDataType(string value)
+    {
+        if (EnumCache<UnitData.Type>.TryGetType(value, out var enumValue))
+        {
+            return enumValue;
+        }
+        else
+        {
+            LogError("SetVariable", $"Couldn't find {value} unit. Check spelling or idk.");
+            return default;
+        }
+    }
+
+    private ImprovementData.Type ParseImprovementDataType(string value)
+    {
+        if (EnumCache<ImprovementData.Type>.TryGetType(value, out var enumValue))
+        {
+            return enumValue;
+        }
+        else
+        {
+            LogError("SetVariable", $"Couldn't find {value} improvement. Check spelling or idk.");
+            return default;
+        }
     }
     #endregion
 }
