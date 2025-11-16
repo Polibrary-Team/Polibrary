@@ -156,6 +156,10 @@ class pAction
             case "wcoords": //0;0
                 valueObj = ParseWcoords(value);
                 break;
+            
+            case "wcoords[]": //0;0|0;0|0;0|0;0
+                
+                break;
 
             case "unitType":
                 valueObj = ParseUnitDataType(value);
