@@ -138,11 +138,11 @@ class pAction
         switch (obj)
         {
             case "int": //0
-                
+                valueObj = ParseInt(value);
                 break;
 
             case "string": //helloworld! (no spaces allowed) OR §hello world!§ (spaces allowed)
-                valueObj = value;
+                valueObj = ParseString(value);
                 break;
 
             case "bool":
@@ -275,6 +275,15 @@ class pAction
             LogError("ParseInt", "Invalid int format. Correct format: 0 . eg. set:var int 5");
             return 0;
         }
+    }
+
+    private string ParseString(string value)
+    {
+        if (IsVariable<string>(value, out var obj))
+        {
+            return obj;
+        }
+        return value;
     }
 
     private WorldCoordinates ParseWcoords(string value)
