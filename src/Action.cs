@@ -138,11 +138,7 @@ class pAction
         switch (obj)
         {
             case "int": //0
-                if (int.TryParse(value, out var parsedInt))
-                {
-                    valueObj = parsedInt;
-                }
-                else LogError("SetVariable", "Invalid int format. Correct format: 0 . eg. set:var int 5");
+                
                 break;
 
             case "string": //helloworld! (no spaces allowed) OR §hello world!§ (spaces allowed)
@@ -171,6 +167,26 @@ class pAction
         }
         variables['@' + varName] = valueObj;
     }
+
+    private void GetRadiusFromOrigin(string variable, string sorigin, string sradius, string sallowCenter)
+    {
+        if (!IsVariable<WorldCoordinates[]>(variable, out var obj))
+        {
+            LogError("GetRadiusFromOrigin", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords[].");
+            return;
+        }
+        
+        WorldCoordinates origin = ParseWcoords(sorigin);
+        int radius = ParseInt(sradius);
+        bool allowCenter = ParseBool(sallowCenter);
+
+        GameState gameState = GameManager.GameState;
+        MapData map = gameState.Map;
+
+        variables[variable] = map.GetArea(origin, radius, true, allowCenter); //who in the ever living fuck would want to exclude diagonals??
+
+    }
+
     private void LogMessage(string msg)
     {
         if (IsVariable(msg, out string var))
@@ -190,18 +206,10 @@ class pAction
 
     private void SetImprovement(string swcoords, string simprovement, string sdeductCost)
     {
-        WorldCoordinates wcoords;
-        ImprovementData.Type imp;
-        bool deductCost;
+        WorldCoordinates wcoords = ParseWcoords(swcoords);;
+        ImprovementData.Type imp = ParseImprovementDataType(simprovement);
+        bool deductCost = ParseBool(sdeductCost);
         
-        if (IsVariable<WorldCoordinates>(swcoords, out wcoords)){}
-        else wcoords = ParseWcoords(swcoords);
-
-        if (IsVariable<ImprovementData.Type>(simprovement, out imp)){}
-        else imp = ParseImprovementDataType(simprovement);
-
-        if (IsVariable<bool>(sdeductCost, out deductCost)){}
-        else deductCost = ParseBool(sdeductCost);
 
         byte playerId = GameManager.GameState.CurrentPlayer;
         GameManager.GameState.ActionStack.Add(new BuildAction(playerId, imp, wcoords, deductCost));
@@ -209,11 +217,24 @@ class pAction
     
     #endregion
 
+
+
+
+
+
+
+
+
+
+
+
     #region utils
+
     private void LogError(string origin, string msg)
     {
         modLogger.LogError($"Polibrary: Error from {origin}: " + msg);
     }
+
     private bool IsVariable<T>(string s, out T obj)
     {
         if (s[0] == 'ص')
@@ -239,8 +260,29 @@ class pAction
         return false;
     }
 
+    private int ParseInt(string value)
+    {
+        if (IsVariable<int>(value, out var obj))
+        {
+            return obj;
+        }
+        if (int.TryParse(value, out var parsedInt))
+        {
+            return parsedInt;
+        }
+        else
+        {
+            LogError("ParseInt", "Invalid int format. Correct format: 0 . eg. set:var int 5");
+            return 0;
+        }
+    }
+
     private WorldCoordinates ParseWcoords(string value)
     {
+        if (IsVariable<WorldCoordinates>(value, out var obj))
+        {
+            return obj;
+        }
         string[] strings = value.Split(';');
         WorldCoordinates wcoords = new WorldCoordinates(0, 0);
 
@@ -259,6 +301,10 @@ class pAction
 
     private WorldCoordinates[] ParseWcoordsArray(string value)
     {
+        if (IsVariable<WorldCoordinates[]>(value, out var obj))
+        {
+            return obj;
+        }
         string[] splitValues = value.Split('|');
         WorldCoordinates[] wcoordsarray = new WorldCoordinates[splitValues.Length];
 
@@ -285,6 +331,10 @@ class pAction
 
     private bool ParseBool(string value)
     {
+        if (IsVariable<bool>(value, out var obj))
+        {
+            return obj;
+        }
         if (bool.TryParse(value, out var parsedBool))
         {
             return parsedBool;
@@ -298,6 +348,10 @@ class pAction
 
     private UnitData.Type ParseUnitDataType(string value)
     {
+        if (IsVariable<UnitData.Type>(value, out var obj))
+        {
+            return obj;
+        }
         if (EnumCache<UnitData.Type>.TryGetType(value, out var enumValue))
         {
             return enumValue;
@@ -311,6 +365,10 @@ class pAction
 
     private ImprovementData.Type ParseImprovementDataType(string value)
     {
+        if (IsVariable<ImprovementData.Type>(value, out var obj))
+        {
+            return obj;
+        }
         if (EnumCache<ImprovementData.Type>.TryGetType(value, out var enumValue))
         {
             return enumValue;
