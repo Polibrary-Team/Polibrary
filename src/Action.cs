@@ -121,11 +121,17 @@ class pAction
             case "log": //logs a string
                 LogMessage(parameters[0]);
                 break;
-            case "alert":
+            case "alert": //popup alert in game (not done yet)
                 Alert(parameters[0]);
                 break;
-            case "setimp":
+            case "setimprovement": //sets an improvement on a tile
                 SetImprovement(parameters[0],parameters[1],parameters[2]);
+                break;
+            case "setimprovements": //sets improvements on tiles of an area
+                SetImprovements(parameters[0],parameters[1],parameters[2]);
+                break;
+            case "getradius": //gets an area around an origin and returns it to a variable
+                GetRadiusFromOrigin(parameters[0],parameters[1],parameters[2],parameters[3]);
                 break;
         }
     }
@@ -189,14 +195,7 @@ class pAction
 
     private void LogMessage(string msg)
     {
-        if (IsVariable(msg, out string var))
-        {
-            modLogger.LogInfo(var);
-        }
-        else
-        {
-            modLogger.LogInfo(msg);
-        }
+        modLogger.LogInfo(ParseString(msg));
     }
 
     private void Alert(string msg) //idk how tf this is done in the main game I'll check later (should be as elyrion sanctuary shit)
@@ -212,6 +211,17 @@ class pAction
         
 
         byte playerId = GameManager.GameState.CurrentPlayer;
+        GameManager.GameState.ActionStack.Add(new BuildAction(playerId, imp, wcoords, deductCost));
+    }
+
+    private void SetImprovements(string swcoordsarray, string simprovement, string sdeductCost)
+    {
+        WorldCoordinates[] wcoordsarray = ParseWcoordsArray(swcoordsarray);;
+        ImprovementData.Type imp = ParseImprovementDataType(simprovement);
+        bool deductCost = ParseBool(sdeductCost);
+        byte playerId = GameManager.GameState.CurrentPlayer;
+
+        foreach (WorldCoordinates wcoords in wcoordsarray)
         GameManager.GameState.ActionStack.Add(new BuildAction(playerId, imp, wcoords, deductCost));
     }
     
