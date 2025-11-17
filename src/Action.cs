@@ -111,28 +111,49 @@ class pAction
         RunFunction(command, parameters);
     }
 
-    private void RunFunction(string command, List<string> parameters)
+    private void RunFunction(string command, List<string> ps)
     {
+        bool run = true;
+
+        if (command.Contains('?'))
+        {
+            string[] commandSplit = command.Split('?');
+            run = ParseBool(commandSplit[1]);
+        }
+
+        if (!run)
+        return;
+        
         switch (command)
         {
             case "set": //sets a variable
-                SetVariable(parameters[0], parameters[1], parameters[2]);
+                SetVariable(ps[0], ps[1], ps[2]);
                 break;
             case "log": //logs a string
-                LogMessage(parameters[0]);
+                LogMessage(ps[0]);
                 break;
             case "alert": //popup alert in game (not done yet)
-                Alert(parameters[0]);
+                Alert(ps[0]);
                 break;
+
+            case "getradius": //gets an area around an origin and returns it to a variable
+                GetRadiusFromOrigin(ps[0],ps[1],ps[2],ps[3]);
+                break;
+
+            case "isunit": //checks if the unit on tile is the type of unit specified
+                IsUnit(ps[0],ps[1],ps[2]);
+                break;
+            case "containsunit": //checks if the area has a unit of type
+                ContainsUnit(ps[0],ps[1],ps[2]);
+                break;
+            
             case "setimprovement": //sets an improvement on a tile
-                SetImprovement(parameters[0],parameters[1],parameters[2]);
+                SetImprovement(ps[0],ps[1],ps[2]);
                 break;
             case "setimprovements": //sets improvements on tiles of an area
-                SetImprovements(parameters[0],parameters[1],parameters[2]);
+                SetImprovements(ps[0],ps[1],ps[2]);
                 break;
-            case "getradius": //gets an area around an origin and returns it to a variable
-                GetRadiusFromOrigin(parameters[0],parameters[1],parameters[2],parameters[3]);
-                break;
+            
         }
     }
 
@@ -184,6 +205,35 @@ class pAction
         
     }
 
+    #endregion
+    #region flags
+    private void IsUnit(string variable, string swcoords, string sunit)
+    {
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+        UnitData.Type unit = ParseUnitDataType(sunit);
+
+        GameState gameState = GameManager.GameState;
+        MapData map = gameState.Map;
+        TileData tile = map.GetTile(wcoords);
+
+        variables[variable] = tile.unit.type == unit;
+    }
+
+    private void ContainsUnit(string variable, string swcoordsarray, string sunit)
+    {
+        WorldCoordinates[] wcoordsarray = ParseWcoordsArray(swcoordsarray);
+        UnitData.Type unit = ParseUnitDataType(sunit);
+
+        GameState gameState = GameManager.GameState;
+        MapData map = gameState.Map;
+        List<UnitData.Type> units = new List<UnitData.Type>();
+        foreach (WorldCoordinates coords in wcoordsarray)
+        {
+            units.Add(map.GetTile(coords).unit.type);
+        }
+
+        variables[variable] = units.Contains(unit);
+    }
     #endregion
     #region functions
 
