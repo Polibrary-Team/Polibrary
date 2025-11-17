@@ -158,7 +158,7 @@ class pAction
                 break;
             
             case "wcoords[]": //0;0|0;0|0;0|0;0
-                
+                valueObj = ParseWcoordsArray(value);
                 break;
 
             case "unitType":
@@ -252,10 +252,37 @@ class pAction
         }
         else
         {
-            LogError("SetVariable", "Invalid wcoords format. Correct format: 0;0 . eg. set:var wcoords 0;0");
+            LogError("ParseWcoords", "Invalid wcoords format. Correct format: 0;0 . eg. set:var wcoords 0;0");
             return default;
         }
     }
+
+    private WorldCoordinates[] ParseWcoordsArray(string value)
+    {
+        string[] splitValues = value.Split('|');
+        WorldCoordinates[] wcoordsarray = new WorldCoordinates[splitValues.Length];
+
+        int i = 0;
+        foreach (string newValue in splitValues)
+        {
+            string[] strings = newValue.Split(';');
+            WorldCoordinates wcoords = new WorldCoordinates(0, 0);
+
+            if (int.TryParse(strings[0], out int X) && int.TryParse(strings[1], out int Y))
+            {
+                wcoords.X = X;
+                wcoords.Y = Y;
+                wcoordsarray[i] = wcoords;
+            }
+            else
+            {
+                LogError("ParseWcoordsArray", "Invalid wcoords format. Correct format: 0;0 . eg. set:var wcoords 0;0");
+            }
+            i++;
+        }
+        return wcoordsarray;
+    }
+
     private bool ParseBool(string value)
     {
         if (bool.TryParse(value, out var parsedBool))
@@ -264,7 +291,7 @@ class pAction
         }
         else
         {
-            LogError("SetVariable", "Invalid bool format. Correct format: true/false . eg. set:var bool false");
+            LogError("ParseBool", "Invalid bool format. Correct format: true/false . eg. set:var bool false");
             return true;
         }
     }
@@ -277,7 +304,7 @@ class pAction
         }
         else
         {
-            LogError("SetVariable", $"Couldn't find {value} unit. Check spelling or idk.");
+            LogError("ParseUnitDataType", $"Couldn't find {value} unit. Check spelling or idk.");
             return default;
         }
     }
@@ -290,7 +317,7 @@ class pAction
         }
         else
         {
-            LogError("SetVariable", $"Couldn't find {value} improvement. Check spelling or idk.");
+            LogError("ParseImprovementDataType", $"Couldn't find {value} improvement. Check spelling or idk.");
             return default;
         }
     }
