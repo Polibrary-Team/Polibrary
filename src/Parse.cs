@@ -222,45 +222,6 @@ public static class Parse
             {
                 if (EnumCache<pbb.TribeType>.TryGetType(token.Path.Split('.').Last(), out var tribeType))
                 {
-
-
-                    /*
-                    List<(ResourceData.Type, int)> startingResourcesList = new List<(ResourceData.Type, int)>();
-                    if (token["startingResources"] != null)
-                    {
-                        JArray resarray = token["startingResources"].TryCast<JArray>();
-                        if (resarray != null)
-                        {
-                            for (int i = 0; i < resarray.Count; i++)
-                            {
-                                JToken restoken = resarray[i];
-                                ResourceData.Type restype = ResourceData.Type.Fruit;
-                                int amount = -1;
-
-                                JObject resobject = restoken.TryCast<JObject>(); //hey, I wrote this shit without using gpt! I'm proud of myself, and if you think otherwise, touch grass nerd!
-                                if (resobject != null)
-                                {
-                                    if (resobject["resource"] != null)
-                                    {
-                                        EnumCache<ResourceData.Type>.TryGetType(resobject["resource"]!.ToObject<string>(), out restype);
-                                    }
-                                    if (resobject["amount"] != null)
-                                    {
-                                        amount = resobject["amount"]!.ToObject<int>();
-                                    }
-                                }
-                                startingResourcesList.Add((restype, amount));
-                            }
-                        }
-                        token.Remove("startingResources");
-                        startingResources[tribeType] = startingResourcesList;
-                    }
-                    else
-                    {
-                        startingResources[tribeType] = new List<(ResourceData.Type, int)> { (ResourceData.Type.Fruit, -1) };
-                    }
-                    */
-
                     List<CityRewardOverrideClass> overlist = new List<CityRewardOverrideClass>();
                     foreach (JToken overtoken in token.SelectTokens("$.cityRewardOverrides.*").ToList())
                     {
@@ -298,134 +259,31 @@ public static class Parse
                 {
                     PolibCityRewardData cityRewardData = new PolibCityRewardData();
 
-                    if (token["addProduction"] != null)
-                    {
-                        int addProduction = token["addProduction"]!.ToObject<int>();
-                        token.Remove("addProduction");
-                        cityRewardData.addProduction = addProduction;
-
-                    }
-                    if (token["currencyReward"] != null)
-                    {
-                        int currencyReward = token["currencyReward"]!.ToObject<int>();
-                        token.Remove("currencyReward");
-                        cityRewardData.currencyReward = currencyReward;
-
-                    }
-                    if (token["populationReward"] != null)
-                    {
-                        int populationReward = token["populationReward"]!.ToObject<int>();
-                        token.Remove("populationReward");
-                        cityRewardData.populationReward = populationReward;
-
-                    }
-                    if (token["scoreReward"] != null)
-                    {
-                        int scoreReward = token["scoreReward"]!.ToObject<int>();
-                        token.Remove("scoreReward");
-                        cityRewardData.scoreReward = scoreReward;
-
-                    }
-                    if (token["defenceBoost"] != null)
-                    {
-                        int defenceBoost = token["defenceBoost"]!.ToObject<int>();
-                        token.Remove("defenceBoost");
-                        cityRewardData.defenceBoost = defenceBoost;
-
-                    }
-                    if (token["scoutSpawnAmount"] != null)
-                    {
-                        int scoutSpawnAmount = token["scoutSpawnAmount"]!.ToObject<int>();
-                        token.Remove("scoutSpawnAmount");
-                        cityRewardData.scoutSpawnAmount = scoutSpawnAmount;
-
-                    }
-                    if (token["scoutMoveAmount"] != null)
-                    {
-                        int scoutMoveAmount = token["scoutMoveAmount"]!.ToObject<int>();
-                        token.Remove("scoutMoveAmount");
-                        cityRewardData.scoutMoveAmount = scoutMoveAmount;
-
-                    }
-                    if (token["borderGrowthAmount"] != null)
-                    {
-                        int borderGrowthAmount = token["borderGrowthAmount"]!.ToObject<int>();
-                        token.Remove("borderGrowthAmount");
-                        cityRewardData.borderGrowthAmount = borderGrowthAmount;
-
-                    }
+                    cityRewardData.addProduction = PolibUtils.ParseToken<int>(token, "addProduction");
+                    cityRewardData.currencyReward = PolibUtils.ParseToken<int>(token, "currencyReward");
+                    cityRewardData.populationReward = PolibUtils.ParseToken<int>(token, "populationReward");
+                    cityRewardData.scoreReward = PolibUtils.ParseToken<int>(token, "scoreReward");
+                    cityRewardData.defenceBoost = PolibUtils.ParseToken<int>(token, "defenceBoost");
+                    cityRewardData.scoutSpawnAmount = PolibUtils.ParseToken<int>(token, "scoutSpawnAmount");
+                    cityRewardData.scoutMoveAmount = PolibUtils.ParseToken<int>(token, "scoutMoveAmount");
+                    cityRewardData.borderGrowthAmount = PolibUtils.ParseToken<int>(token, "borderGrowthAmount");
                     if (token["spawnUnit"] != null)
                     {
                         if (EnumCache<UnitData.Type>.TryGetType(token["spawnUnit"]!.ToObject<string>(), out var type))
                         {
                             cityRewardData.unitType = type;
-
                         }
                         token.Remove("spawnUnit");
                     }
-                    if (token["level"] != null)
-                    {
-                        int level = token["level"]!.ToObject<int>();
-                        token.Remove("level");
-                        cityRewardData.level = level;
-
-                    }
-                    if (token["persistence"] != null)
-                    {
-                        string persistence = token["persistence"]!.ToObject<string>();
-                        token.Remove("persistence");
-                        cityRewardData.persistence = persistence;
-
-                    }
-                    if (token["order"] != null)
-                    {
-                        int order = token["order"]!.ToObject<int>();
-                        token.Remove("order");
-                        cityRewardData.order = order;
-
-                    }
-                    if (token["hidden"] != null)
-                    {
-                        bool hidden = token["hidden"]!.ToObject<bool>();
-                        token.Remove("hidden");
-                        cityRewardData.hidden = hidden;
-
-                    }
-                    if (token["boostAttackOverSpawn"] != null)
-                    {
-                        int boostAttackOverSpawn = token["boostAttackOverSpawn"]!.ToObject<int>();
-                        token.Remove("boostAttackOverSpawn");
-                        cityRewardData.boostAttackOverSpawn = boostAttackOverSpawn;
-
-                    }
-                    if (token["boostDefenceOverSpawn"] != null)
-                    {
-                        int boostDefenceOverSpawn = token["boostDefenceOverSpawn"]!.ToObject<int>();
-                        token.Remove("boostDefenceOverSpawn");
-                        cityRewardData.boostDefenceOverSpawn = boostDefenceOverSpawn;
-
-                    }
-                    if (token["boostMaxHpOverSpawn"] != null)
-                    {
-                        int boostMaxHpOverSpawn = token["boostMaxHpOverSpawn"]!.ToObject<int>();
-                        token.Remove("boostMaxHpOverSpawn");
-                        cityRewardData.boostMaxHpOverSpawn = boostMaxHpOverSpawn;
-
-                    }
-                    if (token["boostMovementOverSpawn"] != null)
-                    {
-                        int boostMovementOverSpawn = token["boostMovementOverSpawn"]!.ToObject<int>();
-                        token.Remove("boostMovementOverSpawn");
-                        cityRewardData.boostMovementOverSpawn = boostMovementOverSpawn;
-
-                    }
-                    if (token["healUnitOverSpawn"] != null)
-                    {
-                        bool healUnitOverSpawn = token["healUnitOverSpawn"]!.ToObject<bool>();
-                        token.Remove("healUnitOverSpawn");
-                        cityRewardData.healUnitOverSpawn = healUnitOverSpawn;
-
-                    }
+                    cityRewardData.level = PolibUtils.ParseToken<int>(token, "level");
+                    cityRewardData.persistence = PolibUtils.ParseToken<string>(token, "persistence");
+                    cityRewardData.order = PolibUtils.ParseToken<int>(token, "order");
+                    cityRewardData.hidden = PolibUtils.ParseToken<bool>(token, "hidden");
+                    cityRewardData.boostAttackOverSpawn = PolibUtils.ParseToken<int>(token, "boostAttackOverSpawn");
+                    cityRewardData.boostDefenceOverSpawn = PolibUtils.ParseToken<int>(token, "boostDefenceOverSpawn");
+                    cityRewardData.boostMaxHpOverSpawn = PolibUtils.ParseToken<int>(token, "boostMaxHpOverSpawn");
+                    cityRewardData.boostMovementOverSpawn = PolibUtils.ParseToken<int>(token, "boostMovementOverSpawn");
+                    cityRewardData.healUnitOverSpawn = PolibUtils.ParseToken<bool>(token, "healUnitOverSpawn");
                     if (!rewardList.Contains(cityReward))
                     {
                         rewardList.Add(cityReward);

@@ -136,7 +136,7 @@ class pAction
         }
     }
 
-    #region commands
+    #region generic
     
     private void SetVariable(string varName, string obj, string value)
     {
@@ -174,6 +174,19 @@ class pAction
         variables['@' + varName] = valueObj;
     }
 
+    private void LogMessage(string msg)
+    {
+        modLogger.LogInfo(ParseString(msg));
+    }
+
+    private void Alert(string msg) //idk how tf this is done in the main game I'll check later (should be as elyrion sanctuary shit)
+    {
+        
+    }
+
+    #endregion
+    #region functions
+
     private void GetRadiusFromOrigin(string variable, string sorigin, string sradius, string sallowCenter)
     {
         if (!IsVariable<WorldCoordinates[]>(variable, out var obj))
@@ -193,15 +206,8 @@ class pAction
 
     }
 
-    private void LogMessage(string msg)
-    {
-        modLogger.LogInfo(ParseString(msg));
-    }
-
-    private void Alert(string msg) //idk how tf this is done in the main game I'll check later (should be as elyrion sanctuary shit)
-    {
-        
-    }
+    #endregion
+    #region commands
 
     private void SetImprovement(string swcoords, string simprovement, string sdeductCost)
     {

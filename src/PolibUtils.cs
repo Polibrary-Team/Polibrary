@@ -504,45 +504,17 @@ public static class PolibUtils
             }
         }
     }
-    /*
-    public static void ParseClassPerEach<targetType, T>(JObject rootObject, string categoryName, Dictionary<targetType, T> dict)
-        where targetType : struct, System.IConvertible
-        where T : new()
+    
+    public static T ParseToken<T>(JObject token, string target)
     {
-        utilGuy.LogInfo($"started parsing a class");
-        foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                utilGuy.LogInfo($"token isn't null yippe");
-                if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
-                {
-                    utilGuy.LogInfo($"lookin good so far");
-                    //T osztaly = token.ToObject<T>(); //bro nem engedi h classt irjak hogy szopná le a büdös lompos faszt
-                    //utilGuy.LogInfo($"actually parsed the class");
-                    List<string> fieldNames = typeof(T)
-                                                .GetFields(BindingFlags.Public | BindingFlags.Instance)
-                                                .Select(field => field.Name)
-                                                .ToList();
-                    utilGuy.LogInfo($"got all the names of the fields");
-
-                    T osztaly = new T();
-                    foreach (string s in fieldNames)
-                    {
-                        if (token[s] != null)
-                        {
-                            
-                            token.Remove(s);
-                            utilGuy.LogInfo($"removed {s} from the json");
-                        }
-                    }
-                    dict[type] = osztaly;
-                }
-            }
-        }
-        utilGuy.LogInfo($"method end");
-    }*/
+        if (token[target] == null)
+        return default;
+        
+        T t = token[target]!.ToObject<T>();
+        token.Remove(target);
+        utilGuy!.LogInfo($"Parsed {target}");
+        return t;
+    }
 
     #endregion ParseUtils
 }
