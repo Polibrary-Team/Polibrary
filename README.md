@@ -1,5 +1,7 @@
 # Polibrary 2.0 - A GLD Modding Tool for Polytopia
 
+Latest verified version: 2.1-pre3
+
 ## Installation
 Download the **verified** .polymod file from the Polymod discord server, in the mods>Polibrary thread's latest pinned message. Download at least version 2.0 to include Modularity's functionalities in the mod.
 
