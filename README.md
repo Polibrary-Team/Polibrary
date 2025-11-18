@@ -18,6 +18,8 @@ If you decide to use this library for your mods, you may skip the verification p
 Proper documentation can be found in the wiki. If you have questions feel free to ask them on Polibrary's post in the mods thread. If its urgent ping either @fapingvin or @wasdeilonn_, or both.
 We add documentation on features whenever we feel we won't change it too much.
 
+# T E M P L E    O F    K L I P I
+
 
 
 
