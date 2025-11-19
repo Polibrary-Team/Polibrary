@@ -38,12 +38,11 @@ public static class CityRewardManager
     public static void Load(ManualLogSource logger)
     {
         nubert = logger;
-        //nubert.LogInfo("I'm nubert. Everyone loves me. Even c#");
         Harmony.CreateAndPatchAll(typeof(CityRewardManager));
     }
 
 
-    [HarmonyPrefix] // DO NOT DELETE!!!!!!!!!!!!! jesus fap calm down
+    [HarmonyPrefix] // DO NOT DELETE!!!!!!!!!!!!! Somehow this is required.
     [HarmonyPatch(typeof(RewardPopup), nameof(RewardPopup.SetRewards))]
     public static bool PopupFix(RewardPopup __instance, PlayerState playerState, Il2CppStructArray<CityReward> rewards, bool isReplay = false)
     {
@@ -58,8 +57,6 @@ public static class CityRewardManager
         CityReward reward = __instance.Reward;
         byte playerId = __instance.PlayerId;
         TileData tile = state.Map.GetTile(__instance.Coordinates);
-
-        nubert.LogMessage("Executing cityrewardaction " + reward.ToString());
 
         if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
         {
@@ -124,7 +121,6 @@ public static class CityRewardManager
                 }
             }
             tile.improvement.AddReward(reward);
-            nubert.LogMessage("With success?");
             return false;
         }
         else { return true; }
@@ -150,7 +146,7 @@ public static class CityRewardManager
         {
             tribeType = playerState.tribe;
         }
-        else { nubert!.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED"); }
+        else { nubert!.LogInfo($"STUFF IS SERIOUSLY GNOMED"); }
 
         foreach (CityReward reward in Parse.rewardList)
         {

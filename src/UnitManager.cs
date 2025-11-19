@@ -39,7 +39,7 @@ public static class UnitManager
         steve = logger;
         steve.LogInfo("I");
         steve.LogInfo("am Steve");
-        steve.LogInfo(", and I (steve) do not like fappy Vins commenting me out.");
+        //steve.LogInfo(", and I (steve) do not like fappy Vins commenting me out."); then go cry a river
         // I'm keeping this logger alive cuz its the funniest -fapingvin
         // nvm let's see if he notices
 
@@ -50,11 +50,7 @@ public static class UnitManager
 
         //nope >:)
 
-        //Dear Fapingvin,
-        //I may be "banned" (wink wink nudge nudge shove shove cough dilouse cough), but steve does not tolerate mischief, and I am able to act in his name.
-        //= as klipi would put it, i will touch you
-        //
-        //Signed, wasd_
+        //There once was a message here but is no longer deemed relevant...
 
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
@@ -333,7 +329,7 @@ public static class UnitManager
 
     #endregion
 
-    #region Scawy
+    #region Scary
     [HarmonyPostfix] //i genuinely cant remember if this was me or not -wasd_
     [HarmonyPatch(typeof(AttackCommand), nameof(AttackCommand.ExecuteDefault))]
     public static void InciteFear(AttackCommand __instance, GameState gameState)
@@ -449,7 +445,7 @@ public static class UnitManager
         }
     }*/
 
-    public static bool CanDestroyDiNuovo(TileData tile, GameState gameState) //is that fucking italian?
+    public static bool CanDestroyDiNuovo(TileData tile, GameState gameState) //is that fucking italian? //Yes.
     {
         if (tile == null || tile.improvement == null)
         {
@@ -515,12 +511,10 @@ public static class UnitManager
         {
             return;
         }
-        steve.LogMessage("Bounded unit found");
 
         var homecity = unit.home;
         var citytile = gameState.Map.GetTile(homecity);
         var citytiles = ActionUtils.GetCityArea(gameState, citytile);
-        steve.LogMessage("citytiles length " + citytiles.Count);
         Il2CppSystem.Collections.Generic.List<WorldCoordinates> newlist = new Il2CppSystem.Collections.Generic.List<WorldCoordinates>();
 
         for (int i = 0; i < __result.Count; i++)
@@ -564,7 +558,6 @@ public static class UnitManager
         {
             return;
         }
-        steve.LogMessage("Homesick unit found");
 
         var owner = unit.owner;
         Il2CppSystem.Collections.Generic.List<WorldCoordinates> newlist = new Il2CppSystem.Collections.Generic.List<WorldCoordinates>();
