@@ -619,5 +619,15 @@ public static class UnitManager
 
         __result = newlist;
     }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(PathFinder), nameof(PathFinder.GetPath), typeof(MapData), typeof(WorldCoordinates), typeof(WorldCoordinates), typeof(int), typeof(PathFinderSettings))]
+    public static void NoWaterForYou(this MapData map, WorldCoordinates start, WorldCoordinates destination, int maxCost, PathFinderSettings settings, ref Il2CppSystem.Collections.Generic.List<WorldCoordinates> __result)
+    {
+        TileData tile1 = map.GetTile(start);
+        if(tile1 == null || tile1.unit == null || !tile1.unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_cantembark"))) return;
+
+        if(map.GetTile(destination).IsWater) __result = null;
+    }
     #endregion
 }
