@@ -44,6 +44,8 @@ public static class Main
         PolyMod.Loader.AddPatchDataType("cityRewardData", typeof(CityReward)); //casual fapingvin carry
         PolyMod.Loader.AddPatchDataType("unitEffectData", typeof(UnitEffect)); //casual fapingvin carry... ...again
         PolyMod.Loader.AddPatchDataType("unitAbilityData", typeof(UnitAbility.Type)); //...casual...      ...fapingvin carry...       ...again
+        PolyMod.Loader.AddPatchDataType("tileEffectData", typeof(TileData.EffectType));
+        PolyMod.Loader.AddPatchDataType("polibraryActionBase", typeof(ActionType));
 
         pAction action = new pAction();
         action.lines = new string[]

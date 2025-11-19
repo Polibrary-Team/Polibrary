@@ -23,15 +23,36 @@ using System.Reflection;
 using UnityEngine.EventSystems;
 using Newtonsoft.Json.Linq;
 using Il2CppSystem.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System.Collections.Generic;
 
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
+using UnityEngine.Rendering.RenderGraphModule.NativeRenderPassCompiler;
 using pbb = PolytopiaBackendBase.Common;
+using Il2CppSystem.Net.Http.Headers;
 
 
 namespace Polibrary;
 
-public static class PolibUnitAbility
+public class ApplyEffectAction : ActionBase
 {
-    //wow lotta work went into this
+    public WorldCoordinates coordinates { get; set; }
+    public UnitEffect effect { get; set; }
+    public ApplyEffectAction(WorldCoordinates coords, UnitEffect ieffect)
+    {
+        coordinates = coords;
+        effect = ieffect;
+    }
+
+    public override void Execute(GameState gameState)
+    {
+        gameState.Map.GetTile(coordinates).unit.AddEffect(effect);
+    }
+
+    public override ActionType GetActionType()
+	{
+		return EnumCache<ActionType>.GetType("polib_applyeffectaction");
+	}
 }

@@ -44,6 +44,12 @@ public static class Parse
         //LogMan1997.LogInfo("[They] HAVE [Demoted] ME TO PERFORM [Medium] SHOTS??? I'M NO LONGER [XXL Family Size with 20% more value]!!!");
     }
 
+    public enum UnitEffectIntention
+    {
+        Positive,
+        Neutral,
+        Negative
+    }
     public static Dictionary<ImprovementData.Type, string> BuildersDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<ImprovementData.Type, string> NoBuildersDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<ImprovementData.Type, string> ImpBuildersDict = new Dictionary<ImprovementData.Type, string>();
@@ -79,6 +85,9 @@ public static class Parse
     }
     public class PolibUnitEffectData //So I haveth a Laser Pointre...
     {
+        public Dictionary<string, int> additives { get; set; }
+        public Dictionary<string, int> multiplicatives { get; set; }
+        public static UnitEffectIntention intention { get; set; } 
         public int defenceMult { get; set; }
         public int attackMult { get; set; }
         public int attackAdd { get; set; }
@@ -307,53 +316,7 @@ public static class Parse
                 {
                     PolibUnitEffectData unitEffectData = new PolibUnitEffectData();
 
-                    if (token["defenceMult"] != null)
-                    {
-                        int defenceMult = token["defenceMult"]!.ToObject<int>();
-                        token.Remove("defenceMult");
-                        unitEffectData.defenceMult = defenceMult;
-
-                    }
-                    if (token["attackAdd"] != null)
-                    {
-                        int attackAdd = token["attackAdd"]!.ToObject<int>();
-                        token.Remove("attackAdd");
-                        unitEffectData.attackAdd = attackAdd;
-
-                    }
-                    if (token["attackMult"] != null)
-                    {
-                        int attackMult = token["attackMult"]!.ToObject<int>();
-                        token.Remove("attackMult");
-                        unitEffectData.attackMult = attackMult;
-
-                    }
-                    if (token["movementAdd"] != null)
-                    {
-                        int movementAdd = token["movementAdd"]!.ToObject<int>();
-                        token.Remove("movementAdd");
-                        unitEffectData.movementAdd = movementAdd;
-
-                    }
-                    if (token["movementMult"] != null)
-                    {
-                        int movementMult = token["movementMult"]!.ToObject<int>();
-                        token.Remove("movementMult");
-                        unitEffectData.movementMult = movementMult;
-
-                    }
-                    if (token["color"] != null)
-                    {
-                        string color = token["color"]!.ToObject<string>();
-                        token.Remove("color");
-                        unitEffectData.color = color;
-                    }
-                    if (token["freezing"] != null)
-                    {
-                        bool freezing = token["freezing"]!.ToObject<bool>();
-                        token.Remove("freezing");
-                        unitEffectData.freezing = freezing;
-                    }
+                    //will redo
 
                     unitEffectDataDict[unitEffect] = unitEffectData;
                 }

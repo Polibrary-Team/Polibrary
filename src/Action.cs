@@ -191,6 +191,12 @@ class pAction
             case "improvementType":
                 valueObj = ParseImprovementDataType(value);
                 break;
+            case "unitEffectType":
+                valueObj = ParseUnitEffectType(value);
+                break;
+            case "tileEffectType":
+                valueObj = ParseTileEffectType(value);
+                break;
         }
         variables['@' + varName] = valueObj;
     }
@@ -272,7 +278,7 @@ class pAction
 
     private void SetImprovements(string swcoordsarray, string simprovement, string sdeductCost)
     {
-        WorldCoordinates[] wcoordsarray = ParseWcoordsArray(swcoordsarray);;
+        WorldCoordinates[] wcoordsarray = ParseWcoordsArray(swcoordsarray);
         ImprovementData.Type imp = ParseImprovementDataType(simprovement);
         bool deductCost = ParseBool(sdeductCost);
         byte playerId = GameManager.GameState.CurrentPlayer;
@@ -280,6 +286,15 @@ class pAction
         foreach (WorldCoordinates wcoords in wcoordsarray)
         GameManager.GameState.ActionStack.Add(new BuildAction(playerId, imp, wcoords, deductCost));
     }
+
+    private void AfflictUnit(string sunitEffectType, string swcoords)
+    {
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+        UnitEffect effect = ParseUnitEffectType(sunitEffectType);
+
+        GameManager.GameState.ActionStack.Add(new ApplyEffectAction(wcoords, effect));
+    }
+    
     
     #endregion
 
@@ -451,6 +466,40 @@ class pAction
         else
         {
             LogError("ParseImprovementDataType", $"Couldn't find {value} improvement. Check spelling or idk.");
+            return default;
+        }
+    }
+
+    private UnitEffect ParseUnitEffectType(string value)
+    {
+        if (IsVariable<UnitEffect>(value, out var obj))
+        {
+            return obj;
+        }
+        if (EnumCache<UnitEffect>.TryGetType(value, out var enumValue))
+        {
+            return enumValue;
+        }
+        else
+        {
+            LogError("ParseUnitEffectDataType", $"Couldn't find {value} unit effect. Check spelling or idk.");
+            return default;
+        }
+    }
+
+    private TileData.EffectType ParseTileEffectType(string value)
+    {
+        if (IsVariable<TileData.EffectType>(value, out var obj))
+        {
+            return obj;
+        }
+        if (EnumCache<TileData.EffectType>.TryGetType(value, out var enumValue))
+        {
+            return enumValue;
+        }
+        else
+        {
+            LogError("ParseTileEffectDataType", $"Couldn't find {value} tile effect. Check spelling or idk.");
             return default;
         }
     }
