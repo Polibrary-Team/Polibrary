@@ -98,10 +98,5 @@
 		"polib_reveal": {
 			"idx": -1
 		}
-	},
-	"polibraryActionBase": {
-		"polib_applyeffectaction": {
-			"idx": -1
-		}
 	}
 }

@@ -51,8 +51,9 @@ public class ApplyEffectAction : ActionBase
         gameState.Map.GetTile(coordinates).unit.AddEffect(effect);
     }
 
+    /*
     public override ActionType GetActionType()
 	{
 		return EnumCache<ActionType>.GetType("polib_applyeffectaction");
-	}
+	}*/
 }
