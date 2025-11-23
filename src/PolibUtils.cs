@@ -517,5 +517,17 @@ public static class PolibUtils
         return t;
     }
 
+    public static List<T> ParseJArrayToSysList<T>(JArray token)
+    {
+        List<T> list = new List<T>();
+
+        for (int i = 0; i < token.Count; i++)
+        {
+            list.Add(token[i].ToObject<T>());
+        }
+
+        return list;
+    }
+
     #endregion ParseUtils
 }

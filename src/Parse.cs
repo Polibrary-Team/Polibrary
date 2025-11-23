@@ -112,6 +112,7 @@ public static class Parse
     public static Dictionary<UnitAbility.Type, PolibUnitAbilityData> unitAbilityDataDict = new Dictionary<UnitAbility.Type, PolibUnitAbilityData>();
     public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] { UnitEffect.Boosted, UnitEffect.Bubble, UnitEffect.Frozen, UnitEffect.Invisible, UnitEffect.Petrified, UnitEffect.Poisoned };
     public static Dictionary<string, pAction> actions = new Dictionary<string, pAction>();
+    public static Dictionary<ImprovementData.Type, List<UnitAbility>> unitAbilityWhitelist = new Dictionary<ImprovementData.Type, List<UnitAbility>>();
 
     [HarmonyPrefix]
     [HarmonyPriority(Priority.Last)]
@@ -260,24 +261,22 @@ public static class Parse
             {
                 string name = token.Path.Split('.').Last();
                 pAction action = new pAction();
-
-                List<string> strings = new List<string>();
-                LogMan1997.LogInfo("started parsing lines");
-
-
-                for (int i = 0; i < token.Count; i++)
-                {
-                    LogMan1997.LogInfo("line processed");
-                    strings.Add(token[i].ToObject<string>());
-                }
-
-
-
-                action.lines = PolibUtils.ArrayFromListSystem<string>(strings);
+                action.lines = PolibUtils.ArrayFromListSystem<string>(PolibUtils.ParseJArrayToSysList<string>(token));
                 actions[name] = action;
             }
         }
-        
+
+        foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
+        {
+            JObject token = jtoken.TryCast<JObject>();
+            if (token != null)
+            {
+                if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
+                {
+                    PolibUtils.ParseJArrayToSysList<string>(token["unitAbilityWhitelist"] as JArray);
+                }
+            }
+        }
 
         foreach (CityReward reward in CityRewardData.cityRewards) //default for vanilla cityRewards
         {
