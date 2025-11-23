@@ -40,21 +40,14 @@ public static class Main
         new Harmony("com.polibraryteam.polibrary").PatchAll();
         modLogger = logger;
         logger.LogMessage("Polibrary.dll loaded.");
-        modLogger.LogMessage("Version 2.1-pre 2");
+        modLogger.LogMessage("Version 2.1-pre 4");
         PolyMod.Loader.AddPatchDataType("cityRewardData", typeof(CityReward)); //casual fapingvin carry
         PolyMod.Loader.AddPatchDataType("unitEffectData", typeof(UnitEffect)); //casual fapingvin carry... ...again
         PolyMod.Loader.AddPatchDataType("unitAbilityData", typeof(UnitAbility.Type)); //...casual...      ...fapingvin carry...       ...again
         PolyMod.Loader.AddPatchDataType("tileEffectData", typeof(TileData.EffectType));
-        
-
-        pAction action = new pAction();
-        action.lines = new string[]
-        {
-            "set:variable string §WORKS HELL YEAH!!!§",
-            "log:@variable"
-        };
-        action.Execute();
     }
+
+    
 
 
     //                    ██                   

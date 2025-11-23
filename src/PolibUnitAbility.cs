@@ -33,5 +33,46 @@ namespace Polibrary;
 
 public static class PolibUnitAbility
 {
-    //wow lotta work went into this
+    public static ManualLogSource modLogger;
+    public static void Load(ManualLogSource logger)
+    {
+        modLogger = logger;
+        Harmony.CreateAndPatchAll(typeof(PolibUnitAbility));
+    }
+    
+    
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CommandUtils), nameof(CommandUtils.GetUnitActions))]
+    public static void CommandUtils_GetUnitActions(Il2Gen.List<CommandBase> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable = false)
+    {
+        __result.Add(new pActionCommand(Parse.actions.GetValueOrDefault("polib_basiclog")));
+        
+    }
+}
+
+public class pActionCommand : CommandBase
+{
+    public pAction action;
+
+    public pActionCommand(pAction paction)
+    {
+        action = paction;
+    }
+    
+    public override void Execute(GameState state)
+    {
+        base.Execute(state);
+        action.Execute();
+    }
+
+    public override CommandType GetCommandType()
+    {
+        return CommandType.None;
+    }
+
+    public override bool IsValid(GameState state, out string validationError)
+    {
+        validationError = "none";
+        return true;
+    }
 }

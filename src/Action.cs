@@ -34,7 +34,7 @@ using LibCpp2IL.Elf;
 namespace Polibrary;
 
 
-class pAction
+public class pAction
 {
     private static ManualLogSource modLogger;
     public static void Load(ManualLogSource logger)
@@ -292,7 +292,7 @@ class pAction
         WorldCoordinates wcoords = ParseWcoords(swcoords);
         UnitEffect effect = ParseUnitEffectType(sunitEffectType);
 
-        GameManager.GameState.ActionStack.Add(new ApplyEffectAction(wcoords, effect));
+        GameManager.GameState.Map.GetTile(wcoords).unit.AddEffect(effect);
     }
     
     

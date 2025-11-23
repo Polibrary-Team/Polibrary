@@ -98,5 +98,11 @@
 		"polib_reveal": {
 			"idx": -1
 		}
+	},
+	"pActions": {
+		"polib_basiclog": [
+			"set:var string §I got logged§",
+			"log:@var"
+		]
 	}
 }

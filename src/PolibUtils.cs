@@ -26,6 +26,7 @@ using Il2CppSystem.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
+using Il2CppInterop.Runtime.Injection;
 
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;

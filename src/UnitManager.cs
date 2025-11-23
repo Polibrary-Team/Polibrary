@@ -39,7 +39,9 @@ public static class UnitManager
         steve = logger;
         steve.LogInfo("I");
         steve.LogInfo("am Steve");
-        //steve.LogInfo(", and I (steve) do not like fappy Vins commenting me out."); then go cry a river
+        steve.LogInfo(", and I (steve) do not like fappy Vins commenting me out."); //then go cry a river
+        steve.LogInfo(", and I also can't cry cause I");
+        steve.LogInfo("am Steve");
         // I'm keeping this logger alive cuz its the funniest -fapingvin
         // nvm let's see if he notices
 
@@ -51,6 +53,8 @@ public static class UnitManager
         //nope >:)
 
         //There once was a message here but is no longer deemed relevant...
+
+        //There once was a message there, and it would be relevant, but I honestly forgot what it said, so I guess this is the best I can do
 
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
