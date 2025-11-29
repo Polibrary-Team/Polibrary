@@ -114,8 +114,8 @@ public static class Parse
     public static Dictionary<string, pAction> actions = new Dictionary<string, pAction>();
     public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityWhitelist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
     public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityBlacklist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
-    public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitWhitelist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
-    public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitBlacklist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
+    public static Dictionary<ImprovementData.Type, List<UnitData.Type>> unitWhitelist = new Dictionary<ImprovementData.Type, List<UnitData.Type>>();
+    public static Dictionary<ImprovementData.Type, List<UnitData.Type>> unitBlacklist = new Dictionary<ImprovementData.Type, List<UnitData.Type>>();
 
     [HarmonyPrefix]
     [HarmonyPriority(Priority.Last)]
@@ -269,6 +269,8 @@ public static class Parse
             }
         }
 
+        #region Improvements
+
         foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
         {
             JObject token = jtoken.TryCast<JObject>();
@@ -295,11 +297,37 @@ public static class Parse
                             EnumCache<UnitAbility.Type>.TryGetType(token.Path.Split('.').Last(), out var type);
                             types.Add(type);
                         }
-                        unitAbilityWhitelist[impType] = types;
+                        unitAbilityBlacklist[impType] = types;
+                    }
+
+                    if (token["unitWhitelist"] != null)
+                    {
+                        List<UnitData.Type> types = new List<UnitData.Type>();
+                        foreach (string s in PolibUtils.ParseJArrayToSysList<string>(token["unitWhitelist"] as JArray))
+                        {
+                            EnumCache<UnitData.Type>.TryGetType(token.Path.Split('.').Last(), out var type);
+                            types.Add(type);
+                        }
+                        unitWhitelist[impType] = types;
+                    }
+                    
+                    if (token["unitBlacklist"] != null)
+                    {
+                        List<UnitData.Type> types = new List<UnitData.Type>();
+                        foreach (string s in PolibUtils.ParseJArrayToSysList<string>(token["unitBlacklist"] as JArray))
+                        {
+                            EnumCache<UnitData.Type>.TryGetType(token.Path.Split('.').Last(), out var type);
+                            types.Add(type);
+                        }
+                        unitBlacklist[impType] = types;
                     }
                 }
             }
         }
+
+        #endregion Improvements
+
+        #region City Rewards
 
         foreach (CityReward reward in CityRewardData.cityRewards) //default for vanilla cityRewards
         {
@@ -349,6 +377,8 @@ public static class Parse
                 }
             }
         }
+
+        #endregion City Rewards
 
         foreach (UnitEffect effect in vanillaUnitEffects)
         {

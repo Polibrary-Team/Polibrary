@@ -172,8 +172,19 @@ public static class ImprovementManager
         }
 
         bool value = __result;
-        if (!Parse.unitAbilityWhitelist.TryGetValue(improvement.type, out List<UnitAbility.Type> allowAblityList)) return;
-        if (!Parse.unitAbilityWhitelist.TryGetValue(improvement.type, out List<UnitAbility.Type> allowAblityList)) return;
+
+        Parse.unitAbilityWhitelist.TryGetValue(improvement.type, out List<UnitAbility.Type> allowAbilityList);
+        Parse.unitAbilityBlacklist.TryGetValue(improvement.type, out List<UnitAbility.Type> denyAbilityList);
+        Parse.unitWhitelist.TryGetValue(improvement.type, out List<UnitData.Type> allowList);
+        Parse.unitBlacklist.TryGetValue(improvement.type, out List<UnitData.Type> denyList);
+
+        value = false;
+
+        foreach (UnitAbility.Type type in tile.unit.UnitData.unitAbilities)
+        {
+            if (allowAbilityList.Contains(type)) value = true;
+
+        }
     }
 
     [HarmonyPostfix]
