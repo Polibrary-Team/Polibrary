@@ -112,7 +112,10 @@ public static class Parse
     public static Dictionary<UnitAbility.Type, PolibUnitAbilityData> unitAbilityDataDict = new Dictionary<UnitAbility.Type, PolibUnitAbilityData>();
     public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] { UnitEffect.Boosted, UnitEffect.Bubble, UnitEffect.Frozen, UnitEffect.Invisible, UnitEffect.Petrified, UnitEffect.Poisoned };
     public static Dictionary<string, pAction> actions = new Dictionary<string, pAction>();
-    public static Dictionary<ImprovementData.Type, List<UnitAbility>> unitAbilityWhitelist = new Dictionary<ImprovementData.Type, List<UnitAbility>>();
+    public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityWhitelist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
+    public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityBlacklist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
+    public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitWhitelist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
+    public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitBlacklist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
 
     [HarmonyPrefix]
     [HarmonyPriority(Priority.Last)]
@@ -273,7 +276,27 @@ public static class Parse
             {
                 if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
                 {
-                    PolibUtils.ParseJArrayToSysList<string>(token["unitAbilityWhitelist"] as JArray);
+                    if (token["unitAbilityWhitelist"] != null)
+                    {
+                        List<UnitAbility.Type> types = new List<UnitAbility.Type>();
+                        foreach (string s in PolibUtils.ParseJArrayToSysList<string>(token["unitAbilityWhitelist"] as JArray))
+                        {
+                            EnumCache<UnitAbility.Type>.TryGetType(token.Path.Split('.').Last(), out var type);
+                            types.Add(type);
+                        }
+                        unitAbilityWhitelist[impType] = types;
+                    }
+                    
+                    if (token["unitAbilityBlacklist"] != null)
+                    {
+                        List<UnitAbility.Type> types = new List<UnitAbility.Type>();
+                        foreach (string s in PolibUtils.ParseJArrayToSysList<string>(token["unitAbilityBlacklist"] as JArray))
+                        {
+                            EnumCache<UnitAbility.Type>.TryGetType(token.Path.Split('.').Last(), out var type);
+                            types.Add(type);
+                        }
+                        unitAbilityWhitelist[impType] = types;
+                    }
                 }
             }
         }

@@ -162,6 +162,22 @@ public static class ImprovementManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
+    public static void CheckImprovementPlaceability(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
+    {
+        if (__result == false) return;
+        if (tile.unit == null)
+        {
+            __result = false;
+            return;
+        }
+
+        bool value = __result;
+        if (!Parse.unitAbilityWhitelist.TryGetValue(improvement.type, out List<UnitAbility.Type> allowAblityList)) return;
+        if (!Parse.unitAbilityWhitelist.TryGetValue(improvement.type, out List<UnitAbility.Type> allowAblityList)) return;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
     public static void mBuiltOnSpecific(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
     {
         if (__result == false) return;
