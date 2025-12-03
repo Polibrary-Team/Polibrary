@@ -45,6 +45,7 @@ public static class Main
         PolyMod.Loader.AddPatchDataType("unitEffectData", typeof(UnitEffect)); //casual fapingvin carry... ...again
         PolyMod.Loader.AddPatchDataType("unitAbilityData", typeof(UnitAbility.Type)); //...casual...      ...fapingvin carry...       ...again
         PolyMod.Loader.AddPatchDataType("tileEffectData", typeof(TileData.EffectType));
+        // i wrote this from linux babyyy
     }
 
     
