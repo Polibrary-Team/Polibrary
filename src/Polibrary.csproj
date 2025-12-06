@@ -14,6 +14,7 @@
     <ItemGroup>
         <PackageReference Include="PolyMod" Version="1.2.2" />
     </ItemGroup>
+
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <PropertyGroup>
             <ModFilesDir>$(ProjectDir)..\mod\</ModFilesDir>
@@ -23,8 +24,7 @@
             <SteamDir Condition="'$(SteamDir)' == '' AND '$(OS)' == 'Windows_NT'">C:\Program Files (x86)\Steam</SteamDir>
             <SteamDir Condition="'$(SteamDir)' == '' AND '$(OS)' != 'Windows_NT' AND Exists('$(HOME)/.steam/steam')">$(HOME)/.steam/steam</SteamDir>
             <SteamDir Condition="'$(SteamDir)' == '' AND '$(OS)' != 'Windows_NT' AND Exists('$(HOME)/Library/Application Support/Steam')">$(HOME)/Library/Application Support/Steam</SteamDir>
-
-            <PolytopiaModsDir>$(SteamDir)/steamapps/common/The Battle Of Polytopia/Mods</PolytopiaModsDir>
+            <SteamDir Condition="'$(SteamDir)' == '' AND '$(OS)' != 'Windows_NT' AND Exists('$(HOME)/.local/share/Steam')">$(HOME)/.local/share/Steam</SteamDir>
         </PropertyGroup>
 
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModFilesDir)" />
@@ -34,6 +34,19 @@
         </ItemGroup>
 
         <ZipDirectory SourceDirectory="$(ModFilesDir)" DestinationFile="$(ZipFile)" Overwrite="true" />
+
+        <!-- THE ONLY CHANGE →
+             Reliable, stupid-simple case-insensitive detection -->
+        <PropertyGroup>
+            <PolytopiaModsDir Condition="Exists('$(SteamDir)/steamapps/common/The Battle Of Polytopia/Mods')">
+                $(SteamDir)/steamapps/common/The Battle Of Polytopia/Mods
+            </PolytopiaModsDir>
+
+            <PolytopiaModsDir Condition="Exists('$(SteamDir)/steamapps/common/The Battle of Polytopia/Mods') AND '$(PolytopiaModsDir)' == ''">
+                $(SteamDir)/steamapps/common/The Battle of Polytopia/Mods
+            </PolytopiaModsDir>
+        </PropertyGroup>
+        <!-- END OF CHANGE -->
 
         <Error Condition="!Exists('$(PolytopiaModsDir)')" 
               Text="Polytopia Mods folder not found at '$(PolytopiaModsDir)'. Please set SteamDir manually (e.g. dotnet build -p:SteamDir=/path/to/steam)." />
