@@ -165,26 +165,28 @@ public static class ImprovementManager
     public static void CheckImprovementPlaceability(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
     {
         if (__result == false) return;
+        Parse.unitAbilityWhitelist.TryGetValue(improvement.type, out List<UnitAbility.Type> allowAbilityList);
+        Parse.unitWhitelist.TryGetValue(improvement.type, out List<UnitData.Type> allowList);
+        Parse.unitAbilityBlacklist.TryGetValue(improvement.type, out List<UnitAbility.Type> denyAbilityList);
+        Parse.unitBlacklist.TryGetValue(improvement.type, out List<UnitData.Type> denyList);
+
+        if (allowAbilityList == null && denyAbilityList == null && allowList == null && denyList == null) return;
         if (tile.unit == null)
         {
-            __result = false;
             return;
         }
 
-        bool value = __result;
-
-        Parse.unitAbilityWhitelist.TryGetValue(improvement.type, out List<UnitAbility.Type> allowAbilityList);
-        Parse.unitAbilityBlacklist.TryGetValue(improvement.type, out List<UnitAbility.Type> denyAbilityList);
-        Parse.unitWhitelist.TryGetValue(improvement.type, out List<UnitData.Type> allowList);
-        Parse.unitBlacklist.TryGetValue(improvement.type, out List<UnitData.Type> denyList);
-
-        value = false;
+        bool value = false;
 
         foreach (UnitAbility.Type type in tile.unit.UnitData.unitAbilities)
         {
-            if (allowAbilityList.Contains(type)) value = true;
-
+            if (allowAbilityList != null && allowAbilityList.Contains(type)) value = true;
+            if (denyAbilityList != null && denyAbilityList.Contains(type)) value = false;
         }
+        if (allowList != null && allowList.Contains(tile.unit.type)) value = true;
+        if (denyList != null && denyList.Contains(tile.unit.type)) value = false;
+
+        __result = value;
     }
 
     [HarmonyPostfix]
