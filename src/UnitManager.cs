@@ -52,9 +52,7 @@ public static class UnitManager
 
         //nope >:)
 
-        //There once was a message here but is no longer deemed relevant...
-
-        //There once was a message there, and it would be relevant, but I honestly forgot what it said, so I guess this is the best I can do
+        //There once were 2 messages here, take that!
 
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
@@ -627,7 +625,7 @@ public static class UnitManager
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PathFinder), nameof(PathFinder.GetPath), typeof(MapData), typeof(WorldCoordinates), typeof(WorldCoordinates), typeof(int), typeof(PathFinderSettings))]
     public static void NoWaterForYou(this MapData map, WorldCoordinates start, WorldCoordinates destination, int maxCost, PathFinderSettings settings, ref Il2CppSystem.Collections.Generic.List<WorldCoordinates> __result)
-    {
+    { //lmao
         TileData tile1 = map.GetTile(start);
         if(tile1 == null || tile1.unit == null || !tile1.unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_cantembark"))) return;
 

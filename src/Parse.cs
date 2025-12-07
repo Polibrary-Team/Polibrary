@@ -281,12 +281,18 @@ public static class Parse
                     if (token["unitAbilityWhitelist"] != null)
                     {
                         List<UnitAbility.Type> types = new List<UnitAbility.Type>();
-                        foreach (string s in PolibUtils.ParseJArrayToSysList<string>(token["unitAbilityWhitelist"] as JArray))
+
+                        JArray jArray = token["unitAbilityWhitelist"].TryCast<JArray>();
+
+                        if (jArray != null)
                         {
-                            EnumCache<UnitAbility.Type>.TryGetType(token.Path.Split('.').Last(), out var type);
-                            types.Add(type);
+                            foreach (string s in PolibUtils.ParseJArrayToSysList<string>(jArray))
+                            {
+                                EnumCache<UnitAbility.Type>.TryGetType(token.Path.Split('.').Last(), out var type);
+                                types.Add(type);
+                            }
+                            unitAbilityWhitelist[impType] = types;
                         }
-                        unitAbilityWhitelist[impType] = types;
                     }
                     
                     if (token["unitAbilityBlacklist"] != null)
