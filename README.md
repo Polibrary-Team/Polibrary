@@ -7,11 +7,9 @@ Latest verified version: 2.1-pre3
 Download the **verified** .polymod file from the Polymod discord server, in the mods>Polibrary thread's latest pinned message. Download at least version 2.0 to include Modularity's functionalities in the mod.
 
 ### Unverified
-This is for people who want to experiment with upcoming features before its released, or give us feedback. Download the repository, build `Polibrary.csproj`, and Polibrary.polymod should automatically appear in your mods folder. 
+This is for people who want to experiment with upcoming features before its released, or give us feedback. From the repository, download the `mod` folder. You can use it as is, or zip it into a polymod, whatever. Distributing the mod like this as a 3rd party on the Polymod discord server is against Polymod rules and will come with consequences. 
 
 **WARNING: Unverified versions aren't verified (i know, right?), so it has not been checked for MALWARE/VIRUSES!! If you don't know what you're doing or don't trust us (you shouldn't, we're internet strangers), then stick to the verified versions. Don't download random DLL-s unless you checked the code and are 100% sure it doesn't contain anything harmful! Stay safe!**
-
-*I (wasd_) have been thinking about pre-building some experimental versions for yall to use, but I have to consult a few guys before doing allat. (internet safety and all that, yk)*
 
 ## Usage
 To access the features of Polibrary, you have to have it installed alongside your mod and have it as a **required dependency** in your mod's `manifest.json` file. (seek the polymod wiki for further information about manifest files)
