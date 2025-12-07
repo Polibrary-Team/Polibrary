@@ -282,36 +282,35 @@ public static class Parse
                     {
                         List<UnitAbility.Type> types = new List<UnitAbility.Type>();
 
-                        JArray jArray = token["unitAbilityWhitelist"].TryCast<JArray>();
-
-                        if (jArray != null)
+                        foreach (string s in token["unitAbilityWhitelist"].Values<string>().ToList())
                         {
-                            foreach (string s in PolibUtils.ParseJArrayToSysList<string>(jArray))
-                            {
-                                EnumCache<UnitAbility.Type>.TryGetType(token.Path.Split('.').Last(), out var type);
-                                types.Add(type);
-                            }
-                            unitAbilityWhitelist[impType] = types;
+                            EnumCache<UnitAbility.Type>.TryGetType(s, out var type);
+                            types.Add(type);
                         }
+
+                        unitAbilityWhitelist[impType] = types;
                     }
                     
                     if (token["unitAbilityBlacklist"] != null)
                     {
                         List<UnitAbility.Type> types = new List<UnitAbility.Type>();
-                        foreach (string s in PolibUtils.ParseJArrayToSysList<string>(token["unitAbilityBlacklist"] as JArray))
+
+                        foreach (string s in token["unitAbilityBlacklist"].Values<string>().ToList())
                         {
-                            EnumCache<UnitAbility.Type>.TryGetType(token.Path.Split('.').Last(), out var type);
+                            EnumCache<UnitAbility.Type>.TryGetType(s, out var type);
                             types.Add(type);
                         }
                         unitAbilityBlacklist[impType] = types;
+                        
                     }
 
                     if (token["unitWhitelist"] != null)
                     {
                         List<UnitData.Type> types = new List<UnitData.Type>();
-                        foreach (string s in PolibUtils.ParseJArrayToSysList<string>(token["unitWhitelist"] as JArray))
+
+                        foreach (string s in token["unitWhitelist"].Values<string>().ToList())
                         {
-                            EnumCache<UnitData.Type>.TryGetType(token.Path.Split('.').Last(), out var type);
+                            EnumCache<UnitData.Type>.TryGetType(s, out var type);
                             types.Add(type);
                         }
                         unitWhitelist[impType] = types;
@@ -320,9 +319,10 @@ public static class Parse
                     if (token["unitBlacklist"] != null)
                     {
                         List<UnitData.Type> types = new List<UnitData.Type>();
-                        foreach (string s in PolibUtils.ParseJArrayToSysList<string>(token["unitBlacklist"] as JArray))
+
+                        foreach (string s in token["unitBlacklist"].Values<string>().ToList())
                         {
-                            EnumCache<UnitData.Type>.TryGetType(token.Path.Split('.').Last(), out var type);
+                            EnumCache<UnitData.Type>.TryGetType(s, out var type);
                             types.Add(type);
                         }
                         unitBlacklist[impType] = types;
