@@ -3,20 +3,23 @@
 Latest verified version: 2.1-pre3
 
 ## Installation
+### Verified (Recommended)
 Download the **verified** .polymod file from the Polymod discord server, in the mods>Polibrary thread's latest pinned message. Download at least version 2.0 to include Modularity's functionalities in the mod.
 
-Alternatively, you could assemble your own mod from this github repo, using experimental and **unverified** source code, we sadly have no control over that (wink wink nudge nudge). This is also against our End User Liscence Agreement that is explained in this video: https://www.youtube.com/watch?v=xvFZjo5PgG0&list=RDxvFZjo5PgG0&start_radio=1
+### Unverified
+This is for people who want to experiment with upcoming features before its released, or give us feedback. Download the repository, build `Polibrary.csproj`, and Polibrary.polymod should automatically appear in your mods folder. 
 
-(Note: With unverified code, If you know its unverified, **IT IS YOUR DAMN RESPONSIBILITY TO CHECK FOR MALWARE!!!** We aren't evil, but thats what all evil people say. If you don't have sufficient knowledge to check, just stick to the verified versions. **YOU HAVE BEEN WARNED.**) (See exploit? We warned them! Pretty fucking clear warning!)
-
-(2nd Note: If you develop your mod with the unverified version you "stole" from us without our consent (so its not our fault, exploit!!), if you want to publish your mod, you may have to wait for the release for others to use your mod if it contains new stuff from the unverified version of Polibrary. Usage of those mods should be merely for giving us feedback, getting insight on the new features, or just making personal mods.)
+*I (wasd_) have been thinking about pre-building some experimental versions for yall to use, but I have to consult a few guys before doing allat.*
 
 ## Usage
-If you decide to use this library for your mods, you may skip the verification process as long as there is no polyscripts file present in your mod. When publishing, make sure to remind people to download Polibrary alongside your mod, otherwise their Polytopia **may crash**. Don't forget to make Polibrary a dependency for your mod in the `manifest.json` file as seen in the documentation.
+To access the features of Polibrary, you have to have it installed alongside your mod and have it as a **required dependency** in your mod's `manifest.json` file. (seek the polymod wiki for further information about manifest files)
+
+**Please make sure your users know that your mod requires Polibrary, otherwise the mod will not work properly on their end!**
 
 ## Documentation
 Proper documentation can be found in the wiki. If you have questions feel free to ask them on Polibrary's post in the mods thread. If its urgent ping either @fapingvin or @wasdeilonn_, or both.
-We add documentation on features whenever we feel we won't change it too much.
+
+We add documentation on features whenever we feel we won't change it too much, so documented features are _usually_ final.
 
 # T E M P L E    O F    K L I P I
 
