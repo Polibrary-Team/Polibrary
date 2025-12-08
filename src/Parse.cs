@@ -28,6 +28,7 @@ using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using MS.Internal.Xml.XPath;
 using pbb = PolytopiaBackendBase.Common;
+using UnityEngine.InputSystem;
 
 
 namespace Polibrary;
@@ -261,6 +262,8 @@ public static class Parse
                 }
             }
         }
+        
+        #region pActions
 
         foreach (JToken jtoken in rootObject.SelectTokens("$.pActions.*").ToList())
         {
@@ -269,10 +272,12 @@ public static class Parse
             {
                 string name = token.Path.Split('.').Last();
                 pAction action = new pAction();
-                action.lines = PolibUtils.ArrayFromListSystem<string>(PolibUtils.ParseJArrayToSysList<string>(token));
+                action.lines = token.Values<string>().ToArray();
                 actions[name] = action;
             }
         }
+
+        #endregion pActions
 
         #region Improvements
 
@@ -331,6 +336,11 @@ public static class Parse
                             types.Add(type);
                         }
                         unitBlacklist[impType] = types;
+                    }
+
+                    if (token["triggers"] != null)
+                    {
+                        PolibUtils.ParseToNestedStringDict(token["triggers"], impType, improvementTriggers);
                     }
                 }
             }

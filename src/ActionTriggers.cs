@@ -35,6 +35,7 @@ public static class ActionTriggers
     public static ManualLogSource modLogger;
     public static void Load(ManualLogSource logger)
     {
+        Harmony.CreateAndPatchAll(typeof(ActionTriggers));
         modLogger = logger;
     }
 
@@ -42,6 +43,20 @@ public static class ActionTriggers
     [HarmonyPatch(typeof(BuildAction), nameof(BuildAction.ExecuteDefault))]
     private static void OnBuild(BuildAction __instance, GameState gameState)
     {
-        
+        if (Parse.improvementTriggers.TryGetValue(__instance.Type, out var dict))
+        {
+            if (dict.TryGetValue("onBuild", out string name))
+            {
+                if (Parse.actions.TryGetValue(name, out pAction action))
+                {
+                    action.ActionOrigin = __instance.Coordinates;
+                    action.Execute();
+                }
+                else
+                {
+                    modLogger.LogInfo($"pAction not found: '{name}'. Check spelling");
+                }
+            }
+        }
     }
 }

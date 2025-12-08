@@ -529,5 +529,24 @@ public static class PolibUtils
         return list;
     }
 
+    public static void ParseToNestedStringDict<DT, VT>(JToken jtoken, DT type, Dictionary<DT, Dictionary<string, VT>> ogdict) 
+    where DT : struct, System.IConvertible //DT must be some enumCacheable bullshit
+    {
+        JObject token = jtoken.TryCast<JObject>();
+        if (token != null)
+        {
+            Dictionary<string, VT> dict = new Dictionary<string, VT>();
+
+            foreach (JProperty property in token.Properties().ToList())
+            {
+                VT value = property.Value.ToObject<VT>();
+                dict[property.Name] = value;
+            }
+
+            ogdict[type] = dict;
+            
+        }
+    }
+
     #endregion ParseUtils
 }

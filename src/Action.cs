@@ -45,6 +45,7 @@ public class pAction
     //scrapping the basic action, so only the pScript version will be made
 
     public string[] lines;
+    public WorldCoordinates ActionOrigin;
     private Dictionary<string, object> variables = new Dictionary<string, object>(); 
 
 
@@ -61,7 +62,7 @@ public class pAction
     {
         string[] commandAndParams; //pl. set:szam int 1
 
-        commandAndParams = line.Split(":"); //set / szam int 1
+        commandAndParams = line.Split(":", 2); //set / szam int 1
         
 
         string command = commandAndParams[0]; //set
@@ -139,6 +140,9 @@ public class pAction
             case "getradius": //gets an area around an origin and returns it to a variable
                 GetRadiusFromOrigin(ps[0],ps[1],ps[2],ps[3]);
                 break;
+            case "getorigin": //gets the origin of the action
+                GetActionOrigin(ps[0]);
+                break;
 
             case "isunit": //checks if the unit on tile is the type of unit specified
                 IsUnit(ps[0],ps[1],ps[2]);
@@ -152,6 +156,9 @@ public class pAction
                 break;
             case "setimprovements": //sets improvements on tiles of an area
                 SetImprovements(ps[0],ps[1],ps[2]);
+                break;
+            case "afflictunit": //gives a unit a uniteffect
+                AfflictUnit(ps[0], ps[1]);
                 break;
             
         }
@@ -187,7 +194,6 @@ public class pAction
             case "unitType":
                 valueObj = ParseUnitDataType(value);
                 break;
-
             case "improvementType":
                 valueObj = ParseImprovementDataType(value);
                 break;
@@ -212,7 +218,9 @@ public class pAction
     }
 
     #endregion
+
     #region flags
+
     private void IsUnit(string variable, string swcoords, string sunit)
     {
         WorldCoordinates wcoords = ParseWcoords(swcoords);
@@ -262,6 +270,17 @@ public class pAction
 
     }
 
+    private void GetActionOrigin(string variable)
+    {
+        if (!IsVariable<WorldCoordinates>(variable, out var obj))
+        {
+            LogError("GetRadiusFromOrigin", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords[].");
+            return;
+        }
+
+        variables[variable] = ActionOrigin;
+    }
+
     #endregion
     #region commands
 
@@ -291,6 +310,12 @@ public class pAction
     {
         WorldCoordinates wcoords = ParseWcoords(swcoords);
         UnitEffect effect = ParseUnitEffectType(sunitEffectType);
+
+        if (GameManager.GameState.Map.GetTile(wcoords).unit == null)
+        {
+            LogError("AfflictUnit", "Unit is null");
+            return;
+        }
 
         GameManager.GameState.Map.GetTile(wcoords).unit.AddEffect(effect);
     }
