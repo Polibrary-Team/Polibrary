@@ -27,6 +27,7 @@ using Il2CppSystem.Linq;
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using pbb = PolytopiaBackendBase.Common;
+using Il2CppSystem.Xml;
 
 
 namespace Polibrary;
@@ -41,6 +42,7 @@ public static class ImprovementManager
 
     }
 
+    #region Requirers
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
     public static void NewRequirers(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
@@ -111,6 +113,7 @@ public static class ImprovementManager
             }
         }
     }
+    #endregion
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
@@ -362,8 +365,50 @@ public static class ImprovementManager
     }
     #endregion
 
+    #region UI
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(InteractionBar), nameof(InteractionBar.AddUnitActionButtons))]
+    public static void TryShowCost(InteractionBar __instance, Il2Gen.List<CommandBase> availableActions)
+    {
+        if (__instance == null) return;
+        if (GameManager.LocalPlayer == null || GameManager.LocalPlayer.AutoPlay) return;
+        if (availableActions == null || availableActions.Count == 0) return;
+
+        var commands = availableActions.ToArray();
+        foreach (var command in commands)
+        {
+            BuildCommand buildCommand = command.TryCast<BuildCommand>();
+            if(buildCommand == null) continue;
+            if(!GameManager.GameState.GameLogicData.TryGetData(buildCommand.Type, out ImprovementData improvementData)) continue;
+
+            var refLoc = LocalizationUtils.CapitalizeString(Localization.Get(improvementData.displayName));
+            var buttons = __instance.buttons.ToArray();
+            foreach (var button in buttons)
+            {
+                Main.modLogger.LogMessage(button.text);
+                if (button.text == refLoc)
+                {
+                    
+                    if (buildCommand != null && improvementData.cost > 0)
+                    {
+                        button.Cost = improvementData.cost;
+                        button.ShowLabel = true;
+                        button.m_showLabelBackground = true;
+                        button.UpdateLabelVisibility();
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+    #endregion
+
     #region Custom Description
-    
+
     /*[HarmonyPostfix]
     [HarmonyPatch(typeof(BuildingUtils), nameof(BuildingUtils.GetInfo))]
     public static void SetImprovementInfo(ref string __result, pbb.SkinType skinOfCurrentLocalPlayer, ImprovementData improvementData, ImprovementState improvementState = null, PlayerState owner = null, TileData tileData = null)

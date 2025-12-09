@@ -43,7 +43,7 @@ public static class CityRewardManager
 
 
     [HarmonyPrefix] // DO NOT DELETE!!!!!!!!!!!!! Somehow this is required.
-    [HarmonyPatch(typeof(RewardPopup), nameof(RewardPopup.SetRewards))] //HA ITS KLIPIS FAULT GUYS POLIB IS STABLE I SWEAR!!!!
+    [HarmonyPatch(typeof(RewardPopup), nameof(RewardPopup.SetRewards))] //HA ITS KLIPIS FAULT GUYS POLIB IS STABLE I SWEAR!!!! //no its not
     public static bool PopupFix(RewardPopup __instance, PlayerState playerState, Il2CppStructArray<CityReward> rewards, bool isReplay = false)
     {
         return true;
