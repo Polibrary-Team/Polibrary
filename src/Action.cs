@@ -137,12 +137,6 @@ public class pAction
                 Alert(ps[0]);
                 break;
 
-            case "getradius": //gets an area around an origin and returns it to a variable
-                GetRadiusFromOrigin(ps[0],ps[1],ps[2],ps[3]);
-                break;
-            case "getorigin": //gets the origin of the action
-                GetActionOrigin(ps[0]);
-                break;
 
             case "isunit": //checks if the unit on tile is the type of unit specified
                 IsUnit(ps[0],ps[1],ps[2]);
@@ -150,6 +144,15 @@ public class pAction
             case "containsunit": //checks if the area has a unit of type
                 ContainsUnit(ps[0],ps[1],ps[2]);
                 break;
+
+
+            case "getradius": //gets an area around an origin and returns it to a variable
+                GetRadiusFromOrigin(ps[0],ps[1],ps[2],ps[3]);
+                break;
+            case "getorigin": //gets the origin of the action
+                GetActionOrigin(ps[0]);
+                break;
+
             
             case "setimprovement": //sets an improvement on a tile
                 SetImprovement(ps[0],ps[1],ps[2]);
