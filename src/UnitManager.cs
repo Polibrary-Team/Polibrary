@@ -37,22 +37,11 @@ public static class UnitManager
     public static void Load(ManualLogSource logger)
     {
         steve = logger;
-        steve.LogInfo("I");
-        steve.LogInfo("am Steve");
-        steve.LogInfo(", and I (steve) do not like fappy Vins commenting me out."); //then go cry a river
-        steve.LogInfo(", and I also can't cry cause I");
-        steve.LogInfo("am Steve");
-        // I'm keeping this logger alive cuz its the funniest -fapingvin
-        // nvm let's see if he notices
-
-        //Dear Fapingvin,
-        //stop fucking with steve!!!!
-        //
-        //Signed, wasd_
-
-        //nope >:)
-
-        //There once were 2 messages here, take that!
+        //steve.LogInfo("I");
+        //steve.LogInfo("am Steve");
+        //steve.LogInfo(", and I (steve) do not like fappy Vins commenting me out."); //then go cry a river
+        //steve.LogInfo(", and I also can't cry cause I");
+        //steve.LogInfo("am Steve");
 
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
@@ -631,5 +620,6 @@ public static class UnitManager
 
         if(map.GetTile(destination).IsWater) __result = null;
     }
+
     #endregion
 }

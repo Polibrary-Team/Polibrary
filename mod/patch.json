@@ -101,7 +101,7 @@
 	},
 	"pActions": {
 		"polib_basiclog": [
-			"set:var string §I got logged§",
+			"set:var string §Abandon all hope, ye who enters here!§",
 			"log:@var"
 		]
 	}
