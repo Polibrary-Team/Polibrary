@@ -34,6 +34,7 @@ namespace Polibrary;
 public static class UnitManager
 {
     private static ManualLogSource steve;
+    private static ManualLogSource jeremy;
     public static void Load(ManualLogSource logger)
     {
         steve = logger;
@@ -42,6 +43,10 @@ public static class UnitManager
         //steve.LogInfo(", and I (steve) do not like fappy Vins commenting me out."); //then go cry a river
         //steve.LogInfo(", and I also can't cry cause I");
         //steve.LogInfo("am Steve");
+
+        jeremy = logger;
+        jeremy.LogInfo("It appears I have been summoned, now I shall bring a thousand years of darkness, pain and despair.");
+        //fap i told you not to kill steve!
 
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
