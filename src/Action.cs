@@ -160,10 +160,18 @@ public class pAction
             case "setimprovements": //sets improvements on tiles of an area
                 SetImprovements(ps[0],ps[1],ps[2]);
                 break;
+            case "afflicttile": //gives a tile a tileeffect
+                AfflictTile(ps[0], ps[1]);
+                break;
             case "afflictunit": //gives a unit a uniteffect
                 AfflictUnit(ps[0], ps[1]);
                 break;
-            
+            case "unitexhaustion": //sets the unit's exhaustion state
+                SetUnitExhaustion(ps[0],ps[1],ps[2]);
+                break;
+            case "trainunit": //strains a unit
+                TrainUnit(ps[0],ps[1],ps[2]);
+                break;
         }
     }
 
@@ -309,21 +317,65 @@ public class pAction
         GameManager.GameState.ActionStack.Add(new BuildAction(playerId, imp, wcoords, deductCost));
     }
 
+    private void AfflictTile(string stileEffectType, string swcoords)
+    {
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+        TileData.EffectType effect = ParseTileEffectType(stileEffectType);
+
+        if (Tile(wcoords).unit == null)
+        {
+            LogError("AfflictUnit", "TileEffect is null");
+            return;
+        }
+
+        Tile(wcoords).AddEffect(effect);
+    }
+
     private void AfflictUnit(string sunitEffectType, string swcoords)
     {
         WorldCoordinates wcoords = ParseWcoords(swcoords);
         UnitEffect effect = ParseUnitEffectType(sunitEffectType);
 
-        if (GameManager.GameState.Map.GetTile(wcoords).unit == null)
+        if (Tile(wcoords).unit == null)
         {
             LogError("AfflictUnit", "Unit is null");
             return;
         }
 
-        GameManager.GameState.Map.GetTile(wcoords).unit.AddEffect(effect);
+        Tile(wcoords).unit.AddEffect(effect);
     }
     
-    
+    private void SetUnitExhaustion(string swcoords, string smoved, string sattacked)
+    {
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+        bool moved = ParseBool(smoved);
+        bool attacked = ParseBool(sattacked);
+
+        if (Tile(wcoords).unit == null)
+        {
+            LogError("AfflictUnit", "Unit is null");
+            return;
+        }
+
+        Tile(wcoords).unit.moved = moved;
+        Tile(wcoords).unit.attacked = attacked;
+    }
+
+    private void TrainUnit(string sunit, string swcoords, string sdeductCost)
+    {
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+        UnitData.Type unit = ParseUnitDataType(sunit);
+        bool deductCost = ParseBool(sdeductCost);
+
+        GameLogicData gameLogicData = new GameLogicData();
+        int cost = deductCost ? gameLogicData.GetUnitData(unit).cost : 0;
+        GameManager.GameState.ActionStack.Add(new TrainAction(GameManager.GameState.CurrentPlayer, unit, wcoords, cost));
+    }
+
+    private void DamageUnit()
+    {
+        
+    }
     #endregion
 
 
@@ -342,6 +394,11 @@ public class pAction
     private void LogError(string origin, string msg)
     {
         modLogger.LogError($"Polibrary: Error from {origin}: " + msg);
+    }
+
+    private TileData Tile(WorldCoordinates coordinates)
+    {
+        return GameManager.GameState.Map.GetTile(coordinates);
     }
 
     private bool IsVariable<T>(string s, out T obj)
