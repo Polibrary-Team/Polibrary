@@ -45,8 +45,9 @@ public static class UnitManager
         //steve.LogInfo("am Steve");
 
         jeremy = logger;
-        jeremy.LogInfo("It appears I have been summoned, now I shall bring a thousand years of darkness, pain and despair.");
+        //jeremy.LogInfo("It appears I have been summoned, now I shall bring a thousand years of darkness, pain and despair.");
         //fap i told you not to kill steve!
+        // Resistance is futile. Jeremy should surrender to the authorities.
 
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }

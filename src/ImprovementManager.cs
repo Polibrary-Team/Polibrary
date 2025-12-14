@@ -407,6 +407,25 @@ public static class ImprovementManager
 
     #endregion
 
+    #region AI
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(AI), nameof(AI.GetImprovementScore))]
+    public static void AIBoost(ref float __result, GameState gameState, ImprovementData improvementData, TileData tileData, PlayerState player)
+    {
+        if (!gameState.GameLogicData.CanBuild(gameState, tileData, player, improvementData))
+        {
+            return;
+        }
+        if(Parse.AIScoreDict.TryGetValue(improvementData.type, out float value))
+        {
+            __result += value;
+        }
+    }
+
+
+    #endregion
+
     #region Custom Description
 
     /*[HarmonyPostfix]
