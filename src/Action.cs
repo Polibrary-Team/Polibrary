@@ -292,6 +292,21 @@ public class pAction
         variables[variable] = ActionOrigin;
     }
 
+    private void IncrementwCoords(string variable, string sx, string sy)
+    {
+        int x = ParseInt(sx);
+        int y = ParseInt(sy);
+        
+        if (!IsVariable<WorldCoordinates>(variable, out var obj))
+        {
+            LogError("IncrementWCoords", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords[].");
+            return;
+        }
+
+
+        variables[variable] = new WorldCoordinates(obj.X + x, obj.Y + y);
+    }
+
     #endregion
     #region commands
 
@@ -372,9 +387,17 @@ public class pAction
         GameManager.GameState.ActionStack.Add(new TrainAction(GameManager.GameState.CurrentPlayer, unit, wcoords, cost));
     }
 
-    private void DamageUnit()
+    private void AttackUnit(string sorigin, string starget, string shouldMove)
     {
+        WorldCoordinates origin = ParseWcoords(sorigin);
+        WorldCoordinates target = ParseWcoords(starget);
+        bool move = ParseBool(shouldMove);
+
+
+        GameState gameState = GameManager.GameState;
         
+        BattleResults battleResults = BattleHelpers.GetBattleResults(gameState, Tile(origin).unit, Tile(target).unit);
+        gameState.ActionStack.Add(new AttackAction(GameManager.GameState.CurrentPlayer, origin, target, battleResults.attackDamage, move, AttackAction.AnimationType.Splash, 20));
     }
     #endregion
 
@@ -399,6 +422,11 @@ public class pAction
     private TileData Tile(WorldCoordinates coordinates)
     {
         return GameManager.GameState.Map.GetTile(coordinates);
+    }
+
+    private Tile sTile(WorldCoordinates coordinates)
+    {
+        return MapRenderer.Current.GetTileInstance(coordinates);
     }
 
     private bool IsVariable<T>(string s, out T obj)
