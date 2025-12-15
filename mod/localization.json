@@ -15,14 +15,6 @@
         "English": "Collects ruins immediately upon stepping on them.",
         "Italian (Italy)": "Raccoglie le rovine immediatamente calpestandole."
     },
-    "unit_abilities_polib__intercept": {
-        "English": "INTERCEPT",
-        "Italian (Italy)": "INTERCETTA"
-    },
-    "tooltip_ability_polib__intercept": {
-        "English": "Unit retaliates first when attacked.",
-        "Italian (Italy)": "L'unità contrattacca per prima quando viene attaccata."
-    },
     "unit_abilities_polib__blind": {
         "English": "BLIND",
         "Italian (Italy)": "CIECO"
