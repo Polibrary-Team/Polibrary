@@ -51,6 +51,7 @@ public static class UnitManager
 
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
+    
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetDefenceBonus))]
@@ -187,6 +188,7 @@ public static class UnitManager
     }
 
     #region Agent
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CommandUtils), nameof(CommandUtils.GetTrainableUnits))]
     public static void ExcludeAgentsFromCities(ref Il2CppSystem.Collections.Generic.List<TrainCommand> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable = false)
@@ -278,6 +280,7 @@ public static class UnitManager
 
     #endregion
     #region Loyal
+    // This needs a rewrite so that the command itself isn't valid or the likes
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ConvertAction), nameof(ConvertAction.ExecuteDefault))]
@@ -414,7 +417,7 @@ public static class UnitManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MoveCommand), nameof(MoveCommand.Execute))]
-    public static void RuinDash(MoveCommand __instance, GameState gameState)
+    public static void RuinDash(MoveCommand __instance, GameState gameState) // Needs a rewrite for pass&play
     {
         gameState.TryGetUnit(__instance.UnitId, out UnitState unit);
         TileData tile = gameState.Map.GetTile(__instance.To);
@@ -626,6 +629,8 @@ public static class UnitManager
 
         if(map.GetTile(destination).IsWater) __result = null;
     }
+
+    // We need a util for blocking tiles in a pathfinder path and just reference that again and again.
 
     #endregion
 }

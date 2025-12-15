@@ -10,19 +10,6 @@ using Il2CppSystem;
 using Il2CppSystem.Linq.Expressions.Interpreter;
 using JetBrains.Annotations;
 using Polytopia.Data;
-using PolytopiaBackendBase.Auth;
-using PolytopiaBackendBase.Game;
-using SevenZip.Compression.LZMA;
-using Unity.Collections;
-using Unity.Jobs;
-using Unity.Mathematics;
-using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEngine.UIElements.UIR;
-using System.Reflection;
-using UnityEngine.EventSystems;
-using Newtonsoft.Json.Linq;
-using Il2CppSystem.Linq;
 
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
@@ -113,7 +100,6 @@ public static class ImprovementManager
             }
         }
     }
-    #endregion
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
@@ -129,6 +115,9 @@ public static class ImprovementManager
             }
         }
     }
+    #endregion
+
+
 
     #region GLD Builders
 
@@ -261,34 +250,34 @@ public static class ImprovementManager
             return;
         }
 
-        if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_healonce")) && tile.unit != null)
+        if (tile.unit != null)
         {
-            PolibUtils.HealUnit(gameState, tile.unit, 40);
-        }
+            if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_healonce")))
+            {
+                PolibUtils.HealUnit(gameState, tile.unit, 40);
+            }
 
-        if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_cleanseonce")) && tile.unit != null)
-        {
-            PolibUtils.CleanseUnit(gameState, tile.unit);
-        }
+            if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_cleanseonce")))
+            {
+                PolibUtils.CleanseUnit(gameState, tile.unit);
+            }
 
-        if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_gainxp")) && tile.unit != null)
-        {
-            tile.unit.xp += 3;
-        }
+            if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_gainxp")))
+            {
+                tile.unit.xp += 3;
+            }
 
-        if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_killunit")) && tile.unit != null)
-        {
-            gameState.ActionStack.Add(new KillUnitAction(tile.unit.owner, tile.coordinates));
+            if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_killunit")))
+            {
+                gameState.ActionStack.Add(new KillUnitAction(tile.unit.owner, tile.coordinates));
+            }
         }
 
         if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_research")))
         {
 
             var unlockableTech = PolibUtils.polibGetUnlockableTech(player);
-            if (unlockableTech == null || unlockableTech.Count == 0)
-            {
-            }
-            else
+            if (unlockableTech != null && unlockableTech.Count != 0)
             {
                 var tech = unlockableTech[gameState.RandomHash.Range(0, unlockableTech.Count, tile.coordinates.X, tile.coordinates.Y)];
                 gameState.ActionStack.Add(new ResearchAction(player.Id, tech.type, 0));
@@ -379,8 +368,8 @@ public static class ImprovementManager
         foreach (var command in commands)
         {
             BuildCommand buildCommand = command.TryCast<BuildCommand>();
-            if(buildCommand == null) continue;
-            if(!GameManager.GameState.GameLogicData.TryGetData(buildCommand.Type, out ImprovementData improvementData)) continue;
+            if (buildCommand == null) continue;
+            if (!GameManager.GameState.GameLogicData.TryGetData(buildCommand.Type, out ImprovementData improvementData)) continue;
 
             var refLoc = LocalizationUtils.CapitalizeString(Localization.Get(improvementData.displayName));
             var buttons = __instance.buttons.ToArray();
@@ -389,7 +378,7 @@ public static class ImprovementManager
                 Main.modLogger.LogMessage(button.text);
                 if (button.text == refLoc)
                 {
-                    
+
                     if (buildCommand != null && improvementData.cost > 0)
                     {
                         button.Cost = improvementData.cost;
@@ -401,10 +390,6 @@ public static class ImprovementManager
             }
         }
     }
-
-
-
-
     #endregion
 
     #region AI
@@ -417,7 +402,7 @@ public static class ImprovementManager
         {
             return;
         }
-        if(Parse.AIScoreDict.TryGetValue(improvementData.type, out float value))
+        if (Parse.AIScoreDict.TryGetValue(improvementData.type, out float value))
         {
             __result += value;
         }

@@ -1,38 +1,10 @@
-using System.ComponentModel;
-using System.Globalization;
-using System.Runtime.CompilerServices;
 using BepInEx.Logging;
-using EnumsNET;
 using HarmonyLib;
-using Il2CppInterop.Runtime;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem;
-using Il2CppSystem.Linq.Expressions.Interpreter;
-using JetBrains.Annotations;
 using Polytopia.Data;
-using PolytopiaBackendBase.Auth;
-using PolytopiaBackendBase.Game;
-using SevenZip.Compression.LZMA;
-using Unity.Collections;
-using Unity.Jobs;
-using Unity.Mathematics;
-using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEngine.UIElements.UIR;
-using System.Reflection;
-using UnityEngine.EventSystems;
 using Newtonsoft.Json.Linq;
 using Il2CppSystem.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using System.Collections.Generic;
-using Il2CppInterop.Runtime.Injection;
-
-using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
-using UnityEngine.Rendering.RenderGraphModule.NativeRenderPassCompiler;
 using pbb = PolytopiaBackendBase.Common;
-using Il2CppSystem.Net.Http.Headers;
 
 
 namespace Polibrary;
@@ -46,6 +18,8 @@ public static class PolibUtils
         utilGuy = logger;
         //utilGuy.LogInfo("I ran out of ideas");
     }
+
+    #region Sys2Cpp Stuff
     public static Il2CppSystem.Collections.Generic.List<T> ToIl2CppList<T>(System.Collections.Generic.List<T> sysList)
     {
         var il2cppList = new Il2CppSystem.Collections.Generic.List<T>();
@@ -90,6 +64,9 @@ public static class PolibUtils
     {
         return new List<T>(array);
     }
+    #endregion
+
+    #region RewardUtils
     public static int GetRewardCountForPlayer(byte playerId, CityReward[] targetRewards)
     {
         GameManager.GameState.TryGetPlayer(playerId, out var playerState);
@@ -139,85 +116,8 @@ public static class PolibUtils
         return data;
     }
 
-    private static void ApplyEffect(GameState gameState, WorldCoordinates Origin, WorldCoordinates Target, UnitEffect effect)
-    {
-        TileData tile = gameState.Map.GetTile(Origin);
-        TileData tile2 = gameState.Map.GetTile(Target);
-        UnitState unit = tile.unit;
-        UnitState unit2 = tile2.unit;
-        if (unit2 == null)
-        {
-            return;
-        }
-        unit2.AddEffect(effect);
-        if (unit2.passengerUnit != null)
-        {
-            unit2.passengerUnit.AddEffect(effect);
-        }
-    }
 
-    public static void CleanseUnit(GameState gameState, UnitState unit)
-    {
-        unit.effects = new Il2Gen.List<UnitEffect>();
-    }
-
-    public static void HealUnit(GameState gameState, UnitState unit, int amount)
-    {
-        var maxhp = unit.GetMaxHealth(gameState);
-        var currhp = unit.health;
-        if (currhp >= maxhp)
-        {
-            return;
-        }
-        var diff = maxhp - currhp;
-        if (diff < amount)
-        {
-            amount = diff;
-        }
-        if (unit.HasEffect(UnitEffect.Poisoned))
-        {
-            amount = 0;
-            unit.RemoveEffect(UnitEffect.Poisoned);
-        }
-        unit.health += (ushort)amount;
-        Tile tile = MapRenderer.Current.GetTileInstance(unit.coordinates);
-        tile.Heal(amount);
-    }
-
-
-    public static List<TechData> polibGetUnlockableTech(PlayerState player) //Broken in beta so that's why I made this btw (fapingvin)
-    {
-        var gld = GameManager.GameState.GameLogicData;
-        if (player.tribe == pbb.TribeType.None)
-        {
-            return null;
-        }
-        TribeData tribe;
-        if (GameManager.GameState.GameLogicData.TryGetData(player.tribe, out tribe))
-        {
-            List<TechData> list = new List<TechData>();
-            for (int i = 0; i < player.availableTech.Count; i++)
-            {
-                TechData @override;
-                if (gld.TryGetData(player.availableTech[i], out @override))
-                {
-                    @override = gld.GetOverride(@override, tribe);
-                    foreach (TechData techData in @override.techUnlocks)
-                    {
-                        TechData override2 = gld.GetOverride(techData, tribe);
-                        if (!player.HasTech(override2.type) && !list.Contains(override2))
-                        {
-                            list.Add(override2);
-                        }
-                    }
-                }
-            }
-            return list;
-        }
-        return null;
-    }
-
-    public static Parse.PolibCityRewardData SetVanillaCityRewardDefaults(CityReward reward) //dont laugh // Wtf??? I will laugh >:)
+        public static Parse.PolibCityRewardData SetVanillaCityRewardDefaults(CityReward reward) //dont laugh // Wtf??? I will laugh >:)
     {
         Parse.PolibCityRewardData rewardData = new Parse.PolibCityRewardData();
         switch (reward)
@@ -309,6 +209,91 @@ public static class PolibUtils
         }
         return rewardData;
     }
+
+    #endregion
+
+    #region UnitUtils
+
+    private static void ApplyEffect(GameState gameState, WorldCoordinates Origin, WorldCoordinates Target, UnitEffect effect)
+    {
+        TileData tile = gameState.Map.GetTile(Origin);
+        TileData tile2 = gameState.Map.GetTile(Target);
+        UnitState unit = tile.unit;
+        UnitState unit2 = tile2.unit;
+        if (unit2 == null)
+        {
+            return;
+        }
+        unit2.AddEffect(effect);
+        if (unit2.passengerUnit != null)
+        {
+            unit2.passengerUnit.AddEffect(effect);
+        }
+    }
+
+    public static void CleanseUnit(GameState gameState, UnitState unit)
+    {
+        unit.effects = new Il2Gen.List<UnitEffect>();
+    }
+
+    public static void HealUnit(GameState gameState, UnitState unit, int amount)
+    {
+        var maxhp = unit.GetMaxHealth(gameState);
+        var currhp = unit.health;
+        if (currhp >= maxhp)
+        {
+            return;
+        }
+        var diff = maxhp - currhp;
+        if (diff < amount)
+        {
+            amount = diff;
+        }
+        if (unit.HasEffect(UnitEffect.Poisoned))
+        {
+            amount = 0;
+            unit.RemoveEffect(UnitEffect.Poisoned);
+        }
+        unit.health += (ushort)amount;
+        Tile tile = MapRenderer.Current.GetTileInstance(unit.coordinates);
+        tile.Heal(amount);
+    }
+
+    #endregion
+
+    public static List<TechData> polibGetUnlockableTech(PlayerState player) //Broken in beta so that's why I made this btw (fapingvin)
+    {
+        var gld = GameManager.GameState.GameLogicData;
+        if (player.tribe == pbb.TribeType.None)
+        {
+            return null;
+        }
+        TribeData tribe;
+        if (GameManager.GameState.GameLogicData.TryGetData(player.tribe, out tribe))
+        {
+            List<TechData> list = new List<TechData>();
+            for (int i = 0; i < player.availableTech.Count; i++)
+            {
+                TechData @override;
+                if (gld.TryGetData(player.availableTech[i], out @override))
+                {
+                    @override = gld.GetOverride(@override, tribe);
+                    foreach (TechData techData in @override.techUnlocks)
+                    {
+                        TechData override2 = gld.GetOverride(techData, tribe);
+                        if (!player.HasTech(override2.type) && !list.Contains(override2))
+                        {
+                            list.Add(override2);
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+        return null;
+    }
+
+
     public static Parse.PolibUnitEffectData SetVanillaUnitEffectDefaults(UnitEffect effect)
     {
         Parse.PolibUnitEffectData effectData = new Parse.PolibUnitEffectData();
@@ -479,6 +464,11 @@ public static class PolibUtils
     public static ImprovementData DataFromState(ImprovementState improvement, GameState state)
     {
         return state.GameLogicData.GetImprovementData(improvement.type);
+    }
+
+    public static ImprovementData DataFromState(ImprovementState improvement)
+    {
+        return DataFromState(improvement, GameManager.GameState);
     }
 
 

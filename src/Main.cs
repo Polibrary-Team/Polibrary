@@ -37,7 +37,7 @@ public static class Main
     public static ManualLogSource modLogger;
     public static void Load(ManualLogSource logger)
     {
-        new Harmony("com.polibraryteam.polibrary").PatchAll();
+        new Harmony("com.polibraryteam.polibrary").PatchAll(); //???
         modLogger = logger;
         logger.LogMessage("Polibrary.dll loaded.");
         modLogger.LogMessage("Version 2.1-pre 4");

@@ -12,7 +12,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="PolyMod" Version="1.2.2" />
+        <PackageReference Include="PolyMod" Version="1.2.7" />
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
