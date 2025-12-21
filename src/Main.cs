@@ -5,6 +5,7 @@ using BepInEx.Logging;
 using EnumsNET;
 using HarmonyLib;
 using Il2CppInterop.Runtime;
+using Il2CppInterop.Runtime.Injection;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppSystem;
 using Il2CppSystem.Linq.Expressions.Interpreter;
@@ -45,7 +46,7 @@ public static class Main
         PolyMod.Loader.AddPatchDataType("unitEffectData", typeof(UnitEffect)); //casual fapingvin carry... ...again
         PolyMod.Loader.AddPatchDataType("unitAbilityData", typeof(UnitAbility.Type)); //...casual...      ...fapingvin carry...       ...again
         PolyMod.Loader.AddPatchDataType("tileEffectData", typeof(TileData.EffectType));
-        // i wrote this from linux babyyy
+        ClassInjector.RegisterTypeInIl2Cpp<CameraShake>();
     }
 
     
@@ -74,68 +75,6 @@ public static class Main
     // Beyond lies the code graveyard
     // Enter with caution!
 
-
-
-    /*
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(GameStateUtils), nameof(GameStateUtils.SetPlayerNames))]
-    public static void GameStateUtils_SetPlayerNames(GameState gameState)
-    {
-        foreach (PlayerState playerState in gameState.PlayerStates)
-        {
-            TribeData tribeData;
-            gameState.GameLogicData.TryGetData(playerState.tribe, out tribeData);
-            if ((playerState.GetNameInternal == null || playerState.GetNameInternal() == "") && leaderNameDict.TryGetValue(tribeData.type, out var name))
-            {
-                playerState.UserName = name;
-                LogMan1997?.LogInfo($"Named {tribeData.type} as {name}, their current name: {playerState.UserName}");
-            }
-        }
-        LogMan1997?.LogInfo($"Tried naming tribes");
-    }*/
-
-
-
-
-    /*
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetSightRange))]
-    public static void UnitDataExtensions_GetSightRange(this UnitData unitData, ref int __result)
-    {
-        int num = 1;
-        foreach (UnitAbility.Type abilityType in unitData.unitAbilities)
-        {
-            if (unitAbilityDataDict.TryGetValue(abilityType, out var data))
-            {
-                num = (data.visionRadius <= num) ? data.visionRadius : num;
-            }
-        }
-        __result = num;
-    } 
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(ActionUtils), nameof(ActionUtils.CheckStepOnPoison))]
-    public static void ActionUtils_CheckStepOnPoison(TileData targetTile, UnitState unit, GameState gameState)
-    {
-        ImprovementData improvementData;
-        PlayerState player;
-        bool b = false;
-        foreach (UnitAbility.Type abilityType in gameState.GameLogicData.GetUnitData(unit.type).unitAbilities)
-        {
-            if (unitAbilityDataDict.TryGetValue(abilityType, out var data))
-            {
-                b = data.allowsFly ? true : b; //FUCKING FUCK FUCK THIS SHIT FUCKING FUCK SHIT FUCK
-            }
-        }
-        if (targetTile.improvement != null && gameState.GameLogicData.TryGetData(targetTile.improvement.type, out improvementData) && improvementData != null && improvementData.HasAbility(ImprovementAbility.Type.Poison) && gameState.TryGetPlayer(unit.owner, out player) && !player.HasTribeAbility(TribeAbility.Type.PoisonResist, gameState) && !b)
-            {
-                gameState.ActionStack.Add(new PoisonUnitAction(unit.owner, targetTile.coordinates, targetTile.coordinates));
-                if (gameState.Version < 83)
-                {
-                    gameState.ActionStack.Add(new AttackAction(unit.owner, targetTile.coordinates, targetTile.coordinates, 20, false, AttackAction.AnimationType.None, 0));
-                }
-            }
-    } */
     /*
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ActionUtils), nameof(ActionUtils.PerformAttackDefault))]
@@ -394,4 +333,42 @@ public static class Main
         */
 }
 
+public class CameraShake : MonoBehaviour
+    {
+    public CameraShake(System.IntPtr ptr) : base(ptr) { }
 
+        public float shakeDuration = 0f;
+        public float shakeAmount = 0.5f;
+        public float decreaseFactor = 1.0f;
+        private Vector3 originalPos;
+        private bool isShaking = false;
+
+        void LateUpdate()
+        {
+            
+            if (shakeDuration > 0)
+            {
+                // If this is the first frame of the shake, capture the position
+                if (!isShaking)
+                {
+                    originalPos = transform.localPosition;
+                    isShaking = true;
+                }
+
+                transform.localPosition = Vector3.Lerp(transform.localPosition,originalPos + UnityEngine.Random.insideUnitSphere * shakeAmount,Time.deltaTime * 3);
+                shakeDuration -= Time.deltaTime * decreaseFactor;
+            }
+            else if (isShaking)
+            {
+                shakeDuration = 0f;
+                transform.localPosition = originalPos;
+                isShaking = false;
+            }
+        }
+
+        public void TriggerShake(float duration, float amount)
+        {
+            shakeDuration = duration;
+            shakeAmount = amount;
+        }
+    }

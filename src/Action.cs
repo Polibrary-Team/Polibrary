@@ -201,6 +201,9 @@ public class pAction
             case "vfx":
                 Vfx(ps[0], ps[1]);
                 break;
+            case "screenshake":
+                ScreenShake(ps[0], ps[1]);
+                break;
         }
     }
 
@@ -578,8 +581,14 @@ public class pAction
                 tile.StopRainbowFire(false);
                 break;
         }
-        
+    }
 
+    private void ScreenShake(string sduration, string samount)
+    {
+        float duration = ParseInt(sduration);
+        float amount = ParseInt(samount);
+
+        ShakeCamera(duration, amount / 10);
     }
     #endregion
 
@@ -609,6 +618,20 @@ public class pAction
     private Tile sTile(WorldCoordinates coordinates)
     {
         return MapRenderer.Current.GetTileInstance(coordinates);
+    }
+
+    private static void ShakeCamera(float duration, float amount)
+    {
+        var mainCam = Camera.main;
+        if (mainCam == null) return;
+
+        var shaker = mainCam.GetComponent<CameraShake>();
+        if (shaker == null)
+        {
+            shaker = mainCam.gameObject.AddComponent<CameraShake>();
+        }
+
+        shaker.TriggerShake(duration, amount);
     }
 
     private bool IsVariable<T>(string s, out T obj)
