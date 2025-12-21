@@ -164,8 +164,6 @@ public class pAction
             case "getorigin": //gets the origin of the action
                 GetActionOrigin(ps[0]);
                 break;
-            
-            
             case "getx":
                 GetX(ps[0], ps[1]);
                 break;
@@ -376,7 +374,7 @@ public class pAction
     {
         if (!IsVariable<WorldCoordinates>(variable, out var obj))
         {
-            LogError("GetRadiusFromOrigin", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords[].");
+            LogError("GetActionOrigin", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords[].");
             return;
         }
 
@@ -508,6 +506,7 @@ public class pAction
         
         if (!EnumCache<SFXTypes>.TryGetType(sfx, out var enumValue))
         {
+            LogError("PlaySfx", "SFXType doesn't exist.");
             return;
         }
         
@@ -521,8 +520,14 @@ public class pAction
         
         Tile tile = sTile(wcoords);
 
+        if (tile == null)
+        {
+            LogError("Vfx", "Couldn't find tile");
+            return;
+        }
+
         GameManager.GameState.TryGetPlayer(Tile(wcoords).owner, out var playerState);
-        SkinType skinType = playerState.skinType;
+        SkinType skinType = (playerState != null) ? playerState.skinType : SkinType.None;
 
         switch (vfx)
         {
@@ -588,7 +593,7 @@ public class pAction
         float duration = ParseInt(sduration);
         float amount = ParseInt(samount);
 
-        ShakeCamera(duration, amount / 10);
+        ShakeCamera(duration / 10, amount);
     }
     #endregion
 

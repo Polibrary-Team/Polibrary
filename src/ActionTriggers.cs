@@ -59,4 +59,27 @@ public static class ActionTriggers
             }
         }
     }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(MoveAction), nameof(MoveAction.ExecuteDefault))]
+    private static void OnMove(MoveAction __instance, GameState gameState)
+    {
+        gameState.TryGetUnit(__instance.UnitId, out UnitState unit);
+
+        if (Parse.unitTriggers.TryGetValue(unit.type, out var dict))
+        {
+            if (dict.TryGetValue("onMove", out string name))
+            {
+                if (Parse.actions.TryGetValue(name, out pAction action))
+                {
+                    action.ActionOrigin = unit.coordinates;
+                    action.Execute();
+                }
+                else
+                {
+                    modLogger.LogInfo($"pAction not found: '{name}'. Check spelling");
+                }
+            }
+        }
+    }
 }
