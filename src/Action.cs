@@ -29,6 +29,7 @@ using Il2Gen = Il2CppSystem.Collections.Generic;
 using Il2CppSystem.Linq.Expressions;
 using UnityEngine.Rendering.Universal;
 using LibCpp2IL.Elf;
+using PolytopiaBackendBase.Common;
 
 
 namespace Polibrary;
@@ -136,7 +137,18 @@ public class pAction
             case "alert": //popup alert in game (not done yet)
                 Alert(ps[0]);
                 break;
-
+            case "wcoords++": //increments wcoords with 2 ints
+                IncrementwCoords(ps[0], ps[1], ps[2]);
+                break;
+            case "int++": //increments int by x
+                IncrementInt(ps[0], ps[1]);
+                break;
+            case "multiply": //multiplies 2 ints
+                MultiplyInt(ps[0], ps[1], ps[2]);
+                break;
+            case "divide": //divides 2 ints
+                DivideInt(ps[0], ps[1], ps[2]);
+                break;
 
             case "isunit": //checks if the unit on tile is the type of unit specified
                 IsUnit(ps[0],ps[1],ps[2]);
@@ -152,9 +164,7 @@ public class pAction
             case "getorigin": //gets the origin of the action
                 GetActionOrigin(ps[0]);
                 break;
-            case "wcoords++": //gets the origin of the action
-                IncrementwCoords(ps[0], ps[1], ps[2]);
-                break;
+            
             
             case "getx":
                 GetX(ps[0], ps[1]);
@@ -184,6 +194,12 @@ public class pAction
                 break;
             case "attackunit": //attack a unit with another unit
                 AttackUnit(ps[0],ps[1],ps[2]);
+                break;
+            case "sfx":
+                PlaySfx(ps[0]);
+                break;
+            case "vfx":
+                Vfx(ps[0], ps[1]);
                 break;
         }
     }
@@ -248,7 +264,7 @@ public class pAction
         
         if (!IsVariable<WorldCoordinates>(variable, out var obj))
         {
-            LogError("IncrementWCoords", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords[].");
+            LogError("IncrementWCoords", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords.");
             return;
         }
 
@@ -262,12 +278,42 @@ public class pAction
         
         if (!IsVariable<int>(variable, out var obj))
         {
-            LogError("IncrementWCoords", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords[].");
+            LogError("IncrementInt", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: int.");
             return;
         }
 
 
         variables[variable] = obj + d;
+    }
+
+    private void MultiplyInt(string variable, string sa, string sb)
+    {
+        int a = ParseInt(sa);
+        int b = ParseInt(sb);
+        
+        if (!IsVariable<int>(variable, out var obj))
+        {
+            LogError("MultiplyInt", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: int.");
+            return;
+        }
+
+
+        variables[variable] = a * b;
+    }
+
+    private void DivideInt(string variable, string sa, string sb)
+    {
+        int a = ParseInt(sa);
+        int b = ParseInt(sb);
+        
+        if (!IsVariable<int>(variable, out var obj))
+        {
+            LogError("MultiplyInt", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: int.");
+            return;
+        }
+
+
+        variables[variable] = a / b;
     }
 
     #endregion
@@ -453,14 +499,87 @@ public class pAction
         gameState.ActionStack.Add(new AttackAction(GameManager.GameState.CurrentPlayer, origin, target, battleResults.attackDamage, move, AttackAction.AnimationType.Splash, 20));
     }
 
-    private void PlaySfx(string sfx)
+    private void PlaySfx(string ssfx)
     {
+        string sfx = ParseString(ssfx);
+        
         if (!EnumCache<SFXTypes>.TryGetType(sfx, out var enumValue))
         {
             return;
         }
         
         AudioManager.PlaySFX(enumValue);
+    }
+
+    private void Vfx(string svfx, string swcoords)
+    {
+        string vfx = ParseString(svfx);
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+        
+        Tile tile = sTile(wcoords);
+
+        GameManager.GameState.TryGetPlayer(Tile(wcoords).owner, out var playerState);
+        SkinType skinType = playerState.skinType;
+
+        switch (vfx)
+        {
+            case "darkpuff":
+                tile.SpawnDarkPuff();
+                break;
+            case "embers":
+                tile.SpawnEmbers();
+                break;
+            case "explosion":
+                tile.SpawnExplosion();
+                break;
+            case "green":
+                tile.SpawnGreenParticles(); //??
+                break;
+            case "halo":
+                tile.SpawnHalo();
+                break;
+            case "heal":
+                tile.SpawnHeal();
+                break;
+            case "love":
+                tile.SpawnLove();
+                break;
+            case "poison":
+                tile.SpawnPoison(skinType);
+                break;
+            case "puff":
+                tile.SpawnPuff();
+                break;
+            case "shine":
+                tile.SpawnShine();
+                break;
+            case "sparkles":
+                tile.SpawnSparkles();
+                break;
+            
+            case "startfire":
+                tile.SpawnFire();
+                break;
+            case "stopfire":
+                tile.StopFire();
+                break;
+
+            case "startfoam":
+                tile.SpawnFoam();
+                break;
+            case "stopfoam":
+                tile.StopFoam();
+                break;
+            
+            case "startrainbowfire":
+                tile.SpawnRainbowFire();
+                break;
+            case "stoprainbowfire":
+                tile.StopRainbowFire(false);
+                break;
+        }
+        
+
     }
     #endregion
 
