@@ -152,6 +152,16 @@ public class pAction
             case "getorigin": //gets the origin of the action
                 GetActionOrigin(ps[0]);
                 break;
+            case "wcoords++": //gets the origin of the action
+                IncrementwCoords(ps[0], ps[1], ps[2]);
+                break;
+            
+            case "getx":
+                GetX(ps[0], ps[1]);
+                break;
+            case "gety":
+                GetY(ps[0], ps[1]);
+                break;
 
             
             case "setimprovement": //sets an improvement on a tile
@@ -169,8 +179,11 @@ public class pAction
             case "unitexhaustion": //sets the unit's exhaustion state
                 SetUnitExhaustion(ps[0],ps[1],ps[2]);
                 break;
-            case "trainunit": //strains a unit
+            case "trainunit": //trains a unit
                 TrainUnit(ps[0],ps[1],ps[2]);
+                break;
+            case "attackunit": //attack a unit with another unit
+                AttackUnit(ps[0],ps[1],ps[2]);
                 break;
         }
     }
@@ -228,6 +241,35 @@ public class pAction
         
     }
 
+    private void IncrementwCoords(string variable, string sx, string sy)
+    {
+        int x = ParseInt(sx);
+        int y = ParseInt(sy);
+        
+        if (!IsVariable<WorldCoordinates>(variable, out var obj))
+        {
+            LogError("IncrementWCoords", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords[].");
+            return;
+        }
+
+
+        variables[variable] = new WorldCoordinates(obj.X + x, obj.Y + y);
+    }
+
+    private void IncrementInt(string variable, string sd)
+    {
+        int d = ParseInt(sd);
+        
+        if (!IsVariable<int>(variable, out var obj))
+        {
+            LogError("IncrementWCoords", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords[].");
+            return;
+        }
+
+
+        variables[variable] = obj + d;
+    }
+
     #endregion
 
     #region flags
@@ -277,7 +319,7 @@ public class pAction
         GameState gameState = GameManager.GameState;
         MapData map = gameState.Map;
 
-        variables[variable] = map.GetArea(origin, radius, true, allowCenter); //who in the ever living fuck would want to exclude diagonals??
+        variables[variable] = map.GetArea(origin, radius, true, allowCenter); //who in the ever living fuck would want to exclude diagonals?? //i remembered water exists
 
     }
 
@@ -292,19 +334,29 @@ public class pAction
         variables[variable] = ActionOrigin;
     }
 
-    private void IncrementwCoords(string variable, string sx, string sy)
+    private void GetX(string variable, string swcoords)
     {
-        int x = ParseInt(sx);
-        int y = ParseInt(sy);
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
         
-        if (!IsVariable<WorldCoordinates>(variable, out var obj))
+        if (!IsVariable<int>(variable, out var obj))
         {
-            LogError("IncrementWCoords", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords[].");
+            LogError("GetX", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: int.");
             return;
         }
 
+        variables[variable] = wcoords.x;
+    }
+    private void GetY(string variable, string swcoords)
+    {
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+        
+        if (!IsVariable<int>(variable, out var obj))
+        {
+            LogError("GetY", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: int.");
+            return;
+        }
 
-        variables[variable] = new WorldCoordinates(obj.X + x, obj.Y + y);
+        variables[variable] = wcoords.y;
     }
 
     #endregion
@@ -393,11 +445,22 @@ public class pAction
         WorldCoordinates target = ParseWcoords(starget);
         bool move = ParseBool(shouldMove);
 
+        if (Tile(origin).unit == null || Tile(target).unit == null) return;
 
         GameState gameState = GameManager.GameState;
         
         BattleResults battleResults = BattleHelpers.GetBattleResults(gameState, Tile(origin).unit, Tile(target).unit);
         gameState.ActionStack.Add(new AttackAction(GameManager.GameState.CurrentPlayer, origin, target, battleResults.attackDamage, move, AttackAction.AnimationType.Splash, 20));
+    }
+
+    private void PlaySfx(string sfx)
+    {
+        if (!EnumCache<SFXTypes>.TryGetType(sfx, out var enumValue))
+        {
+            return;
+        }
+        
+        AudioManager.PlaySFX(enumValue);
     }
     #endregion
 
