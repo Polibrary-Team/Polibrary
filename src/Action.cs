@@ -43,20 +43,25 @@ public class pAction
         modLogger = logger;
     }
 
-    //scrapping the basic action, so only the pScript version will be made
-
     public string[] lines;
     public WorldCoordinates ActionOrigin;
-    private Dictionary<string, object> variables = new Dictionary<string, object>(); 
+
+
+    int index = 0;
+    int increment = 1;
+    Dictionary<string, object> variables = new Dictionary<string, object>(); 
 
 
 
     public void Execute()
     {
-        foreach (string line in this.lines)
+        modLogger.LogInfo($"{index}");
+        while (index < lines.Length)
         {
-            ReadLine(line);
+            modLogger.LogInfo($"Reading line no. {index}");
+            ReadLine(lines[index]);
         }
+        index = 0;
     }
 
     private void ReadLine(string line)
@@ -110,7 +115,11 @@ public class pAction
             parameters.Add(s.Trim('§'));
         }
 
+        increment = 1; //reset increment to 1 so we only gotta write diff to those methods where it matters
+
         RunFunction(command, parameters);
+
+        index += increment;
     }
 
     private void RunFunction(string command, List<string> ps)
@@ -315,6 +324,40 @@ public class pAction
 
 
         variables[variable] = a / b;
+    }
+
+    private void CallAction(string s)
+    {
+        string name = ParseString(s);
+
+        if (Parse.actions.TryGetValue(name, out pAction action))
+        {
+            LogError("CallAction", $"Couldn't find action '{name}'");
+            return;
+        }
+
+        action.ActionOrigin = ActionOrigin;
+        action.Execute();
+    }
+
+    private void CallActionAt(string s, string swcoords)
+    {
+        string name = ParseString(s);
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+
+        if (Parse.actions.TryGetValue(name, out pAction action))
+        {
+            LogError("CallAction", $"Couldn't find action '{name}'");
+            return;
+        }
+
+        action.ActionOrigin = wcoords;
+        action.Execute();
+    }
+
+    private void Return()
+    {
+        
     }
 
     #endregion
