@@ -540,4 +540,35 @@ public static class PolibUtils
     }
 
     #endregion ParseUtils
+
+    public static void RunAction(string name, WorldCoordinates coordinates)
+    {
+        if (Parse.actions.TryGetValue(name, out pAction refaction))
+        {
+            pAction action = new pAction(refaction);
+            action.ActionOrigin = coordinates;
+            action.name = name;
+            action.Execute();
+        }
+        else
+        {
+            utilGuy.LogInfo($"pAction not found: '{name}'. Check spelling");
+        }
+    }
+
+    public static void RunChildAction(string name, WorldCoordinates coordinates, Dictionary<string, object> variables)
+    {
+        if (Parse.actions.TryGetValue(name, out pAction refaction))
+        {
+            pAction action = new pAction(refaction);
+            action.ActionOrigin = coordinates;
+            action.name = name;
+            action.variables = variables;
+            action.Execute();
+        }
+        else
+        {
+            utilGuy.LogInfo($"pAction not found: '{name}'. Check spelling");
+        }
+    }
 }

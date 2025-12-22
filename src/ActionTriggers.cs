@@ -47,15 +47,7 @@ public static class ActionTriggers
         {
             if (dict.TryGetValue("onBuild", out string name))
             {
-                if (Parse.actions.TryGetValue(name, out pAction action))
-                {
-                    action.ActionOrigin = __instance.Coordinates;
-                    action.Execute();
-                }
-                else
-                {
-                    modLogger.LogInfo($"pAction not found: '{name}'. Check spelling");
-                }
+                PolibUtils.RunAction(name, __instance.Coordinates);
             }
         }
     }
@@ -70,15 +62,7 @@ public static class ActionTriggers
         {
             if (dict.TryGetValue("onMove", out string name))
             {
-                if (Parse.actions.TryGetValue(name, out pAction action))
-                {
-                    action.ActionOrigin = unit.coordinates;
-                    action.Execute();
-                }
-                else
-                {
-                    modLogger.LogInfo($"pAction not found: '{name}'. Check spelling");
-                }
+                PolibUtils.RunAction(name, unit.coordinates);
             }
         }
     }

@@ -45,13 +45,20 @@ public class pAction
 
     public string[] lines;
     public WorldCoordinates ActionOrigin;
+    public string name;
 
 
     int index = 0;
     int increment = 1;
-    Dictionary<string, object> variables = new Dictionary<string, object>(); 
+    public Dictionary<string, object> variables = new Dictionary<string, object>(); 
 
+    Dictionary<string, int> cycleIds = new Dictionary<string, int>();
 
+    public pAction() { }
+    public pAction(pAction other)
+    {
+        lines = other.lines;
+    }
 
     public void Execute()
     {
@@ -61,7 +68,6 @@ public class pAction
             modLogger.LogInfo($"Reading line no. {index}");
             ReadLine(lines[index]);
         }
-        index = 0;
     }
 
     private void ReadLine(string line)
@@ -137,28 +143,49 @@ public class pAction
         
         switch (command)
         {
+            //GENERIC
             case "set": //sets a variable
                 SetVariable(ps[0], ps[1], ps[2]);
                 break;
             case "log": //logs a string
                 LogMessage(ps[0]);
                 break;
-            case "alert": //popup alert in game (not done yet)
-                Alert(ps[0]);
+            case "alert": //popup alert in game with title and message
+                Alert(ps[0], ps[1]);
                 break;
             case "wcoords++": //increments wcoords with 2 ints
                 IncrementwCoords(ps[0], ps[1], ps[2]);
                 break;
-            case "int++": //increments int by x
+            case "a+b": //increments int by x
                 IncrementInt(ps[0], ps[1]);
                 break;
-            case "multiply": //multiplies 2 ints
+            case "a*b": //multiplies 2 ints
                 MultiplyInt(ps[0], ps[1], ps[2]);
                 break;
-            case "divide": //divides 2 ints
+            case "a/b": //divides 2 ints
                 DivideInt(ps[0], ps[1], ps[2]);
                 break;
+            case "call": //calls an action
+                CallAction(ps[0]);
+                break;
+            case "callchild": //calls an action as a child action (inherits variables)
+                CallChildAction(ps[0]);
+                break;
+            case "callat": //calls an action at a specific origin
+                CallActionAt(ps[0], ps[1]);
+                break;
+            case "return": //aborts the action
+                Return();
+                break;
+            case "loop": //starts a loop
+                Loop(ps[0]);
+                break;
+            case "back": //loops back to the loop with matching id
+                Back(ps[0]);
+                break;
 
+
+            //FLAGS
             case "isunit": //checks if the unit on tile is the type of unit specified
                 IsUnit(ps[0],ps[1],ps[2]);
                 break;
@@ -167,20 +194,22 @@ public class pAction
                 break;
 
 
+            //FUNCTIONS
             case "getradius": //gets an area around an origin and returns it to a variable
                 GetRadiusFromOrigin(ps[0],ps[1],ps[2],ps[3]);
                 break;
             case "getorigin": //gets the origin of the action
                 GetActionOrigin(ps[0]);
                 break;
-            case "getx":
+            case "getx": //get the x of a wcoords
                 GetX(ps[0], ps[1]);
                 break;
-            case "gety":
+            case "gety": //get the y of a wcoords
                 GetY(ps[0], ps[1]);
                 break;
 
             
+            //COMMANDS
             case "setimprovement": //sets an improvement on a tile
                 SetImprovement(ps[0],ps[1],ps[2]);
                 break;
@@ -202,13 +231,13 @@ public class pAction
             case "attackunit": //attack a unit with another unit
                 AttackUnit(ps[0],ps[1],ps[2]);
                 break;
-            case "sfx":
+            case "sfx": //plays a sound effect
                 PlaySfx(ps[0]);
                 break;
-            case "vfx":
+            case "vfx": //plays a visual effect on a tile
                 Vfx(ps[0], ps[1]);
                 break;
-            case "screenshake":
+            case "screenshake": //yo momma when she farts
                 ScreenShake(ps[0], ps[1]);
                 break;
         }
@@ -262,9 +291,12 @@ public class pAction
         modLogger.LogInfo(ParseString(msg));
     }
 
-    private void Alert(string msg) //idk how tf this is done in the main game I'll check later (should be as elyrion sanctuary shit)
+    private void Alert(string stitle, string smsg)
     {
-        
+        string title = ParseString(stitle);
+        string msg = ParseString(smsg);
+
+        NotificationManager.Notify(msg, title);
     }
 
     private void IncrementwCoords(string variable, string sx, string sy)
@@ -336,8 +368,20 @@ public class pAction
             return;
         }
 
-        action.ActionOrigin = ActionOrigin;
-        action.Execute();
+        PolibUtils.RunAction(name, ActionOrigin);
+    }
+
+    private void CallChildAction(string s)
+    {
+        string name = ParseString(s);
+
+        if (Parse.actions.TryGetValue(name, out pAction action))
+        {
+            LogError("CallAction", $"Couldn't find action '{name}'");
+            return;
+        }
+
+        PolibUtils.RunChildAction(name, ActionOrigin, variables);
     }
 
     private void CallActionAt(string s, string swcoords)
@@ -351,13 +395,30 @@ public class pAction
             return;
         }
 
-        action.ActionOrigin = wcoords;
-        action.Execute();
+        PolibUtils.RunAction(name, wcoords);
     }
 
     private void Return()
     {
-        
+        index = lines.Length;
+    }
+    private void Loop(string sid)
+    {
+        string id = ParseString(sid);
+
+        cycleIds[id] = index;
+    }
+    private void Back(string sid)
+    {
+        string id = ParseString(sid);
+
+        if (!cycleIds.TryGetValue(id, out var i))
+        {
+            LogError("Back",$"Couldn't find start of cycle '{id}'");
+            return;
+        }
+
+        index = i;
     }
 
     #endregion
@@ -372,6 +433,12 @@ public class pAction
         GameState gameState = GameManager.GameState;
         MapData map = gameState.Map;
         TileData tile = map.GetTile(wcoords);
+
+        if (!IsVariable<bool>(variable, out var obj))
+        {
+            LogError("IsUnit", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            return;
+        }
 
         variables[variable] = tile.unit.type == unit;
     }
@@ -389,9 +456,86 @@ public class pAction
             units.Add(map.GetTile(coords).unit.type);
         }
 
+        if (!IsVariable<bool>(variable, out var obj))
+        {
+            LogError("IsUnit", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            return;
+        }
+
         variables[variable] = units.Contains(unit);
     }
+
+    private void AGreaterB(string variable, string sa, string sb)
+    {
+        int a = ParseInt(sa);
+        int b = ParseInt(sb);
+
+        if (!IsVariable<bool>(variable, out var obj))
+        {
+            LogError("AGreaterB", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            return;
+        }
+
+        variables[variable] = a > b;
+    }
+
+    private void ALesserB(string variable, string sa, string sb)
+    {
+        int a = ParseInt(sa);
+        int b = ParseInt(sb);
+
+        if (!IsVariable<bool>(variable, out var obj))
+        {
+            LogError("ALesserB", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            return;
+        }
+
+        variables[variable] = a < b;
+    }
+
+    private void AEqualB(string variable, string sa, string sb)
+    {
+        int a = ParseInt(sa);
+        int b = ParseInt(sb);
+
+        if (!IsVariable<bool>(variable, out var obj))
+        {
+            LogError("ALesserB", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            return;
+        }
+
+        variables[variable] = a == b;
+    }
+
+    private void AGreaterOrEqualB(string variable, string sa, string sb)
+    {
+        int a = ParseInt(sa);
+        int b = ParseInt(sb);
+
+        if (!IsVariable<bool>(variable, out var obj))
+        {
+            LogError("AGreaterOrEqualB", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            return;
+        }
+
+        variables[variable] = a >= b;
+    }
+
+    private void ALesserOrEqualB(string variable, string sa, string sb)
+    {
+        int a = ParseInt(sa);
+        int b = ParseInt(sb);
+
+        if (!IsVariable<bool>(variable, out var obj))
+        {
+            LogError("ALesserOrEqualB", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            return;
+        }
+
+        variables[variable] = a <= b;
+    }
     #endregion
+
     #region functions
 
     private void GetRadiusFromOrigin(string variable, string sorigin, string sradius, string sallowCenter)
@@ -481,7 +625,7 @@ public class pAction
 
         if (Tile(wcoords).unit == null)
         {
-            LogError("AfflictUnit", "TileEffect is null");
+            LogError("AfflictTile", "TileEffect is null");
             return;
         }
 
@@ -510,7 +654,7 @@ public class pAction
 
         if (Tile(wcoords).unit == null)
         {
-            LogError("AfflictUnit", "Unit is null");
+            LogError("SetUnitExhaustion", "Unit is null");
             return;
         }
 
@@ -654,8 +798,8 @@ public class pAction
     #region utils
 
     private void LogError(string origin, string msg)
-    {
-        modLogger.LogError($"Polibrary: Error from {origin}: " + msg);
+    {   
+        modLogger.LogError($"{name}: Error from {origin}: " + msg);
     }
 
     private TileData Tile(WorldCoordinates coordinates)
