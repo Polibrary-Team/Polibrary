@@ -137,6 +137,11 @@ public class pAction
             string[] commandSplit = command.Split('?');
             run = ParseBool(commandSplit[1]);
         }
+        else if (command.Contains('!'))
+        {
+            string[] commandSplit = command.Split('!');
+            run = !ParseBool(commandSplit[1]);
+        }
 
         if (!run)
         return;
@@ -144,8 +149,20 @@ public class pAction
         switch (command)
         {
             //GENERIC
-            case "set": //sets a variable
+            case "set": //sets a variable (refer with @)
                 SetVariable(ps[0], ps[1], ps[2]);
+                break;
+            case "dispose": //disposes a variable (removes from variable dict)
+                Dispose(ps[0]);
+                break;
+            case "setd": //sets a disposable variable (refer with #)
+                SetDisposableVariable(ps[0], ps[1], ps[2]);
+                break;
+            case "autodispose": //dispose all disposable variables
+                AutoDispose();
+                break;
+            case "ad": //alias for autodispose
+                AutoDispose();
                 break;
             case "log": //logs a string
                 LogMessage(ps[0]);
@@ -191,6 +208,21 @@ public class pAction
                 break;
             case "containsunit": //checks if the area has a unit of type
                 ContainsUnit(ps[0],ps[1],ps[2]);
+                break;
+            case "a>b":
+                AGreaterB(ps[0],ps[1],ps[2]);
+                break;
+            case "a<b":
+                ALesserB(ps[0],ps[1],ps[2]);
+                break;
+            case "a=b":
+                AEqualB(ps[0],ps[1],ps[2]);
+                break;
+            case "a>=b":
+                AGreaterOrEqualB(ps[0],ps[1],ps[2]);
+                break;
+            case "a<=b":
+                ALesserOrEqualB(ps[0],ps[1],ps[2]);
                 break;
 
 
@@ -286,6 +318,70 @@ public class pAction
         variables['@' + varName] = valueObj;
     }
 
+    private void Dispose(string variable)
+    {
+        if (!IsVariable<object>(variable, out var obj))
+        {
+            LogError("Dispose", "Variable is invalid. Reason: Either variable doesnt exist or spelling is incorrect.");
+            return;
+        }
+
+        variables.Remove(variable);
+    }
+
+    private void SetDisposableVariable(string varName, string obj, string value)
+    {
+        object valueObj = null;
+        switch (obj)
+        {
+            case "int": //0
+                valueObj = ParseInt(value);
+                break;
+
+            case "string": //helloworld! (no spaces allowed) OR §hello world!§ (spaces allowed)
+                valueObj = ParseString(value);
+                break;
+
+            case "bool":
+                valueObj = ParseBool(value);
+                break;
+
+            case "wcoords": //0;0
+                valueObj = ParseWcoords(value);
+                break;
+            
+            case "wcoords[]": //0;0|0;0|0;0|0;0
+                valueObj = ParseWcoordsArray(value);
+                break;
+
+            case "unitType":
+                valueObj = ParseUnitDataType(value);
+                break;
+            case "improvementType":
+                valueObj = ParseImprovementDataType(value);
+                break;
+            case "unitEffectType":
+                valueObj = ParseUnitEffectType(value);
+                break;
+            case "tileEffectType":
+                valueObj = ParseTileEffectType(value);
+                break;
+        }
+        variables['#' + varName] = valueObj;
+    }
+
+    private void AutoDispose()
+    {
+        foreach (KeyValuePair<string, object> kvp in variables)
+        {
+            if (kvp.Key[0] == '#')
+            {
+                variables.Remove(kvp.Key);
+            }
+        }
+    }
+
+
     private void LogMessage(string msg)
     {
         modLogger.LogInfo(ParseString(msg));
@@ -350,7 +446,7 @@ public class pAction
         
         if (!IsVariable<int>(variable, out var obj))
         {
-            LogError("MultiplyInt", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: int.");
+            LogError("DivideInt", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: int.");
             return;
         }
 
@@ -593,6 +689,21 @@ public class pAction
         variables[variable] = wcoords.y;
     }
 
+    private void GetMember(string variable, string swcoordsarray, string si)
+    {
+        WorldCoordinates[] wcoordsarray = ParseWcoordsArray(swcoordsarray);
+        int i = ParseInt(si);
+        
+        if (!IsVariable<WorldCoordinates>(variable, out var obj))
+        {
+            LogError("GetY", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: int.");
+            return;
+        }
+
+
+        variables[variable] = wcoordsarray[i];
+    }
+
     #endregion
     #region commands
 
@@ -832,9 +943,8 @@ public class pAction
         {
             s = s.Replace('ص', '@'); //you happy? huh? YOU GOT YOUR ARABIC LETTER ARE YOU SATISFIED?
         }
-        if (s[0] == '@')
+        if (s[0] == '@' || s[0] == '#')
         {
-
             if (variables.TryGetValue(s, out var value))
             {
                 obj = (T)value;
@@ -844,9 +954,6 @@ public class pAction
                 }
             }
         }
-
-        
-
         obj = default;
         return false;
     }
