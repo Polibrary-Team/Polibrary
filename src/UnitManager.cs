@@ -355,7 +355,7 @@ public static class UnitManager
     }
     #endregion
 
-    #region Movements
+    #region MOVEMENTS
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MoveAction), nameof(MoveAction.ExecuteDefault))]
@@ -417,14 +417,17 @@ public static class UnitManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MoveCommand), nameof(MoveCommand.Execute))]
-    public static void RuinDash(MoveCommand __instance, GameState gameState) // Needs a rewrite for pass&play
+    public static void RuinDash(MoveCommand __instance, GameState gameState)
     {
         gameState.TryGetUnit(__instance.UnitId, out UnitState unit);
         TileData tile = gameState.Map.GetTile(__instance.To);
 
         if (unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_rummager")) && tile.HasImprovement(ImprovementData.Type.Ruin))
         {
-            gameState.CommandStack.Add(new ExamineRuinsCommand(unit.owner, tile.coordinates));
+            var command = new ExamineRuinsCommand(unit.owner, tile.coordinates);
+            var action = new ExamineRuinsAction(unit.owner, command.GetRuinsReward(gameState, unit.owner, tile), tile.coordinates);
+            //gameState.ActionStack.Add();
+            gameState.ActionStack.Insert(0, action);
         }
 
     }
