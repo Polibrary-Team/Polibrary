@@ -239,6 +239,9 @@ public class pAction
             case "gety": //get the y of a wcoords
                 GetY(ps[0], ps[1]);
                 break;
+            case "getmember":
+                GetMember(ps[0],ps[1],ps[2]);
+                break;
 
             
             //COMMANDS
@@ -696,7 +699,7 @@ public class pAction
         
         if (!IsVariable<WorldCoordinates>(variable, out var obj))
         {
-            LogError("GetY", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: int.");
+            LogError("GetMember", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords");
             return;
         }
 
@@ -796,6 +799,25 @@ public class pAction
         
         BattleResults battleResults = BattleHelpers.GetBattleResults(gameState, Tile(origin).unit, Tile(target).unit);
         gameState.ActionStack.Add(new AttackAction(GameManager.GameState.CurrentPlayer, origin, target, battleResults.attackDamage, move, AttackAction.AnimationType.Splash, 20));
+    }
+
+    private void HealUnit(string swcoords, string si)
+    {
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+        int i = ParseInt(si);
+
+
+        GameState gameState = GameManager.GameState;
+        gameState.ActionStack.Add(new HealAction(gameState.CurrentPlayer, wcoords, (ushort)i));
+    }
+
+    private void ConvertUnit(string sorigin, string starget)
+    {
+        WorldCoordinates origin = ParseWcoords(sorigin);
+        WorldCoordinates target = ParseWcoords(starget);
+
+        GameState gameState = GameManager.GameState;
+        gameState.ActionStack.Add(new ConvertAction(gameState.CurrentPlayer, origin, target));
     }
 
     private void PlaySfx(string ssfx)
