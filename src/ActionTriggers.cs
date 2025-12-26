@@ -41,7 +41,7 @@ public static class ActionTriggers
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(BuildAction), nameof(BuildAction.ExecuteDefault))]
-    private static void OnBuild(BuildAction __instance, GameState gameState)
+    private static void BuildTriggers(BuildAction __instance, GameState gameState)
     {
         if (Parse.improvementTriggers.TryGetValue(__instance.Type, out var dict))
         {
@@ -54,16 +54,52 @@ public static class ActionTriggers
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MoveAction), nameof(MoveAction.ExecuteDefault))]
-    private static void OnMove(MoveAction __instance, GameState gameState)
+    private static void MoveTriggers(MoveAction __instance, GameState gameState)
     {
         gameState.TryGetUnit(__instance.UnitId, out UnitState unit);
 
-        if (Parse.unitTriggers.TryGetValue(unit.type, out var dict))
+        if (Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
         {
-            if (dict.TryGetValue("onMove", out string name))
+            if (unitdict.TryGetValue("onMove", out string name))
             {
                 PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
             }
         }
+
+        foreach (WorldCoordinates coords in __instance.Path)
+        {
+            if (Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(coords).improvement.type, out var impdict))
+            {
+                if (impdict.TryGetValue("onStep", out string name))
+                {
+                    PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
+                }
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(MoveCommand), nameof(MoveCommand.Execute))]
+    private static void MoveCommandTriggers(MoveCommand __instance, GameState gameState)
+    {
+        gameState.TryGetUnit(__instance.UnitId, out UnitState unit);
+
+        if (Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
+        {
+            if (unitdict.TryGetValue("onMoveCommand", out string name))
+            {
+                PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
+            }
+        }
+
+        
+        if (Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(__instance.To).improvement.type, out var impdict))
+        {
+            if (impdict.TryGetValue("onLand", out string name))
+            {
+                PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
+            }
+        }
+        
     }
 }
