@@ -541,12 +541,13 @@ public static class PolibUtils
 
     #endregion ParseUtils
 
-    public static void RunAction(string name, WorldCoordinates coordinates)
+    public static void RunAction(string name, WorldCoordinates coordinates, byte ownerPlayer)
     {
         if (Parse.actions.TryGetValue(name, out pAction refaction))
         {
             pAction action = new pAction(refaction);
             action.ActionOrigin = coordinates;
+            action.playerId = ownerPlayer;
             action.name = name;
             action.Execute();
         }
@@ -556,12 +557,13 @@ public static class PolibUtils
         }
     }
 
-    public static void RunChildAction(string name, WorldCoordinates coordinates, Dictionary<string, object> variables)
+    public static void RunChildAction(string name, WorldCoordinates coordinates, byte ownerPlayer, Dictionary<string, object> variables)
     {
         if (Parse.actions.TryGetValue(name, out pAction refaction))
         {
             pAction action = new pAction(refaction);
             action.ActionOrigin = coordinates;
+            action.playerId = ownerPlayer;
             action.name = name;
             action.variables = variables;
             action.Execute();

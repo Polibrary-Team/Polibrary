@@ -47,7 +47,7 @@ public static class ActionTriggers
         {
             if (dict.TryGetValue("onBuild", out string name))
             {
-                PolibUtils.RunAction(name, __instance.Coordinates);
+                PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId);
             }
         }
     }
@@ -62,7 +62,7 @@ public static class ActionTriggers
         {
             if (dict.TryGetValue("onMove", out string name))
             {
-                PolibUtils.RunAction(name, unit.coordinates);
+                PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
             }
         }
     }

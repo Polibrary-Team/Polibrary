@@ -45,6 +45,7 @@ public class pAction
 
     public string[] lines;
     public WorldCoordinates ActionOrigin;
+    public byte playerId;
     public string name;
 
 
@@ -266,6 +267,21 @@ public class pAction
             case "attackunit": //attack a unit with another unit
                 AttackUnit(ps[0],ps[1],ps[2]);
                 break;
+            case "healunit": //heals a unit
+                HealUnit(ps[0],ps[1]);
+                break;
+            case "convertunit": //converts a unit from an origin
+                ConvertUnit(ps[0],ps[1]);
+                break;
+            case "explore": //explores a tile
+                Explore(ps[0]);
+                break;
+            case "promote": //promotes a unit
+                Promote(ps[0]);
+                break;
+            case "upgrade": //upgrades a unit to the specified type
+                Upgrade(ps[0],ps[1]);
+                break;
             case "sfx": //plays a sound effect
                 PlaySfx(ps[0]);
                 break;
@@ -467,7 +483,7 @@ public class pAction
             return;
         }
 
-        PolibUtils.RunAction(name, ActionOrigin);
+        PolibUtils.RunAction(name, ActionOrigin, playerId);
     }
 
     private void CallChildAction(string s)
@@ -480,7 +496,7 @@ public class pAction
             return;
         }
 
-        PolibUtils.RunChildAction(name, ActionOrigin, variables);
+        PolibUtils.RunChildAction(name, ActionOrigin, playerId, variables);
     }
 
     private void CallActionAt(string s, string swcoords)
@@ -494,7 +510,7 @@ public class pAction
             return;
         }
 
-        PolibUtils.RunAction(name, wcoords);
+        PolibUtils.RunAction(name, wcoords, playerId);
     }
 
     private void Return()
@@ -716,8 +732,6 @@ public class pAction
         ImprovementData.Type imp = ParseImprovementDataType(simprovement);
         bool deductCost = ParseBool(sdeductCost);
         
-
-        byte playerId = GameManager.GameState.CurrentPlayer;
         GameManager.GameState.ActionStack.Add(new BuildAction(playerId, imp, wcoords, deductCost));
     }
 
@@ -726,7 +740,6 @@ public class pAction
         WorldCoordinates[] wcoordsarray = ParseWcoordsArray(swcoordsarray);
         ImprovementData.Type imp = ParseImprovementDataType(simprovement);
         bool deductCost = ParseBool(sdeductCost);
-        byte playerId = GameManager.GameState.CurrentPlayer;
 
         foreach (WorldCoordinates wcoords in wcoordsarray)
         GameManager.GameState.ActionStack.Add(new BuildAction(playerId, imp, wcoords, deductCost));
@@ -784,7 +797,7 @@ public class pAction
 
         GameLogicData gameLogicData = new GameLogicData();
         int cost = deductCost ? gameLogicData.GetUnitData(unit).cost : 0;
-        GameManager.GameState.ActionStack.Add(new TrainAction(GameManager.GameState.CurrentPlayer, unit, wcoords, cost));
+        GameManager.GameState.ActionStack.Add(new TrainAction(playerId, unit, wcoords, cost));
     }
 
     private void AttackUnit(string sorigin, string starget, string shouldMove)
@@ -798,7 +811,7 @@ public class pAction
         GameState gameState = GameManager.GameState;
         
         BattleResults battleResults = BattleHelpers.GetBattleResults(gameState, Tile(origin).unit, Tile(target).unit);
-        gameState.ActionStack.Add(new AttackAction(GameManager.GameState.CurrentPlayer, origin, target, battleResults.attackDamage, move, AttackAction.AnimationType.Splash, 20));
+        gameState.ActionStack.Add(new AttackAction(playerId, origin, target, battleResults.attackDamage, move, AttackAction.AnimationType.Splash, 20));
     }
 
     private void HealUnit(string swcoords, string si)
@@ -808,7 +821,7 @@ public class pAction
 
 
         GameState gameState = GameManager.GameState;
-        gameState.ActionStack.Add(new HealAction(gameState.CurrentPlayer, wcoords, (ushort)i));
+        PolibUtils.HealUnit(gameState, Tile(wcoords).unit, i);
     }
 
     private void ConvertUnit(string sorigin, string starget)
@@ -817,7 +830,35 @@ public class pAction
         WorldCoordinates target = ParseWcoords(starget);
 
         GameState gameState = GameManager.GameState;
-        gameState.ActionStack.Add(new ConvertAction(gameState.CurrentPlayer, origin, target));
+        gameState.ActionStack.Add(new ConvertAction(playerId, origin, target));
+    }
+
+    private void Explore(string sorigin)
+    {
+        WorldCoordinates origin = ParseWcoords(sorigin);
+
+        GameState gameState = GameManager.GameState;
+        gameState.ActionStack.Add(new ExploreAction(playerId, origin));
+    }
+
+    private void Promote(string sorigin)
+    {
+        WorldCoordinates origin = ParseWcoords(sorigin);
+
+        GameState gameState = GameManager.GameState;
+        gameState.ActionStack.Add(new PromoteAction(playerId, origin));
+    }
+
+    private void Upgrade(string sorigin, string sunit)
+    {
+        WorldCoordinates origin = ParseWcoords(sorigin);
+        UnitData.Type type = ParseUnitDataType(sunit);
+
+        GameLogicData gld = new GameLogicData();
+        UnitData data = gld.GetUnitData(type);
+        
+        GameState gameState = GameManager.GameState;
+        gameState.ActionStack.Add(new UpgradeAction(playerId, type, origin, data.cost));
     }
 
     private void PlaySfx(string ssfx)
