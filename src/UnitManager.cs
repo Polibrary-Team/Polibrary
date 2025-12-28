@@ -395,7 +395,7 @@ public static class UnitManager
         }
         else if (PolibUtils.DataFromState(tile2.improvement, gameState).HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_cleanse")))
         {
-            PolibUtils.CleanseUnit(gameState, unitState);
+            PolibUtils.CleanseUnit(unitState);
         }
     }
 

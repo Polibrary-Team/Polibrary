@@ -214,7 +214,8 @@ public static class PolibUtils
 
     #region UnitUtils
 
-    private static void ApplyEffect(GameState gameState, WorldCoordinates Origin, WorldCoordinates Target, UnitEffect effect)
+    // is this just a more convoluted way of doing unit.addeffect?
+    /*private static void ApplyEffect(GameState gameState, WorldCoordinates Origin, WorldCoordinates Target, UnitEffect effect)
     {
         TileData tile = gameState.Map.GetTile(Origin);
         TileData tile2 = gameState.Map.GetTile(Target);
@@ -229,9 +230,9 @@ public static class PolibUtils
         {
             unit2.passengerUnit.AddEffect(effect);
         }
-    }
+    }*/
 
-    public static void CleanseUnit(GameState gameState, UnitState unit)
+    public static void CleanseUnit(UnitState unit)
     {
         unit.effects = new Il2Gen.List<UnitEffect>();
     }

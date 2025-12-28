@@ -259,7 +259,7 @@ public static class ImprovementManager
 
             if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_cleanseonce")))
             {
-                PolibUtils.CleanseUnit(gameState, tile.unit);
+                PolibUtils.CleanseUnit(tile.unit);
             }
 
             if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_gainxp")))
