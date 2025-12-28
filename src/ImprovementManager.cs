@@ -61,6 +61,14 @@ public static class ImprovementManager
                 return;
             }
         }
+        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_veteranbuilder")))
+        {
+            if(tile.unit == null || tile.unit.promotionLevel < 1)
+            {
+                __result = false;
+                return;
+            }
+        }
         if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_needsfriendly")))
         {
             bool f_success = false;

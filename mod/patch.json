@@ -92,6 +92,9 @@
 		"polib_needsenemy": {
 			"idx": -1
 		},
+		"polib_veteranbuilder": {
+			"idx": -1
+		},
 		"polib_reveal": {
 			"idx": -1
 		}
