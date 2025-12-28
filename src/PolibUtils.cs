@@ -462,6 +462,13 @@ public static class PolibUtils
 
     #endregion Unnecessary stuff
 
+    #region Imp Utils
+
+    public static bool IsTileNative(PlayerState player, TileData tile, GameState gameState)
+    {
+        return tile.climate == gameState.GameLogicData.GetTribeData(player.tribe).climate;
+    }
+
     public static ImprovementData DataFromState(ImprovementState improvement, GameState state)
     {
         return state.GameLogicData.GetImprovementData(improvement.type);
@@ -471,6 +478,18 @@ public static class PolibUtils
     {
         return DataFromState(improvement, GameManager.GameState);
     }
+
+    public static ImprovementData DataFromType(GameState gameState, ImprovementData.Type type)
+    {
+        return gameState.GameLogicData.GetImprovementData(type);
+    }
+
+    public static ImprovementData DataFromType(ImprovementData.Type type)
+    {
+        return DataFromType(GameManager.GameState, type);
+    }
+
+    #endregion
 
 
     #region ParseUtils

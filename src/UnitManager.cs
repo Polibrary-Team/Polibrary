@@ -33,7 +33,6 @@ namespace Polibrary;
 
 public static class UnitManager
 {
-    private static ManualLogSource steve;
     private static ManualLogSource jeremy;
     public static void Load(ManualLogSource logger)
     {

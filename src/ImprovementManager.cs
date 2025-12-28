@@ -19,6 +19,8 @@ using Il2CppSystem.Xml;
 
 namespace Polibrary;
 
+// imp = improvement
+
 public static class ImprovementManager
 {
     private static ManualLogSource GabrielLogOfHell;
@@ -29,99 +31,74 @@ public static class ImprovementManager
 
     }
 
-    #region Requirers
+    #region Can build imp?
+
+    // check for every single prebuilt ability once to reduce number of patches, loops and LoC
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
-    public static void NewRequirers(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
+    public static void OnePatchToRuleThemAll(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
     {
-        if (!__result) return;
-        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_woundedbuilder")))
+        if (!improvementFlag(gameState, tile, playerState, improvement))
         {
-            if (tile.unit == null)
-            {
-                __result = false;
-                return;
-            }
-            if (tile.unit.health == tile.unit.GetMaxHealth(gameState))
-            {
-                __result = false;
-                return;
-            }
-        }
-        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_fullhealthbuilder")))
-        {
-            if (tile.unit == null)
-            {
-                __result = false;
-                return;
-            }
-            if (tile.unit.health != tile.unit.GetMaxHealth(gameState))
-            {
-                __result = false;
-                return;
-            }
-        }
-        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_veteranbuilder")))
-        {
-            if(tile.unit == null || tile.unit.promotionLevel < 1)
-            {
-                __result = false;
-                return;
-            }
-        }
-        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_needsfriendly")))
-        {
-            bool f_success = false;
-            foreach (var tile2 in gameState.Map.GetTileNeighbors(tile.coordinates))
-            {
-                if (tile2 != null || tile2.coordinates != WorldCoordinates.NULL_COORDINATES)
-                {
-                    if (tile2.unit != null && tile2.unit.owner == playerState.Id)
-                    {
-                        f_success = true;
-                    }
-                }
-            }
-            if (!f_success)
-            {
-                __result = false;
-                return;
-            }
-        }
-        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_needsenemy")))
-        {
-            bool f_success = false;
-            foreach (var tile2 in gameState.Map.GetTileNeighbors(tile.coordinates))
-            {
-                if (tile2 != null || tile2.coordinates != WorldCoordinates.NULL_COORDINATES)
-                {
-                    if (tile2.unit != null && tile2.unit.owner != playerState.Id)
-                    {
-                        f_success = true;
-                    }
-                }
-            }
-            if (!f_success)
-            {
-                __result = false;
-                return;
-            }
+            __result = false;
         }
     }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
-    public static void polib_nobuilder(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
+    public static bool improvementFlag(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement)
     {
-        if (__result == false) return;
-        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_nobuilder")))
+
+        if (tile.unit == null)
         {
-            if (tile.unit != null)
+        }
+        else
+        {
+            if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_woundedbuilder")) && tile.unit.health == tile.unit.GetMaxHealth(gameState))
+                return false;
+            if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_fullhealthbuilder")) && tile.unit.health != tile.unit.GetMaxHealth(gameState))
+                return false;
+            if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_veteranbuilder")) && tile.unit.promotionLevel < 1)
+                return false;
+            if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_nobuilder")))
+                return false;
+        }
+
+        if(impNeighborCheckers(gameState, tile, playerState, improvement)) return false;
+
+        if(PolibUtils.IsTileNative(playerState, tile, gameState))
+        {
+            if(improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_foreign")))
+                return false;
+        }
+        else if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_native"))) return false;
+
+        return true;
+    }
+
+    public static bool impNeighborCheckers(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement) // true iff imp fails
+    {
+        // Next the check-neighboring-tiles requirements
+        // the flags indicate their success
+        bool needsfriendly_success = false;
+        bool needsenemy_success = false;
+        bool isolated_success = true;
+
+        foreach(var tile1 in gameState.Map.GetTileNeighbors(tile.coordinates))
+        {
+            if(tile1 != null && tile1.coordinates != WorldCoordinates.NULL_COORDINATES)
             {
-                __result = false;
-                return;
+                if(tile1.unit != null)
+                {
+                    if(tile1.unit.owner == playerState.Id) needsfriendly_success = true;
+                    else needsenemy_success = true;
+                }
+                if(tile1.improvement != null)
+                {
+                    if(tile1.improvement.type == improvement.type) isolated_success = false;
+                }
             }
         }
+
+        return (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_needsfriendly")) && !needsfriendly_success) || (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_needsenemy")) && !needsenemy_success) || (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_isolated")) && !isolated_success);
     }
     #endregion
 
@@ -239,13 +216,13 @@ public static class ImprovementManager
     }
     #endregion
 
-    #region Actions
+    #region OnBuild Actions
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(BuildAction), nameof(BuildAction.ExecuteDefault))]
     private static void BuildActionnaire(BuildAction __instance, GameState gameState)
     {
-        var data = gameState.GameLogicData.GetImprovementData(__instance.Type);
+        var data = PolibUtils.DataFromType(__instance.Type);
         TileData tile = gameState.Map.GetTile(__instance.Coordinates);
         gameState.TryGetPlayer(__instance.PlayerId, out PlayerState player);
 
@@ -306,62 +283,6 @@ public static class ImprovementManager
 
     #endregion
 
-    #region ImpPlacements
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
-    public static void Isolated(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
-    {
-        if (__result == false) return;
-
-        if (!improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_isolated"))) return;
-
-        var list = gameState.Map.GetTileNeighbors(tile.coordinates);
-        bool flag = false;
-
-        foreach (var item in list)
-        {
-            if (item != null && item.improvement != null)
-            {
-                if (item.improvement.type == improvement.type)
-                {
-                    flag = true;
-                    break;
-                }
-            }
-        }
-
-        if (flag)
-        {
-            __result = false;
-        }
-    }
-
-    public static bool OnNative(PlayerState player, TileData tile, GameState gameState)
-    {
-        return tile.climate == gameState.GameLogicData.GetTribeData(player.tribe).climate;
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
-    public static void Native(ref bool __result, GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement)
-    {
-        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_native")) && !OnNative(playerState, tile, gameState))
-        {
-            __result = false;
-        }
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
-    public static void Foreign(ref bool __result, GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement)
-    {
-        if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_foreign")) && OnNative(playerState, tile, gameState))
-        {
-            __result = false;
-        }
-    }
-    #endregion
-
     #region UI
 
     [HarmonyPostfix]
@@ -383,7 +304,6 @@ public static class ImprovementManager
             var buttons = __instance.buttons.ToArray();
             foreach (var button in buttons)
             {
-                Main.modLogger.LogMessage(button.text);
                 if (button.text == refLoc)
                 {
 
