@@ -37,17 +37,9 @@ public static class UnitManager
     private static ManualLogSource jeremy;
     public static void Load(ManualLogSource logger)
     {
-        steve = logger;
-        //steve.LogInfo("I");
-        //steve.LogInfo("am Steve");
-        //steve.LogInfo(", and I (steve) do not like fappy Vins commenting me out."); //then go cry a river
-        //steve.LogInfo(", and I also can't cry cause I");
-        //steve.LogInfo("am Steve");
+        // rest in peace steve, you had a good run, 2025-2025
 
-        jeremy = logger;
-        //jeremy.LogInfo("It appears I have been summoned, now I shall bring a thousand years of darkness, pain and despair.");
-        //fap i told you not to kill steve!
-        // Resistance is futile. Jeremy should surrender to the authorities.
+        jeremy = logger; // f you jeremy
 
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
@@ -327,6 +319,14 @@ public static class UnitManager
         }
     }
 
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(ActionUtils), nameof(ActionUtils.ExploreFromTile))]
+    public static bool Blinding2(GameState gameState, PlayerState playerState, TileData tile, int sightRange, bool shouldUseActions)
+    {
+        if(sightRange == 0) return false;
+        return true;
+    }
+
     #endregion
 
     #region Scary
@@ -426,27 +426,10 @@ public static class UnitManager
         {
             var command = new ExamineRuinsCommand(unit.owner, tile.coordinates);
             var action = new ExamineRuinsAction(unit.owner, command.GetRuinsReward(gameState, unit.owner, tile), tile.coordinates);
-            //gameState.ActionStack.Add();
             gameState.ActionStack.Insert(0, action);
         }
 
     }
-
-
-    /* We can't use TileData.CanDestroy since it won't destroy enemy improvements so messy
-    [HarmonyPostfix] //ig its because the destroy in chivalry could destroy enemy improvements as well, so ig it makes sense
-    [HarmonyPatch(typeof(TileData), nameof(TileData.CanDestroy))]
-    public static void Indestructible(ref bool __result, TileData __instance, GameState gameState, PlayerState player)
-    {
-        if (__instance.improvement != null)
-        {
-            var data = gameState.GameLogicData.GetImprovementData(__instance.improvement.type);
-            if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_indestructible")))
-            {
-                __result = false;
-            }
-        }
-    }*/
 
     public static bool CanDestroyDiNuovo(TileData tile, GameState gameState) //is that fucking italian? //Yes.
     {
@@ -468,7 +451,7 @@ public static class UnitManager
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PathFinder), nameof(PathFinder.GetMoveOptions))]
     public static void PolyBlock(this GameState gameState, WorldCoordinates start, int maxCost, UnitState unit, ref Il2CppSystem.Collections.Generic.List<WorldCoordinates> __result)
-    { //netherite block
+    {
         Il2CppSystem.Collections.Generic.List<WorldCoordinates> newlist = new Il2CppSystem.Collections.Generic.List<WorldCoordinates>();
 
         for (int i = 0; i < __result.Count; i++)
