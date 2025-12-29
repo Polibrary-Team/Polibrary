@@ -115,7 +115,7 @@ public static class Parse
     public static Dictionary<string, pAction> actions = new Dictionary<string, pAction>();
     public static Dictionary<ImprovementData.Type, Dictionary<string/*trigger*/, string/*action*/>> improvementTriggers = new Dictionary<ImprovementData.Type, Dictionary<string, string>>();
     public static Dictionary<UnitData.Type, Dictionary<string/*trigger*/, string/*action*/>> unitTriggers = new Dictionary<UnitData.Type, Dictionary<string, string>>();
-    
+    public static Dictionary<CityReward, Dictionary<string/*trigger*/, string/*action*/>> rewardTriggers = new Dictionary<CityReward, Dictionary<string, string>>();
     public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityWhitelist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
     public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityBlacklist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
     public static Dictionary<ImprovementData.Type, List<UnitData.Type>> unitWhitelist = new Dictionary<ImprovementData.Type, List<UnitData.Type>>();
@@ -413,6 +413,11 @@ public static class Parse
                         rewardList.Add(cityReward);
                     }
                     cityRewardDict[cityReward] = cityRewardData;
+
+                    if (token["triggers"] != null)
+                    {
+                        PolibUtils.ParseToNestedStringDict(token["triggers"], cityReward, rewardTriggers);
+                    }
                 }
             }
         }

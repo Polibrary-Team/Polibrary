@@ -26,6 +26,8 @@ using Il2CppSystem.Linq;
 
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
+using Il2CppSystem.Text.Json;
+using pbb = PolytopiaBackendBase.Common;
 
 
 namespace Polibrary;
@@ -64,6 +66,10 @@ public static class ActionTriggers
             {
                 PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
             }
+            if (unitdict.TryGetValue("onMove_AtOrigin", out string name1))
+            {
+                PolibUtils.RunAction(name1, __instance.Path[__instance.Path.Count - 1], __instance.PlayerId);
+            }
         }
 
         foreach (WorldCoordinates coords in __instance.Path)
@@ -74,6 +80,34 @@ public static class ActionTriggers
                 {
                     PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
                 }
+            }
+        }
+
+        if (Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(__instance.Path[0]).improvement.type, out var impdict1))
+        {
+            if (impdict1.TryGetValue("onLand", out string name))
+            {
+                PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(AttackAction), nameof(AttackAction.Execute))]
+    private static void AttackTriggers(AttackAction __instance, GameState state)
+    {
+        UnitState attacker = GameManager.GameState.Map.GetTile(__instance.Origin).unit;
+        UnitState defender = GameManager.GameState.Map.GetTile(__instance.Target).unit;
+
+        if (Parse.unitTriggers.TryGetValue(attacker.type, out var unitdict))
+        {
+            if (unitdict.TryGetValue("onAttack", out string name1))
+            {
+                PolibUtils.RunAction(name1, defender.coordinates, __instance.PlayerId);
+            }
+            if (unitdict.TryGetValue("onAttack_AtOrigin", out string name))
+            {
+                PolibUtils.RunAction(name, attacker.coordinates, __instance.PlayerId);
             }
         }
     }
@@ -91,15 +125,39 @@ public static class ActionTriggers
                 PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
             }
         }
+    }
 
-        
-        if (Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(__instance.To).improvement.type, out var impdict))
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ExpandCityAction), nameof(ExpandCityAction.ExecuteDefault))]
+    private static void ExpandCityTriggers(ExpandCityAction __instance, GameState state)
+    {
+        TileData tile = state.Map.GetTile(__instance.Coordinates);
+        state.TryGetPlayer(__instance.PlayerId, out var playerState);
+        Il2Gen.List<TileData> cityAreaSorted = ActionUtils.GetCityAreaSorted(state, tile);
+        cityAreaSorted.Reverse();
+
+        foreach (TileData tile1 in cityAreaSorted)
         {
-            if (impdict.TryGetValue("onLand", out string name))
+            if (Parse.improvementTriggers.TryGetValue(tile1.improvement.type, out var impdict))
             {
-                PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
+                if (impdict.TryGetValue("onCaptured", out string name))
+                {
+                    PolibUtils.RunAction(name, tile1.coordinates, __instance.PlayerId);
+                }
             }
         }
-        
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CityRewardAction), nameof(CityRewardAction.Execute))]
+    private static void CityRewardTriggers(CityRewardAction __instance, GameState gameState)
+    {
+        if (Parse.rewardTriggers.TryGetValue(__instance.Reward, out var unitdict))
+        {
+            if (unitdict.TryGetValue("onRewardChosen", out string name))
+            {
+                PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId);
+            }
+        }
     }
 }
