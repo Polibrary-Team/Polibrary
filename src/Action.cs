@@ -314,6 +314,12 @@ public class pAction
             case "improvementType":
                 valueObj = ParseImprovementDataType(value);
                 break;
+            case "techType":
+                valueObj = ParseTechDataType(value);
+                break;
+            case "cityRewardType":
+                valueObj = ParseCityRewardType(value);
+                break;
             case "unitEffectType":
                 valueObj = ParseUnitEffectType(value);
                 break;
@@ -365,6 +371,12 @@ public class pAction
                 break;
             case "improvementType":
                 valueObj = ParseImprovementDataType(value);
+                break;
+            case "techType":
+                valueObj = ParseTechDataType(value);
+                break;
+            case "cityRewardType":
+                valueObj = ParseCityRewardType(value);
                 break;
             case "unitEffectType":
                 valueObj = ParseUnitEffectType(value);
@@ -759,6 +771,66 @@ public class pAction
         gameState.ActionStack.Add(new UpgradeAction(playerId, type, origin, data.cost));
     }
 
+    private void Reveal(string sorigin, string sshowPopup)
+    {
+        WorldCoordinates origin = ParseWcoords(sorigin);
+        bool showPopup = ParseBool(sshowPopup);
+
+        GameState gameState = GameManager.GameState;
+        gameState.ActionStack.Add(new RevealAction(playerId, origin, showPopup));
+    }
+
+    private void KillUnit(string sorigin)
+    {
+        WorldCoordinates origin = ParseWcoords(sorigin);
+
+        GameState gameState = GameManager.GameState;
+        gameState.ActionStack.Add(new KillUnitAction(playerId, origin));
+    }
+
+    private void Research(string stech, string si)
+    {
+        TechData.Type tech = ParseTechDataType(stech);
+        int i = ParseInt(si);
+
+        GameState gameState = GameManager.GameState;
+        gameState.ActionStack.Add(new ResearchAction(playerId, tech, i));
+    }
+
+    private void RuleArea(string sorigin)
+    {
+        WorldCoordinates origin = ParseWcoords(sorigin);
+
+        GameState gameState = GameManager.GameState;
+        gameState.ActionStack.Add(new RuleAreaAction(playerId, origin));
+    }
+
+    private void AddCityReward(string sorigin, string sreward)
+    {
+        WorldCoordinates origin = ParseWcoords(sorigin);
+        CityReward reward = ParseCityRewardType(sreward);
+
+        GameState gameState = GameManager.GameState;
+        gameState.ActionStack.Add(new CityRewardAction(playerId, reward, origin));
+    }
+
+    private void IncreaseScore(string si, string sorigin)
+    {
+        WorldCoordinates origin = ParseWcoords(sorigin);
+        int i = ParseInt(si);
+
+        GameState gameState = GameManager.GameState;
+        gameState.ActionStack.Add(new IncreaseScoreAction(playerId, i, origin));
+    }
+
+    private void DecreaseScore(string si)
+    {
+        int i = ParseInt(si);
+
+        GameState gameState = GameManager.GameState;
+        gameState.ActionStack.Add(new DecreaseScoreAction(playerId, i));
+    }
+
     private void PlaySfx(string ssfx)
     {
         string sfx = ParseString(ssfx);
@@ -1127,6 +1199,40 @@ public class pAction
         else
         {
             LogError("ParseImprovementDataType", $"Couldn't find {value} improvement. Check spelling or idk.");
+            return default;
+        }
+    }
+
+    private TechData.Type ParseTechDataType(string value)
+    {
+        if (IsVariable<TechData.Type>(value, out var obj))
+        {
+            return obj;
+        }
+        if (EnumCache<TechData.Type>.TryGetType(value, out var enumValue))
+        {
+            return enumValue;
+        }
+        else
+        {
+            LogError("ParseTechDataType", $"Couldn't find {value} tech. Check spelling or idk.");
+            return default;
+        }
+    }
+
+    private CityReward ParseCityRewardType(string value)
+    {
+        if (IsVariable<CityReward>(value, out var obj))
+        {
+            return obj;
+        }
+        if (EnumCache<CityReward>.TryGetType(value, out var enumValue))
+        {
+            return enumValue;
+        }
+        else
+        {
+            LogError("ParseCityRewardType", $"Couldn't find {value} city reward. Check spelling or idk.");
             return default;
         }
     }
