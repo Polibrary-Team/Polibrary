@@ -3,6 +3,8 @@ using HarmonyLib;
 using Polytopia.Data;
 using Newtonsoft.Json.Linq;
 using Il2CppSystem.Linq;
+using UnityEngine;
+
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using pbb = PolytopiaBackendBase.Common;
 
@@ -593,4 +595,19 @@ public static class PolibUtils
             utilGuy.LogInfo($"pAction not found: '{name}'. Check spelling");
         }
     }
+
+    public static void ShakeCamera(float duration, float amount)
+    {
+        var mainCam = Camera.main;
+        if (mainCam == null) return;
+
+        var shaker = mainCam.GetComponent<CameraShake>();
+        if (shaker == null)
+        {
+            shaker = mainCam.gameObject.AddComponent<CameraShake>();
+        }
+
+        shaker.TriggerShake(duration, amount);
+    }
+
 }

@@ -146,6 +146,11 @@ public class pAction
 
         if (!run)
         return;
+
+        foreach (string p in ps)
+        {
+            CheckParams(p);
+        }
         
         switch (command)
         {
@@ -174,15 +179,6 @@ public class pAction
             case "wcoords++": //increments wcoords with 2 ints
                 IncrementwCoords(ps[0], ps[1], ps[2]);
                 break;
-            case "a+b": //increments int by x
-                IncrementInt(ps[0], ps[1]);
-                break;
-            case "a*b": //multiplies 2 ints
-                MultiplyInt(ps[0], ps[1], ps[2]);
-                break;
-            case "a/b": //divides 2 ints
-                DivideInt(ps[0], ps[1], ps[2]);
-                break;
             case "call": //calls an action
                 CallAction(ps[0]);
                 break;
@@ -210,22 +206,10 @@ public class pAction
             case "containsunit": //checks if the area has a unit of type
                 ContainsUnit(ps[0],ps[1],ps[2]);
                 break;
-            case "a>b":
-                AGreaterB(ps[0],ps[1],ps[2]);
+            case "not":
+                Not(ps[0]);
                 break;
-            case "a<b":
-                ALesserB(ps[0],ps[1],ps[2]);
-                break;
-            case "a=b":
-                AEqualB(ps[0],ps[1],ps[2]);
-                break;
-            case "a>=b":
-                AGreaterOrEqualB(ps[0],ps[1],ps[2]);
-                break;
-            case "a<=b":
-                ALesserOrEqualB(ps[0],ps[1],ps[2]);
-                break;
-
+            
 
             //FUNCTIONS
             case "getradius": //gets an area around an origin and returns it to a variable
@@ -242,6 +226,9 @@ public class pAction
                 break;
             case "getmember":
                 GetMember(ps[0],ps[1],ps[2]);
+                break;
+            case "getcount":
+                GetCount(ps[0], ps[1]);
                 break;
 
             
@@ -429,50 +416,6 @@ public class pAction
         variables[variable] = new WorldCoordinates(obj.X + x, obj.Y + y);
     }
 
-    private void IncrementInt(string variable, string sd)
-    {
-        int d = ParseInt(sd);
-        
-        if (!IsVariable<int>(variable, out var obj))
-        {
-            LogError("IncrementInt", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: int.");
-            return;
-        }
-
-
-        variables[variable] = obj + d;
-    }
-
-    private void MultiplyInt(string variable, string sa, string sb)
-    {
-        int a = ParseInt(sa);
-        int b = ParseInt(sb);
-        
-        if (!IsVariable<int>(variable, out var obj))
-        {
-            LogError("MultiplyInt", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: int.");
-            return;
-        }
-
-
-        variables[variable] = a * b;
-    }
-
-    private void DivideInt(string variable, string sa, string sb)
-    {
-        int a = ParseInt(sa);
-        int b = ParseInt(sb);
-        
-        if (!IsVariable<int>(variable, out var obj))
-        {
-            LogError("DivideInt", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: int.");
-            return;
-        }
-
-
-        variables[variable] = a / b;
-    }
-
     private void CallAction(string s)
     {
         string name = ParseString(s);
@@ -580,74 +523,15 @@ public class pAction
         variables[variable] = units.Contains(unit);
     }
 
-    private void AGreaterB(string variable, string sa, string sb)
+    private void Not(string variable)
     {
-        int a = ParseInt(sa);
-        int b = ParseInt(sb);
-
         if (!IsVariable<bool>(variable, out var obj))
         {
-            LogError("AGreaterB", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            LogError("IsUnit", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
             return;
         }
 
-        variables[variable] = a > b;
-    }
-
-    private void ALesserB(string variable, string sa, string sb)
-    {
-        int a = ParseInt(sa);
-        int b = ParseInt(sb);
-
-        if (!IsVariable<bool>(variable, out var obj))
-        {
-            LogError("ALesserB", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
-            return;
-        }
-
-        variables[variable] = a < b;
-    }
-
-    private void AEqualB(string variable, string sa, string sb)
-    {
-        int a = ParseInt(sa);
-        int b = ParseInt(sb);
-
-        if (!IsVariable<bool>(variable, out var obj))
-        {
-            LogError("ALesserB", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
-            return;
-        }
-
-        variables[variable] = a == b;
-    }
-
-    private void AGreaterOrEqualB(string variable, string sa, string sb)
-    {
-        int a = ParseInt(sa);
-        int b = ParseInt(sb);
-
-        if (!IsVariable<bool>(variable, out var obj))
-        {
-            LogError("AGreaterOrEqualB", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
-            return;
-        }
-
-        variables[variable] = a >= b;
-    }
-
-    private void ALesserOrEqualB(string variable, string sa, string sb)
-    {
-        int a = ParseInt(sa);
-        int b = ParseInt(sb);
-
-        if (!IsVariable<bool>(variable, out var obj))
-        {
-            LogError("ALesserOrEqualB", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
-            return;
-        }
-
-        variables[variable] = a <= b;
+        variables[variable] = !obj;
     }
     #endregion
 
@@ -721,6 +605,20 @@ public class pAction
 
 
         variables[variable] = wcoordsarray[i];
+    }
+
+    private void GetCount(string variable, string swcoordsarray)
+    {
+        WorldCoordinates[] wcoordsarray = ParseWcoordsArray(swcoordsarray);
+        
+        if (!IsVariable<int>(variable, out var obj))
+        {
+            LogError("GetCount", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: int");
+            return;
+        }
+
+
+        variables[variable] = wcoordsarray.Length;
     }
 
     #endregion
@@ -954,7 +852,7 @@ public class pAction
         float duration = ParseInt(sduration);
         float amount = ParseInt(samount);
 
-        ShakeCamera(duration / 10, amount);
+        PolibUtils.ShakeCamera(duration / 10, amount);
     }
     #endregion
 
@@ -986,20 +884,103 @@ public class pAction
         return MapRenderer.Current.GetTileInstance(coordinates);
     }
 
-    private static void ShakeCamera(float duration, float amount)
+    
+    private string CheckParams(string p)
     {
-        var mainCam = Camera.main;
-        if (mainCam == null) return;
-
-        var shaker = mainCam.GetComponent<CameraShake>();
-        if (shaker == null)
+        if (p.Contains('+'))
         {
-            shaker = mainCam.gameObject.AddComponent<CameraShake>();
+            string[] ab = p.Split('+', 2);
+
+            int A = ParseInt(ab[0]);
+            int B = ParseInt(ab[1]);
+
+            return (A + B).ToString();
         }
 
-        shaker.TriggerShake(duration, amount);
+        if (p.Contains('-'))
+        {
+            string[] ab = p.Split('-', 2);
+
+            int A = ParseInt(ab[0]);
+            int B = ParseInt(ab[1]);
+
+            return (A - B).ToString();
+        }
+
+        if (p.Contains('*'))
+        {
+            string[] ab = p.Split('*', 2);
+
+            int A = ParseInt(ab[0]);
+            int B = ParseInt(ab[1]);
+
+            return (A * B).ToString();
+        }
+
+        if (p.Contains('/'))
+        {
+            string[] ab = p.Split('/', 2);
+
+            int A = ParseInt(ab[0]);
+            int B = ParseInt(ab[1]);
+
+            return (A / B).ToString();
+        }
+
+        if (p.Contains('='))
+        {
+            string[] ab = p.Split('=', 2);
+
+            int A = ParseInt(ab[0]);
+            int B = ParseInt(ab[1]);
+
+            return (A == B).ToString();
+        }
+
+        if (p.Contains('>'))
+        {
+            string[] ab = p.Split('>', 2);
+
+            int A = ParseInt(ab[0]);
+            int B = ParseInt(ab[1]);
+
+            return (A > B).ToString();
+        }
+
+        if (p.Contains('<'))
+        {
+            string[] ab = p.Split('<', 2);
+
+            int A = ParseInt(ab[0]);
+            int B = ParseInt(ab[1]);
+
+            return (A < B).ToString();
+        }
+
+        if (p.Contains(">="))
+        {
+            string[] ab = p.Split(">=", 2);
+
+            int A = ParseInt(ab[0]);
+            int B = ParseInt(ab[1]);
+
+            return (A >= B).ToString();
+        }
+
+        if (p.Contains("<="))
+        {
+            string[] ab = p.Split("<=", 2);
+
+            int A = ParseInt(ab[0]);
+            int B = ParseInt(ab[1]);
+
+            return (A <= B).ToString();
+        }
+
+        return p;
     }
 
+    
     private bool IsVariable<T>(string s, out T obj)
     {
         if (s[0] == 'ص')

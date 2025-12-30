@@ -74,6 +74,8 @@ public static class ActionTriggers
 
         foreach (WorldCoordinates coords in __instance.Path)
         {
+            if (GameManager.GameState.Map.GetTile(coords).improvement == null) continue;
+            
             if (Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(coords).improvement.type, out var impdict))
             {
                 if (impdict.TryGetValue("onStep", out string name))
@@ -83,11 +85,14 @@ public static class ActionTriggers
             }
         }
 
-        if (Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(__instance.Path[0]).improvement.type, out var impdict1))
+        if (GameManager.GameState.Map.GetTile(__instance.Path[0]).improvement != null)
         {
-            if (impdict1.TryGetValue("onLand", out string name))
+            if (Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(__instance.Path[0]).improvement.type, out var impdict1))
             {
-                PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
+                if (impdict1.TryGetValue("onLand", out string name))
+                {
+                    PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
+                }
             }
         }
     }
