@@ -155,7 +155,7 @@ public static class ActionTriggers
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CityRewardAction), nameof(CityRewardAction.Execute))]
-    private static void CityRewardTriggers(CityRewardAction __instance, GameState gameState)
+    private static void CityRewardTriggers(CityRewardAction __instance, GameState state)
     {
         if (Parse.rewardTriggers.TryGetValue(__instance.Reward, out var unitdict))
         {
