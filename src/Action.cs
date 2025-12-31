@@ -63,23 +63,21 @@ public class pAction
 
     public void Execute()
     {
-        modLogger.LogInfo($"{index}");
         while (index < lines.Length)
         {
-            modLogger.LogInfo($"Reading line no. {index}");
             ReadLine(lines[index]);
         }
     }
 
     private void ReadLine(string line)
     {
-        string[] commandAndParams; //pl. set:szam int 1
+        string[] commandAndParams;
 
-        commandAndParams = line.Split(":", 2); //set / szam int 1
+        commandAndParams = line.Split(":", 2);
         
 
-        string command = commandAndParams[0]; //set
-        string[] rawparameters = commandAndParams[1].Split(" "); //szam / int / 1
+        string command = commandAndParams[0];
+        string[] rawparameters = commandAndParams[1].Split(",");
 
         bool isString = false;
 
@@ -89,6 +87,8 @@ public class pAction
 
         foreach (string s in rawparameters)
         {
+            string trimmed = s.TrimStart();
+
             if (s.Length == 0) continue;
 
             if (isString)
@@ -101,17 +101,17 @@ public class pAction
                 }
                 else
                 {
-                    untrimmedParams[untrimmedParams.Count - 1] = untrimmedParams.Last() + " ";
+                    untrimmedParams[untrimmedParams.Count - 1] = untrimmedParams.Last() + ",";
                 }
             }
             else
             {
                 untrimmedParams.Add(s);
 
-                if (s[0] == '§' && s[s.Length - 1] != '§')
+                if (trimmed[0] == '§' && s[s.Length - 1] != '§') //here
                 {
                     isString = true;
-                    untrimmedParams[untrimmedParams.Count - 1] = untrimmedParams.Last() + " ";
+                    untrimmedParams[untrimmedParams.Count - 1] = untrimmedParams.Last() + ",";
                 }
             }
         }
@@ -119,40 +119,51 @@ public class pAction
         List<string> parameters = new List<string>();
         foreach (string s in untrimmedParams)
         {
-            parameters.Add(s.Trim('§'));
+            if (s.Contains('§'))
+            {
+                parameters.Add(s.Trim().Trim('§'));
+            }
+            else
+            {
+                parameters.Add(s.Replace(" ", ""));
+            }
+            
         }
 
         increment = 1; //reset increment to 1 so we only gotta write diff to those methods where it matters
 
-        RunFunction(command, parameters);
+        RunCommand(command.Replace(" ", ""), parameters); //make command space insensitive too
 
         index += increment;
     }
 
-    private void RunFunction(string command, List<string> ps)
+    private void RunCommand(string command, List<string> ps)
     {
         bool run = true;
 
+        string[] commandSplit = {command};
         if (command.Contains('?'))
         {
-            string[] commandSplit = command.Split('?');
-            run = ParseBool(commandSplit[1]);
+            commandSplit = command.Split('?');
+            string s = CheckParams(commandSplit[1]);
+            run = ParseBool(s);
         }
         else if (command.Contains('!'))
         {
-            string[] commandSplit = command.Split('!');
-            run = !ParseBool(commandSplit[1]);
+            commandSplit = command.Split('!');
+            string s = CheckParams(commandSplit[1]);
+            run = !ParseBool(s);
         }
 
         if (!run)
         return;
 
-        foreach (string p in ps)
+        for (int i = 0; i < ps.Count; i++)
         {
-            CheckParams(p);
+            ps[i] = CheckParams(ps[i]);
         }
         
-        switch (command)
+        switch (commandSplit[0])
         {
             //GENERIC
             case "set": //sets a variable (refer with @)
@@ -164,7 +175,7 @@ public class pAction
             case "setd": //sets a disposable variable (refer with #)
                 SetDisposableVariable(ps[0], ps[1], ps[2]);
                 break;
-            case "autodispose": //dispose all disposable variables
+            case "autoDispose": //dispose all disposable variables
                 AutoDispose();
                 break;
             case "ad": //alias for autodispose
@@ -182,10 +193,10 @@ public class pAction
             case "call": //calls an action
                 CallAction(ps[0]);
                 break;
-            case "callchild": //calls an action as a child action (inherits variables)
+            case "callChild": //calls an action as a child action (inherits variables)
                 CallChildAction(ps[0]);
                 break;
-            case "callat": //calls an action at a specific origin
+            case "callAt": //calls an action at a specific origin
                 CallActionAt(ps[0], ps[1]);
                 break;
             case "return": //aborts the action
@@ -197,67 +208,75 @@ public class pAction
             case "back": //loops back to the loop with matching id
                 Back(ps[0]);
                 break;
+            case "c": //allows comments
+                break;
 
 
             //FLAGS
-            case "isunit": //checks if the unit on tile is the type of unit specified
+            case "isUnit": //checks if the unit on tile is the type of unit specified
                 IsUnit(ps[0],ps[1],ps[2]);
                 break;
-            case "containsunit": //checks if the area has a unit of type
+            case "containsUnit": //checks if the area has a unit of type
                 ContainsUnit(ps[0],ps[1],ps[2]);
                 break;
             case "not":
                 Not(ps[0]);
                 break;
+            case "isTribe": //checks if owner is a tribe of specified type
+                IsTribe(ps[0],ps[1]);
+                break;
             
 
             //FUNCTIONS
-            case "getradius": //gets an area around an origin and returns it to a variable
+            case "getRadius": //gets an area around an origin and returns it to a variable
                 GetRadiusFromOrigin(ps[0],ps[1],ps[2],ps[3]);
                 break;
-            case "getorigin": //gets the origin of the action
+            case "getOrigin": //gets the origin of the action
                 GetActionOrigin(ps[0]);
                 break;
-            case "getx": //get the x of a wcoords
+            case "getX": //get the x of a wcoords
                 GetX(ps[0], ps[1]);
                 break;
-            case "gety": //get the y of a wcoords
+            case "getY": //get the y of a wcoords
                 GetY(ps[0], ps[1]);
                 break;
-            case "getmember":
+            case "getMember":
                 GetMember(ps[0],ps[1],ps[2]);
                 break;
-            case "getcount":
+            case "getCount":
                 GetCount(ps[0], ps[1]);
+                break;
+            case "getCapital": //gets the owners capital
+                GetCapital(ps[0]);
                 break;
 
             
             //COMMANDS
-            case "setimprovement": //sets an improvement on a tile
-                SetImprovement(ps[0],ps[1],ps[2]);
+            case "build": //builds an improvement
+                Build(ps[0],ps[1],ps[2]);
                 break;
-            case "setimprovements": //sets improvements on tiles of an area
-                SetImprovements(ps[0],ps[1],ps[2]);
+            case "destroy": //destroys an improvement
+                Destroy(ps[0]);
                 break;
-            case "afflicttile": //gives a tile a tileeffect
+            case "afflictTile": //gives a tile a tileeffect
                 AfflictTile(ps[0], ps[1]);
                 break;
-            case "afflictunit": //gives a unit a uniteffect
+            case "afflictUnit": //gives a unit a uniteffect
                 AfflictUnit(ps[0], ps[1]);
                 break;
-            case "unitexhaustion": //sets the unit's exhaustion state
+            case "unitExhaustion": //sets the unit's exhaustion state
                 SetUnitExhaustion(ps[0],ps[1],ps[2]);
                 break;
-            case "trainunit": //trains a unit
+            case "trainUnit": //trains a unit
                 TrainUnit(ps[0],ps[1],ps[2]);
                 break;
-            case "attackunit": //attack a unit with another unit
+            case "attackUnit": //attack a unit with another unit
                 AttackUnit(ps[0],ps[1],ps[2]);
                 break;
-            case "healunit": //heals a unit
+            case "healUnit": //heals a unit
                 HealUnit(ps[0],ps[1]);
                 break;
-            case "convertunit": //converts a unit from an origin
+            case "convertUnit": //converts a unit from an origin
                 ConvertUnit(ps[0],ps[1]);
                 break;
             case "explore": //explores a tile
@@ -269,14 +288,38 @@ public class pAction
             case "upgrade": //upgrades a unit to the specified type
                 Upgrade(ps[0],ps[1]);
                 break;
+            case "reveal":
+                Reveal(ps[0],ps[1]);
+                break;
+            case "kill":
+                KillUnit(ps[0]);
+                break;
+            case "research":
+                Research(ps[0],ps[1]);
+                break;
+            case "ruleArea":
+                RuleArea(ps[0]);
+                break;
+            case "addCityReward":
+                AddCityReward(ps[0],ps[1]);
+                break;
+            case "increaseScore":
+                IncreaseScore(ps[0],ps[1]);
+                break;
+            case "decreaseScore":
+                DecreaseScore(ps[0]);
+                break;
             case "sfx": //plays a sound effect
                 PlaySfx(ps[0]);
                 break;
             case "vfx": //plays a visual effect on a tile
                 Vfx(ps[0], ps[1]);
                 break;
-            case "screenshake": //yo momma when she farts
+            case "screenShake": //yo momma when she farts
                 ScreenShake(ps[0], ps[1]);
+                break;
+            default:
+                LogError("RunFunction", $"Could'nt find command '{command}'");
                 break;
         }
     }
@@ -316,6 +359,9 @@ public class pAction
                 break;
             case "techType":
                 valueObj = ParseTechDataType(value);
+                break;
+            case "tribeType":
+                valueObj = ParseTribeType(value);
                 break;
             case "cityRewardType":
                 valueObj = ParseCityRewardType(value);
@@ -374,6 +420,9 @@ public class pAction
                 break;
             case "techType":
                 valueObj = ParseTechDataType(value);
+                break;
+            case "tribeType":
+                valueObj = ParseTribeType(value);
                 break;
             case "cityRewardType":
                 valueObj = ParseCityRewardType(value);
@@ -528,7 +577,7 @@ public class pAction
 
         if (!IsVariable<bool>(variable, out var obj))
         {
-            LogError("IsUnit", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            LogError("ContainsUnit", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
             return;
         }
 
@@ -539,11 +588,30 @@ public class pAction
     {
         if (!IsVariable<bool>(variable, out var obj))
         {
-            LogError("IsUnit", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            LogError("Not", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
             return;
         }
 
         variables[variable] = !obj;
+    }
+
+    private void IsTribe(string variable, string stribeType)
+    {
+        TribeType tribeType = ParseTribeType(stribeType);
+
+        if (GameManager.GameState.TryGetPlayer(playerId, out var playerState))
+        {
+            LogError("IsTribe", "Owner doesn't exist, somehow. Mate if you see this consider yourself beyond cooked.");
+            return;
+        }
+        
+        if (!IsVariable<bool>(variable, out var obj))
+        {
+            LogError("IsTribe", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            return;
+        }
+
+        variables[variable] = playerState.tribe == tribeType;
     }
     #endregion
 
@@ -633,10 +701,21 @@ public class pAction
         variables[variable] = wcoordsarray.Length;
     }
 
+    private void GetCapital(string variable)
+    {   
+        if (!IsVariable<WorldCoordinates>(variable, out var obj))
+        {
+            LogError("GetCapital", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords.");
+            return;
+        }
+        GameManager.GameState.TryGetPlayer(playerId, out PlayerState playerState);
+        variables[variable] = playerState.GetCurrentCapitalCoordinates(GameManager.GameState);
+    }
+
     #endregion
     #region commands
 
-    private void SetImprovement(string swcoords, string simprovement, string sdeductCost)
+    private void Build(string swcoords, string simprovement, string sdeductCost)
     {
         WorldCoordinates wcoords = ParseWcoords(swcoords);;
         ImprovementData.Type imp = ParseImprovementDataType(simprovement);
@@ -645,14 +724,11 @@ public class pAction
         GameManager.GameState.ActionStack.Add(new BuildAction(playerId, imp, wcoords, deductCost));
     }
 
-    private void SetImprovements(string swcoordsarray, string simprovement, string sdeductCost)
+    private void Destroy(string swcoords)
     {
-        WorldCoordinates[] wcoordsarray = ParseWcoordsArray(swcoordsarray);
-        ImprovementData.Type imp = ParseImprovementDataType(simprovement);
-        bool deductCost = ParseBool(sdeductCost);
-
-        foreach (WorldCoordinates wcoords in wcoordsarray)
-        GameManager.GameState.ActionStack.Add(new BuildAction(playerId, imp, wcoords, deductCost));
+        WorldCoordinates wcoords = ParseWcoords(swcoords);;
+        
+        GameManager.GameState.ActionStack.Add(new DestroyImprovementAction(playerId, wcoords));
     }
 
     private void AfflictTile(string stileEffectType, string swcoords)
@@ -999,7 +1075,7 @@ public class pAction
             return (A / B).ToString();
         }
 
-        if (p.Contains('='))
+        if (p.Contains("=="))
         {
             string[] ab = p.Split('=', 2);
 
@@ -1049,6 +1125,16 @@ public class pAction
             return (A <= B).ToString();
         }
 
+        if (p.Contains("=w="))
+        {
+            string[] ab = p.Split("=w=", 2);
+
+            WorldCoordinates A = ParseWcoords(ab[0]);
+            WorldCoordinates B = ParseWcoords(ab[1]);
+
+            return (A.X == B.X && A.Y == B.Y).ToString();
+        }
+
         return p;
     }
 
@@ -1086,7 +1172,7 @@ public class pAction
         }
         else
         {
-            LogError("ParseInt", "Invalid int format. Correct format: 0 . eg. set:var int 5");
+            LogError("ParseInt", $"Invalid int format. '{value}' Correct format: 0 . eg. set:var int 5");
             return 0;
         }
     }
@@ -1117,7 +1203,7 @@ public class pAction
         }
         else
         {
-            LogError("ParseWcoords", "Invalid wcoords format. Correct format: 0;0 . eg. set:var wcoords 0;0");
+            LogError("ParseWcoords", $"Invalid wcoords format. '{value}' Correct format: 0;0 . eg. set:var wcoords 0;0");
             return default;
         }
     }
@@ -1145,7 +1231,7 @@ public class pAction
             }
             else
             {
-                LogError("ParseWcoordsArray", "Invalid wcoords format. Correct format: 0;0 . eg. set:var wcoords 0;0");
+                LogError("ParseWcoordsArray", $"Invalid wcoords format. '{value}' Correct format: 0;0 . eg. set:var wcoords 0;0");
             }
             i++;
         }
@@ -1164,7 +1250,8 @@ public class pAction
         }
         else
         {
-            LogError("ParseBool", "Invalid bool format. Correct format: true/false . eg. set:var bool false");
+            LogError("ParseBool", $"Invalid bool format. '{value}' Correct format: true/false . eg. set:var bool false");
+            
             return true;
         }
     }
@@ -1216,6 +1303,23 @@ public class pAction
         else
         {
             LogError("ParseTechDataType", $"Couldn't find {value} tech. Check spelling or idk.");
+            return default;
+        }
+    }
+
+    private TribeType ParseTribeType(string value)
+    {
+        if (IsVariable<TribeType>(value, out var obj))
+        {
+            return obj;
+        }
+        if (EnumCache<TribeType>.TryGetType(value, out var enumValue))
+        {
+            return enumValue;
+        }
+        else
+        {
+            LogError("ParseTribeType", $"Couldn't find {value} tribe. Check spelling or idk.");
             return default;
         }
     }

@@ -143,9 +143,11 @@ public static class ActionTriggers
 
         foreach (TileData tile1 in cityAreaSorted)
         {
+            if (tile1.improvement == null) continue;
+
             if (Parse.improvementTriggers.TryGetValue(tile1.improvement.type, out var impdict))
             {
-                if (impdict.TryGetValue("onCaptured", out string name))
+                if (impdict.TryGetValue("onExpand", out string name))
                 {
                     PolibUtils.RunAction(name, tile1.coordinates, __instance.PlayerId);
                 }
@@ -157,9 +159,22 @@ public static class ActionTriggers
     [HarmonyPatch(typeof(CityRewardAction), nameof(CityRewardAction.Execute))]
     private static void CityRewardTriggers(CityRewardAction __instance, GameState state)
     {
-        if (Parse.rewardTriggers.TryGetValue(__instance.Reward, out var unitdict))
+        if (Parse.rewardTriggers.TryGetValue(__instance.Reward, out var rewarddict))
         {
-            if (unitdict.TryGetValue("onRewardChosen", out string name))
+            if (rewarddict.TryGetValue("onRewardChosen", out string name))
+            {
+                PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId);
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CaptureCityAction), nameof(CaptureCityAction.Execute))]
+    private static void CaptureCityTriggers(CaptureCityAction __instance, GameState state)
+    {
+        if (Parse.unitTriggers.TryGetValue(state.Map.GetTile(__instance.Coordinates).unit.type, out var unitdict))
+        {
+            if (unitdict.TryGetValue("onCapture", out string name))
             {
                 PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId);
             }
