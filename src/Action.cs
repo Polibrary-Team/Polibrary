@@ -132,7 +132,12 @@ public class pAction
 
         increment = 1; //reset increment to 1 so we only gotta write diff to those methods where it matters
 
-        RunCommand(command.Replace(" ", ""), parameters); //make command space insensitive too
+        
+
+        if (command.Replace(" ", "") != "c") //comment
+        {
+            RunCommand(command.Replace(" ", ""), parameters); //make command space insensitive too
+        }
 
         index += increment;
     }
@@ -207,8 +212,6 @@ public class pAction
                 break;
             case "back": //loops back to the loop with matching id
                 Back(ps[0]);
-                break;
-            case "c": //allows comments
                 break;
 
 
@@ -599,7 +602,7 @@ public class pAction
     {
         TribeType tribeType = ParseTribeType(stribeType);
 
-        if (GameManager.GameState.TryGetPlayer(playerId, out var playerState))
+        if (!GameManager.GameState.TryGetPlayer(playerId, out var playerState))
         {
             LogError("IsTribe", "Owner doesn't exist, somehow. Mate if you see this consider yourself beyond cooked.");
             return;

@@ -115,6 +115,7 @@ public static class Parse
     public static Dictionary<string, pAction> actions = new Dictionary<string, pAction>();
     public static Dictionary<ImprovementData.Type, Dictionary<string/*trigger*/, string/*action*/>> improvementTriggers = new Dictionary<ImprovementData.Type, Dictionary<string, string>>();
     public static Dictionary<UnitData.Type, Dictionary<string/*trigger*/, string/*action*/>> unitTriggers = new Dictionary<UnitData.Type, Dictionary<string, string>>();
+    public static Dictionary<UnitAbility.Type, Dictionary<string/*trigger*/, string/*action*/>> unitAbilityTriggers = new Dictionary<UnitAbility.Type, Dictionary<string, string>>();
     public static Dictionary<CityReward, Dictionary<string/*trigger*/, string/*action*/>> rewardTriggers = new Dictionary<CityReward, Dictionary<string, string>>();
     public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityWhitelist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
     public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityBlacklist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
@@ -364,7 +365,26 @@ public static class Parse
             }
         }
 
-        #endregion Improvements
+        #endregion Units
+
+        #region Unit Ablities
+
+        foreach (JToken jtoken in rootObject.SelectTokens("$.unitAbility.*").ToList())
+        {
+            JObject token = jtoken.TryCast<JObject>();
+            if (token != null)
+            {
+                if (EnumCache<UnitAbility.Type>.TryGetType(token.Path.Split('.').Last(), out var abilityType))
+                {
+                    if (token["triggers"] != null)
+                    {
+                        PolibUtils.ParseToNestedStringDict(token["triggers"], abilityType, unitAbilityTriggers);
+                    }
+                }
+            }
+        }
+
+        #endregion Unit Abilities
 
         #region City Rewards
 

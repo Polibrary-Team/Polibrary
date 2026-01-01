@@ -58,4 +58,24 @@ public static class TribeManager
             }
         }
     }
+
+    /* NOTE TO SELF: ASK MIDJIATE
+    [HarmonyPrefix] //fix for custom tribe spread and alienclimate waits so it works like polaris
+    [HarmonyPatch(typeof(ClimateChangeAction), nameof(ClimateChangeAction.Execute))]
+    private static bool ClimateChangeActionFix(ClimateChangeAction __instance, GameState gameState)
+    {
+        return __instance.Climate != gameState.Map.GetTile(__instance.Coordinates).climate;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(ClimateChangeReaction), nameof(ClimateChangeReaction.Execute))]
+    private static bool ClimateChangeReactionFix(ClimateChangeReaction __instance, Il2CppSystem.Action onComplete)
+    {
+        if  (__instance.action.Climate == GameManager.GameState.Map.GetTile(__instance.action.Coordinates).climate)
+        {
+            GameManager.DelayCall(1, onComplete);
+            return false;
+        }
+        return true;
+    }*/
 }
