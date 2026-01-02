@@ -28,6 +28,7 @@ using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using Il2CppSystem.Text.Json;
 using pbb = PolytopiaBackendBase.Common;
+using UnityEngine.Rendering.Universal.Internal;
 
 
 namespace Polibrary;
@@ -156,6 +157,61 @@ public static class ActionTriggers
                 if (unitAbilitydict.TryGetValue("onAttack_AtAttacker", out string name2))
                 {
                     PolibUtils.RunAction(name2, attacker.coordinates, __instance.PlayerId);
+                }
+            }
+        }
+
+        if (Parse.unitTriggers.TryGetValue(defender.type, out var unitdict1))
+        {
+            if (unitdict1.TryGetValue("onAttacked_AtDefender", out string name1))
+            {
+                PolibUtils.RunAction(name1, defender.coordinates, __instance.PlayerId);
+            }
+            if (unitdict1.TryGetValue("onAttacked_AtAttacker", out string name))
+            {
+                PolibUtils.RunAction(name, attacker.coordinates, __instance.PlayerId);
+            }
+        }
+
+        foreach (UnitAbility.Type unitAbility in defender.UnitData.unitAbilities)
+        {
+            if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
+            {
+                if (unitAbilitydict.TryGetValue("onAttacked_AtDefender", out string name3))
+                {
+                    PolibUtils.RunAction(name3, defender.coordinates, __instance.PlayerId);
+                }
+                if (unitAbilitydict.TryGetValue("onAttacked_AtAttacker", out string name2))
+                {
+                    PolibUtils.RunAction(name2, attacker.coordinates, __instance.PlayerId);
+                }
+            }
+        }
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(KillUnitAction), nameof(KillUnitAction.Execute))]
+    private static void KillTriggers(KillUnitAction __instance, GameState gameState)
+    {
+        if (gameState.Map.GetTile(__instance.Coordinates).unit == null) return;
+
+        UnitState unit = gameState.Map.GetTile(__instance.Coordinates).unit;
+
+        if (Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
+        {
+            if (unitdict.TryGetValue("onKilled", out string name))
+            {
+                PolibUtils.RunAction(name, __instance.Coordinates, unit.owner);
+            }
+        }
+        
+        foreach (UnitAbility.Type type in unit.UnitData.unitAbilities)
+        {
+            if (Parse.unitAbilityTriggers.TryGetValue(type, out var abilityDict))
+            {
+                if (abilityDict.TryGetValue("onKilled", out string name))
+                {
+                    PolibUtils.RunAction(name, __instance.Coordinates, unit.owner);
                 }
             }
         }

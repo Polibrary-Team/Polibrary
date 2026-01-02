@@ -276,6 +276,12 @@ public class pAction
             case "attackUnit": //attack a unit with another unit
                 AttackUnit(ps[0],ps[1],ps[2]);
                 break;
+            case "damageUnit": //damage a unit with calculated damage from another unit
+                DamageUnit(ps[0],ps[1],ps[2]);
+                break;
+            case "damageUnitManual": //damage a unit with specified damage
+                DamageUnitManual(ps[0],ps[1],ps[2],ps[3]);
+                break;
             case "healUnit": //heals a unit
                 HealUnit(ps[0],ps[1]);
                 break;
@@ -786,7 +792,7 @@ public class pAction
 
         GameLogicData gameLogicData = new GameLogicData();
         int cost = deductCost ? gameLogicData.GetUnitData(unit).cost : 0;
-        GameManager.GameState.ActionStack.Add(new TrainAction(playerId, unit, wcoords, cost));
+        GameManager.GameState.ActionStack.Insert(0, new TrainAction(playerId, unit, wcoords, cost));
     }
 
     private void AttackUnit(string sorigin, string starget, string shouldMove)
@@ -800,7 +806,35 @@ public class pAction
         GameState gameState = GameManager.GameState;
         
         BattleResults battleResults = BattleHelpers.GetBattleResults(gameState, Tile(origin).unit, Tile(target).unit);
-        gameState.ActionStack.Add(new AttackAction(playerId, origin, target, battleResults.attackDamage, move, AttackAction.AnimationType.Splash, 20));
+        gameState.ActionStack.Add(new AttackAction(playerId, origin, target, battleResults.attackDamage, move, AttackAction.AnimationType.Normal, 20));
+    }
+
+    private void DamageUnit(string sorigin, string starget, string shouldMove)
+    {
+        WorldCoordinates origin = ParseWcoords(sorigin);
+        WorldCoordinates target = ParseWcoords(starget);
+        bool move = ParseBool(shouldMove);
+
+        if (Tile(origin).unit == null || Tile(target).unit == null) return;
+
+        GameState gameState = GameManager.GameState;
+        
+        BattleResults battleResults = BattleHelpers.GetBattleResults(gameState, Tile(origin).unit, Tile(target).unit);
+        gameState.ActionStack.Add(new AttackAction(playerId, target, target, battleResults.attackDamage, move, AttackAction.AnimationType.Splash, 20));
+    }
+
+    private void DamageUnitManual(string sorigin, string starget, string si, string shouldMove)
+    {
+        WorldCoordinates origin = ParseWcoords(sorigin);
+        WorldCoordinates target = ParseWcoords(starget);
+        int i = ParseInt(si);
+        bool move = ParseBool(shouldMove);
+
+        if (Tile(origin).unit == null || Tile(target).unit == null) return;
+
+        GameState gameState = GameManager.GameState;
+        
+        gameState.ActionStack.Add(new AttackAction(playerId, origin, target, i, move, AttackAction.AnimationType.Splash, 20));
     }
 
     private void HealUnit(string swcoords, string si)
