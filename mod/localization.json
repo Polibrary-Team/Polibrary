@@ -47,6 +47,14 @@
         "English": "Does not move to the tile of the defeated unit after combat.",
         "Italian (Italy)": "Non si sposta sulla tessera dell'unità sconfitta dopo il combattimento."
     },
+    "unit_abilities_polib__demotivate": {
+        "English": "DEMOTIVATE",
+        "Italian (Italy)": "PIGRO-NATOR, CAPICHE?"
+    },
+    "tooltip_ability_polib__demotivate": {
+        "English": "When killed, the attacker will not move to the tile the unit was killed on.",
+        "Italian (Italy)": "Mamma Mia! Combattimento oh-no'a, pizza pasta unitto no move-o on'a da tile'a, capiche?"
+    },
     "unit_abilities_polib__agent": {
         "English": "AGENT",
         "Italian (Italy)": "AGENTE"

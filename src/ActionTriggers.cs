@@ -190,18 +190,23 @@ public static class ActionTriggers
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(KillUnitAction), nameof(KillUnitAction.Execute))]
-    private static void KillTriggers(KillUnitAction __instance, GameState gameState)
+    [HarmonyPatch(typeof(ActionUtils), nameof(ActionUtils.KillUnit))]
+    private static void KillTriggers(GameState gameState, TileData tile)
     {
-        if (gameState.Map.GetTile(__instance.Coordinates).unit == null) return;
+        if (tile.unit == null)
+        {
+            modLogger!.LogInfo("unit is null");
+            return;
+        }
+            
 
-        UnitState unit = gameState.Map.GetTile(__instance.Coordinates).unit;
+        UnitState unit = tile.unit;
 
         if (Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
         {
             if (unitdict.TryGetValue("onKilled", out string name))
             {
-                PolibUtils.RunAction(name, __instance.Coordinates, unit.owner);
+                PolibUtils.RunAction(name, tile.coordinates, unit.owner);
             }
         }
         
@@ -211,7 +216,7 @@ public static class ActionTriggers
             {
                 if (abilityDict.TryGetValue("onKilled", out string name))
                 {
-                    PolibUtils.RunAction(name, __instance.Coordinates, unit.owner);
+                    PolibUtils.RunAction(name, tile.coordinates, unit.owner);
                 }
             }
         }

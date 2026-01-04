@@ -312,11 +312,31 @@ public static class PolibUtils
                     };
                     break;
                 }
+            case UnitEffect.Swift:
+                {
+                    effectData = new Parse.PolibUnitEffectData
+                    {
+                        movementAdd = 1,
+                        removal = new List<string> { "hurt" }
+                    };
+                    break;
+                }
             case UnitEffect.Poisoned:
                 {
                     effectData = new Parse.PolibUnitEffectData
                     {
-                        defenceMult = 7,
+                        defenceMult = 5,
+                        movementAdd = -1,
+                        removal = new List<string> { "heal" }
+                    };
+                    break;
+                }
+            case UnitEffect.Charmed:
+                {
+                    effectData = new Parse.PolibUnitEffectData
+                    {
+                        defenceMult = 5,
+                        movementAdd = -1,
                         removal = new List<string> { "heal" }
                     };
                     break;

@@ -213,6 +213,9 @@ public class pAction
             case "back": //loops back to the loop with matching id
                 Back(ps[0]);
                 break;
+            case "backPer": //loops back to the loop with matching id based on the count of an area
+                BackPer(ps[0],ps[1]);
+                break;
 
 
             //FLAGS
@@ -356,8 +359,8 @@ public class pAction
                 valueObj = ParseWcoords(value);
                 break;
             
-            case "wcoords[]": //0;0|0;0|0;0|0;0
-                valueObj = ParseWcoordsArray(value);
+            case "area": //0;0|0;0|0;0|0;0
+                valueObj = ParseWcoordsList(value);
                 break;
 
             case "unitType":
@@ -417,8 +420,8 @@ public class pAction
                 valueObj = ParseWcoords(value);
                 break;
             
-            case "wcoords[]": //0;0|0;0|0;0|0;0
-                valueObj = ParseWcoordsArray(value);
+            case "area": //0;0|0;0|0;0|0;0
+                valueObj = ParseWcoordsList(value);
                 break;
 
             case "unitType":
@@ -549,6 +552,48 @@ public class pAction
         index = i;
     }
 
+    private void BackPer(string sid, string sarea)
+    {
+        List<WorldCoordinates> area = ParseWcoordsList(sarea);
+
+        string id = ParseString(sid);
+
+        if (!cycleIds.TryGetValue(id, out var i))
+        {
+            LogError("Back",$"Couldn't find start of cycle '{id}'");
+            return;
+        }
+
+        if (!variables.TryGetValue("#" + id + "_loopIndex", out var dun))
+        {
+            variables["#" + id + "_loopIndex"] = 0;
+            dun = 0;
+        }
+
+        if (dun is int)
+        {
+            int dunint = (int)dun;
+
+            dunint++;
+            variables["#" + id + "_loopIndex"] = dunint;
+            modLogger.LogInfo($"{dunint}, count: {area.Count}");
+
+            if (dunint < area.Count)
+            {
+                index = i;
+            }
+            else
+            {
+                variables.Remove("#" + id + "_loopIndex");
+            }
+        }
+        else
+        {
+            LogError("BackPer",$"Index variable already in use, and its not an int. Consider not using {id + "_loopIndex"} as a disposable variable, dumbass. If you are looking at this as an accident I am in awe at how unbelievably goddamn stupid you are. If you are looking at this cause you're verifying the mod and saw a very very long log message, then get back to work, we dont have all day (or all year, for the matter AHEM AHEM WUBL AHEM)");
+            return;
+        }
+    }
+
     #endregion
 
     #region flags
@@ -571,15 +616,15 @@ public class pAction
         variables[variable] = tile.unit.type == unit;
     }
 
-    private void ContainsUnit(string variable, string swcoordsarray, string sunit)
+    private void ContainsUnit(string variable, string swcoordslist, string sunit)
     {
-        WorldCoordinates[] wcoordsarray = ParseWcoordsArray(swcoordsarray);
+        List<WorldCoordinates> wcoordslist = ParseWcoordsList(swcoordslist);
         UnitData.Type unit = ParseUnitDataType(sunit);
 
         GameState gameState = GameManager.GameState;
         MapData map = gameState.Map;
         List<UnitData.Type> units = new List<UnitData.Type>();
-        foreach (WorldCoordinates coords in wcoordsarray)
+        foreach (WorldCoordinates coords in wcoordslist)
         {
             units.Add(map.GetTile(coords).unit.type);
         }
@@ -628,9 +673,9 @@ public class pAction
 
     private void GetRadiusFromOrigin(string variable, string sorigin, string sradius, string sallowCenter)
     {
-        if (!IsVariable<WorldCoordinates[]>(variable, out var obj))
+        if (!IsVariable<List<WorldCoordinates>>(variable, out var obj))
         {
-            LogError("GetRadiusFromOrigin", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords[].");
+            LogError("GetRadiusFromOrigin", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: area.");
             return;
         }
         
@@ -641,7 +686,14 @@ public class pAction
         GameState gameState = GameManager.GameState;
         MapData map = gameState.Map;
 
-        variables[variable] = map.GetArea(origin, radius, true, allowCenter); //who in the ever living fuck would want to exclude diagonals?? //i remembered water exists
+        List<WorldCoordinates> list = new List<WorldCoordinates>();
+
+        foreach (TileData tile in map.GetArea(origin, radius, true, allowCenter))
+        {
+            list.Add(tile.coordinates);
+        }
+
+        variables[variable] = list; //who in the ever living fuck would want to exclude diagonals?? //i remembered water exists
 
     }
 
@@ -649,7 +701,7 @@ public class pAction
     {
         if (!IsVariable<WorldCoordinates>(variable, out var obj))
         {
-            LogError("GetActionOrigin", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords[].");
+            LogError("GetActionOrigin", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: wcoords.");
             return;
         }
 
@@ -681,9 +733,9 @@ public class pAction
         variables[variable] = wcoords.y;
     }
 
-    private void GetMember(string variable, string swcoordsarray, string si)
+    private void GetMember(string variable, string swcoordslist, string si)
     {
-        WorldCoordinates[] wcoordsarray = ParseWcoordsArray(swcoordsarray);
+        List<WorldCoordinates> wcoordslist = ParseWcoordsList(swcoordslist);
         int i = ParseInt(si);
         
         if (!IsVariable<WorldCoordinates>(variable, out var obj))
@@ -693,12 +745,12 @@ public class pAction
         }
 
 
-        variables[variable] = wcoordsarray[i];
+        variables[variable] = wcoordslist[i];
     }
 
-    private void GetCount(string variable, string swcoordsarray)
+    private void GetCount(string variable, string swcoordslist)
     {
-        WorldCoordinates[] wcoordsarray = ParseWcoordsArray(swcoordsarray);
+        List<WorldCoordinates> wcoordslist = ParseWcoordsList(swcoordslist);
         
         if (!IsVariable<int>(variable, out var obj))
         {
@@ -707,7 +759,7 @@ public class pAction
         }
 
 
-        variables[variable] = wcoordsarray.Length;
+        variables[variable] = wcoordslist.Count;
     }
 
     private void GetCapital(string variable)
@@ -744,12 +796,6 @@ public class pAction
     {
         WorldCoordinates wcoords = ParseWcoords(swcoords);
         TileData.EffectType effect = ParseTileEffectType(stileEffectType);
-
-        if (Tile(wcoords).unit == null)
-        {
-            LogError("AfflictTile", "TileEffect is null");
-            return;
-        }
 
         Tile(wcoords).AddEffect(effect);
     }
@@ -792,7 +838,7 @@ public class pAction
 
         GameLogicData gameLogicData = new GameLogicData();
         int cost = deductCost ? gameLogicData.GetUnitData(unit).cost : 0;
-        GameManager.GameState.ActionStack.Insert(0, new TrainAction(playerId, unit, wcoords, cost));
+        GameManager.GameState.ActionStack.Add(new TrainAction(playerId, unit, wcoords, cost));
     }
 
     private void AttackUnit(string sorigin, string starget, string shouldMove)
@@ -842,6 +888,11 @@ public class pAction
         WorldCoordinates wcoords = ParseWcoords(swcoords);
         int i = ParseInt(si);
 
+        if (Tile(wcoords).unit == null)
+        {
+            LogError("HealUnit", "Unit is null");
+            return;
+        }
 
         GameState gameState = GameManager.GameState;
         PolibUtils.HealUnit(gameState, Tile(wcoords).unit, i);
@@ -851,6 +902,8 @@ public class pAction
     {
         WorldCoordinates origin = ParseWcoords(sorigin);
         WorldCoordinates target = ParseWcoords(starget);
+
+        if (Tile(origin).unit == null || Tile(target).unit == null) return;
 
         GameState gameState = GameManager.GameState;
         gameState.ActionStack.Add(new ConvertAction(playerId, origin, target));
@@ -868,6 +921,13 @@ public class pAction
     {
         WorldCoordinates origin = ParseWcoords(sorigin);
 
+        if (Tile(origin).unit == null)
+        {
+            LogError("Promote", "Unit is null");
+            return;
+        }
+
+
         GameState gameState = GameManager.GameState;
         gameState.ActionStack.Add(new PromoteAction(playerId, origin));
     }
@@ -879,6 +939,12 @@ public class pAction
 
         GameLogicData gld = new GameLogicData();
         UnitData data = gld.GetUnitData(type);
+
+        if (Tile(origin).unit == null)
+        {
+            LogError("Upgrade", "Unit is null");
+            return;
+        }
         
         GameState gameState = GameManager.GameState;
         gameState.ActionStack.Add(new UpgradeAction(playerId, type, origin, data.cost));
@@ -889,6 +955,11 @@ public class pAction
         WorldCoordinates origin = ParseWcoords(sorigin);
         bool showPopup = ParseBool(sshowPopup);
 
+        if (Tile(origin).unit == null)
+        {
+            return;
+        }
+
         GameState gameState = GameManager.GameState;
         gameState.ActionStack.Add(new RevealAction(playerId, origin, showPopup));
     }
@@ -896,6 +967,12 @@ public class pAction
     private void KillUnit(string sorigin)
     {
         WorldCoordinates origin = ParseWcoords(sorigin);
+
+        if (Tile(origin).unit == null)
+        {
+            LogError("KillUnit", "Unit is null");
+            return;
+        }
 
         GameState gameState = GameManager.GameState;
         gameState.ActionStack.Add(new KillUnitAction(playerId, origin));
@@ -1172,12 +1249,36 @@ public class pAction
             return (A.X == B.X && A.Y == B.Y).ToString();
         }
 
+        if (p.Contains("~"))
+        {
+            string[] ab = p.Split("~", 2);
+
+            List<WorldCoordinates> A = ParseWcoordsList(ab[0]);
+            int B = ParseInt(ab[1]);
+
+            modLogger.LogInfo(A.Count - 1 + ":" + B);
+
+            return ToScript(A[B]);
+        }
+
         return p;
+    }
+
+    private string ToScript(WorldCoordinates coordinates)
+    {
+        return coordinates.X + ";" + coordinates.Y;
     }
 
     
     private bool IsVariable<T>(string s, out T obj)
     {
+        if (string.IsNullOrEmpty(s)) 
+        {
+            obj = default;
+            LogError("IsVariable", "String is empty");
+            return false;
+        }
+
         if (s[0] == 'ص')
         {
             s = s.Replace('ص', '@'); //you happy? huh? YOU GOT YOUR ARABIC LETTER ARE YOU SATISFIED?
@@ -1191,6 +1292,11 @@ public class pAction
                 {
                     return true;
                 }
+            }
+            else if (typeof(T) == typeof(int) && s.Contains("_loopIndex"))
+            {
+                obj = default;
+                return true;
             }
         }
         obj = default;
@@ -1245,14 +1351,15 @@ public class pAction
         }
     }
 
-    private WorldCoordinates[] ParseWcoordsArray(string value)
+    private List<WorldCoordinates> ParseWcoordsList(string value)
     {
-        if (IsVariable<WorldCoordinates[]>(value, out var obj))
+        if (IsVariable<List<WorldCoordinates>>(value, out var obj))
         {
             return obj;
         }
         string[] splitValues = value.Split('|');
-        WorldCoordinates[] wcoordsarray = new WorldCoordinates[splitValues.Length];
+
+        List<WorldCoordinates> wcoordslist = new List<WorldCoordinates>();
 
         int i = 0;
         foreach (string newValue in splitValues)
@@ -1264,15 +1371,15 @@ public class pAction
             {
                 wcoords.X = X;
                 wcoords.Y = Y;
-                wcoordsarray[i] = wcoords;
+                wcoordslist.Add(wcoords);
             }
             else
             {
-                LogError("ParseWcoordsArray", $"Invalid wcoords format. '{value}' Correct format: 0;0 . eg. set:var wcoords 0;0");
+                LogError("ParseWcoordsList", $"Invalid wcoords format. '{value}' Correct format: 0;0 . eg. set:var wcoords 0;0");
             }
             i++;
         }
-        return wcoordsarray;
+        return wcoordslist;
     }
 
     private bool ParseBool(string value)

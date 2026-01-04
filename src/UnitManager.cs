@@ -305,6 +305,22 @@ public static class UnitManager
 
     #endregion
 
+    #region Demotivate
+    [HarmonyPostfix] //literally me
+    [HarmonyPriority(Priority.Last)]
+    [HarmonyPatch(typeof(BattleHelpers), nameof(BattleHelpers.GetBattleResults))]
+    public static void Demotivate(GameState gameState, UnitState attackingUnit, UnitState defendingUnit, ref BattleResults __result)
+    {
+        if (defendingUnit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_demotivate")))
+        {
+            __result.shouldMoveToDefeatedEnemyTile = false;
+        }
+    }
+
+
+    #endregion
+
+
 
     #region Blind
 
