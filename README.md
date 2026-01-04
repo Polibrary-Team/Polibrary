@@ -1,4 +1,4 @@
-# Polibrary 2.0 - A GLD Modding Tool for Polytopia
+# Polibrary 2.1 - A GLD Modding Tool for Polytopia
 
 Latest verified version: 2.1-pre3
 
