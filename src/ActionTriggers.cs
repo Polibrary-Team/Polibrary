@@ -77,6 +77,10 @@ public static class ActionTriggers
                 {
                     PolibUtils.RunAction(name2, coords, __instance.PlayerId);
                 }
+                if (unitdict.TryGetValue("onMove_Trail", out string name3) && coords.X != __instance.Path[0].X && coords.Y != __instance.Path[0].Y)
+                {
+                    PolibUtils.RunAction(name3, coords, __instance.PlayerId);
+                }
             }
         }
         
@@ -97,6 +101,10 @@ public static class ActionTriggers
                     if (abilityDict.TryGetValue("onMove_Path", out string name2))
                     {
                         PolibUtils.RunAction(name2, coords, __instance.PlayerId);
+                    }
+                    if (unitdict.TryGetValue("onMove_Trail", out string name3) && coords.X != __instance.Path[0].X && coords.Y != __instance.Path[0].Y)
+                    {
+                        PolibUtils.RunAction(name3, coords, __instance.PlayerId);
                     }
                 }
             }
@@ -195,7 +203,6 @@ public static class ActionTriggers
     {
         if (tile.unit == null)
         {
-            modLogger!.LogInfo("unit is null");
             return;
         }
             
@@ -228,6 +235,12 @@ public static class ActionTriggers
     {
         gameState.TryGetUnit(__instance.UnitId, out UnitState unit);
 
+        if (unit == null)
+        {
+            modLogger!.LogInfo("unit is null");
+            return;
+        }
+
         if (Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
         {
             if (unitdict.TryGetValue("onMoveCommand", out string name))
@@ -235,6 +248,7 @@ public static class ActionTriggers
                 PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
             }
         }
+
         foreach (UnitAbility.Type unitAbility in unit.UnitData.unitAbilities)
         {
             if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
