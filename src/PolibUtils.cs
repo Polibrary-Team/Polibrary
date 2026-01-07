@@ -119,7 +119,7 @@ public static class PolibUtils
     }
 
 
-        public static Parse.PolibCityRewardData SetVanillaCityRewardDefaults(CityReward reward) //dont laugh // Wtf??? I will laugh >:)
+    public static Parse.PolibCityRewardData SetVanillaCityRewardDefaults(CityReward reward) //dont laugh // Wtf??? I will laugh >:)
     {
         Parse.PolibCityRewardData rewardData = new Parse.PolibCityRewardData();
         switch (reward)
@@ -513,6 +513,81 @@ public static class PolibUtils
 
     #endregion
 
+    #region Unit Utils
+
+    // Movement Filters: Return TRUE if tile is invalid
+    public static bool IsTileWaterForHydrophobics(TileData tile, UnitState unit)
+    {
+        if(tile == null) return false;
+        if (!unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_cantembark"))) return false;
+        return tile.IsWater;
+    }
+    public static bool IsTileOutOfBounds(TileData tile, UnitState unit)
+    {
+        if(tile == null) return false;
+        if (!unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_bounded")) && !unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_homesick"))) return false;
+        Il2Gen.List<TileData> citytiles;
+        if(unit.home != WorldCoordinates.NULL_COORDINATES) citytiles = ActionUtils.GetCityArea(GameManager.GameState, GameManager.GameState.Map.GetTile(unit.home));
+        else citytiles = new Il2Gen.List<TileData>(); // Necessary nullcheck for independent units
+        var owner = unit.owner;
+        if (unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_bounded")))
+        {
+            bool iscitytile = false;
+            foreach (var citytile in citytiles)
+            {
+                if (citytile.coordinates == tile.coordinates) iscitytile = true;
+            }
+            if(!iscitytile) return true;
+        }
+        else if (tile.owner != owner) return true;
+        return false;
+    }
+
+    public static bool IsTileBlockedForUnit(TileData tile, UnitState unit)
+    {
+        if (tile == null || tile.improvement == null) return false;
+        ImprovementData data = PolibUtils.DataFromState(tile.improvement, GameManager.GameState);
+        bool UnitCanBeBlocked = true;
+        if (Parse.UnblockDict.TryGetValue(data.type, out string value))
+        {
+            if (unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(value)))
+            {
+                UnitCanBeBlocked = false;
+            }
+        }
+
+        if (data != null && data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_block")) && UnitCanBeBlocked)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static Il2Gen.List<WorldCoordinates> FilterMoveOptions(Il2Gen.List<WorldCoordinates> possibilities, UnitState unit, List<System.Func<TileData, UnitState, bool>> filters)
+    {
+        Il2Gen.List<WorldCoordinates> newlist = new();
+        for (int i = 0; i < possibilities.Count; i++)
+        {
+            if (possibilities[i] != WorldCoordinates.NULL_COORDINATES)
+            {
+                TileData tile = GameManager.GameState.Map.GetTile(possibilities[i]);
+                bool CanStepHere = true;
+                Main.modLogger.LogMessage("Trying to eval for tile "+tile.coordinates.ToString());
+                foreach(var f in filters)
+                {
+                    Main.modLogger.LogMessage("Evaling f with return " + f(tile, unit).ToString());
+                    if(f(tile, unit)) CanStepHere = false;
+                }
+                Main.modLogger.LogMessage("CanStepHere? "+ CanStepHere);
+                if (CanStepHere) newlist.Add(possibilities[i]);
+            }
+        }
+        return newlist;
+    }
+
+    #endregion
+
 
     #region ParseUtils
 
@@ -537,12 +612,12 @@ public static class PolibUtils
             }
         }
     }
-    
+
     public static T ParseToken<T>(JObject token, string target)
     {
         if (token[target] == null)
-        return default;
-        
+            return default;
+
         T t = token[target]!.ToObject<T>();
         token.Remove(target);
         utilGuy!.LogInfo($"Parsed {target}");
@@ -561,7 +636,7 @@ public static class PolibUtils
         return list;
     }
 
-    public static void ParseToNestedStringDict<DT, VT>(JToken jtoken, DT type, Dictionary<DT, Dictionary<string, VT>> ogdict) 
+    public static void ParseToNestedStringDict<DT, VT>(JToken jtoken, DT type, Dictionary<DT, Dictionary<string, VT>> ogdict)
     where DT : struct, System.IConvertible //DT must be some enumCacheable bullshit
     {
         JObject token = jtoken.TryCast<JObject>();
@@ -576,8 +651,8 @@ public static class PolibUtils
             }
 
             ogdict[type] = dict;
-            
-            
+
+
         }
     }
 

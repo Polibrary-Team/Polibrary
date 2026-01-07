@@ -42,7 +42,7 @@ public static class UnitManager
 
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
-    
+
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetDefenceBonus))]
@@ -114,7 +114,7 @@ public static class UnitManager
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetMovement))]
     public static void UnitDataExtensions_GetMovement(this UnitState unitState, GameState gameState, ref int __result)
     {
-        
+
         UnitData unitData;
         gameState.GameLogicData.TryGetData(unitState.type, out unitData);
         int effectAdditive = 0;
@@ -134,7 +134,7 @@ public static class UnitManager
         }
         __result = ((unitData.movement + boostMovementOverSpawn * PolibUtils.GetRewardCountForPlayer(unitState.owner, PolibUtils.GetSpawningRewardsForUnit(unitData.type))) * effectMultiplicative) + effectAdditive;
     }
-    
+
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetAttack), new System.Type[] { typeof(UnitState), typeof(GameState) })]
@@ -182,7 +182,7 @@ public static class UnitManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CommandUtils), nameof(CommandUtils.GetTrainableUnits))]
-    public static void ExcludeAgentsFromCities(ref Il2CppSystem.Collections.Generic.List<TrainCommand> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable = false)
+    public static void ExcludeAgentsFromCities(ref Il2Gen.List<TrainCommand> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable = false)
     {
         //Safety first
         if (player.Id != gameState.CurrentPlayer) //thats cap, if it crashes then why doesnt the user learn to code and fix it themselves, if they whine so much!
@@ -201,7 +201,7 @@ public static class UnitManager
         {
             return;
         }
-        __result = new Il2CppSystem.Collections.Generic.List<TrainCommand>();
+        __result = new Il2Gen.List<TrainCommand>();
         foreach (UnitData unitData in gameState.GameLogicData.GetUnlockedUnits(player, gameState, false))
         {
             if (!unitData.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_agent")) && CommandValidation.HasUnitTerrain(gameState, tile.coordinates, unitData))
@@ -235,7 +235,7 @@ public static class UnitManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CommandUtils), nameof(CommandUtils.GetTrainableUnits))]
-    public static void IncludeAgents(ref Il2CppSystem.Collections.Generic.List<TrainCommand> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable = false)
+    public static void IncludeAgents(ref Il2Gen.List<TrainCommand> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable = false)
     {
         if (player.Id != gameState.CurrentPlayer)
         {
@@ -253,7 +253,7 @@ public static class UnitManager
         {
             return;
         }
-        __result = new Il2CppSystem.Collections.Generic.List<TrainCommand>();
+        __result = new Il2Gen.List<TrainCommand>();
         foreach (UnitData unitData in gameState.GameLogicData.GetUnlockedUnits(player, gameState, false))
         {
             if (unitData.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_agent")) && CanBeAgented(tile.coordinates, gameState) && tile.CanBeAccessedByPlayer(gameState, player) && CommandValidation.HasUnitTerrain(gameState, tile.coordinates, unitData))
@@ -338,7 +338,7 @@ public static class UnitManager
     [HarmonyPatch(typeof(ActionUtils), nameof(ActionUtils.ExploreFromTile))]
     public static bool Blinding2(GameState gameState, PlayerState playerState, TileData tile, int sightRange, bool shouldUseActions)
     {
-        if(sightRange == 0) return false;
+        if (sightRange == 0) return false;
         return true;
     }
 
@@ -463,175 +463,30 @@ public static class UnitManager
         return true;
     }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(PathFinder), nameof(PathFinder.GetMoveOptions))]
-    public static void PolyBlock(this GameState gameState, WorldCoordinates start, int maxCost, UnitState unit, ref Il2CppSystem.Collections.Generic.List<WorldCoordinates> __result)
-    {
-        Il2CppSystem.Collections.Generic.List<WorldCoordinates> newlist = new Il2CppSystem.Collections.Generic.List<WorldCoordinates>();
 
-        for (int i = 0; i < __result.Count; i++)
-        {
-            bool flag = false;
-            if (__result[i] != WorldCoordinates.NULL_COORDINATES)
-            {
-                TileData tile = gameState.Map.GetTile(__result[i]);
-                if (tile != null && tile.improvement != null)
-                {
-                    ImprovementData data = PolibUtils.DataFromState(tile.improvement, gameState);
-
-                    bool flag2 = true;
-                    if (Parse.UnblockDict.TryGetValue(data.type, out string value))
-                    {
-                        if (unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(value)))
-                        {
-                            flag2 = false;
-                        }
-                    }
-
-                    if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_block")) && flag2)
-                    {
-                        flag = true;
-                    }
-                }
-            }
-            if (!flag)
-            {
-                newlist.Add(__result[i]);
-            }
-        }
-
-        __result = newlist;
-    }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PathFinder), nameof(PathFinder.GetMoveOptions))]
-    public static void Bounded(this GameState gameState, WorldCoordinates start, int maxCost, UnitState unit, ref Il2CppSystem.Collections.Generic.List<WorldCoordinates> __result)
+    public static void ExcludeMoveOptions(this GameState gameState, WorldCoordinates start, int maxCost, UnitState unit, ref Il2Gen.List<WorldCoordinates> __result)
     {
-
-        if (!unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_bounded")))
-        {
-            return;
-        }
-
-        var homecity = unit.home;
-        var citytile = gameState.Map.GetTile(homecity);
-        var citytiles = ActionUtils.GetCityArea(gameState, citytile);
-        Il2CppSystem.Collections.Generic.List<WorldCoordinates> newlist = new Il2CppSystem.Collections.Generic.List<WorldCoordinates>();
-
-        for (int i = 0; i < __result.Count; i++)
-        {
-            bool flag = false;
-            if (__result[i] != WorldCoordinates.NULL_COORDINATES)
-            {
-                TileData tile = gameState.Map.GetTile(__result[i]);
-                if (tile != null)
-                {
-                    bool currentTileOutofBounds = false;
-                    foreach (var item in citytiles)
-                    {
-                        if (item == tile)
-                        {
-                            currentTileOutofBounds = true;
-                            break;
-                        }
-                    }
-                    if (!currentTileOutofBounds)
-                    {
-                        flag = true;
-                    }
-                }
-            }
-            if (!flag)
-            {
-                newlist.Add(__result[i]);
-            }
-        }
-
-        __result = newlist;
+        List<System.Func<TileData, UnitState, bool>> filters = new List<System.Func<TileData, UnitState, bool>>{
+            PolibUtils.IsTileBlockedForUnit,
+            PolibUtils.IsTileOutOfBounds,
+            PolibUtils.IsTileWaterForHydrophobics
+        };
+        __result = PolibUtils.FilterMoveOptions(__result, unit, filters);
     }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(PathFinder), nameof(PathFinder.GetMoveOptions))]
-    public static void Homesick(this GameState gameState, WorldCoordinates start, int maxCost, UnitState unit, ref Il2CppSystem.Collections.Generic.List<WorldCoordinates> __result)
-    {
-
-        if (!unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_homesick")))
-        {
-            return;
-        }
-
-        var owner = unit.owner;
-        Il2CppSystem.Collections.Generic.List<WorldCoordinates> newlist = new Il2CppSystem.Collections.Generic.List<WorldCoordinates>();
-
-        for (int i = 0; i < __result.Count; i++)
-        {
-            bool flag = false;
-            if (__result[i] != WorldCoordinates.NULL_COORDINATES)
-            {
-                TileData tile = gameState.Map.GetTile(__result[i]);
-                if (tile != null)
-                {
-                    if (tile.owner != owner)
-                    {
-                        flag = true;
-                    }
-                }
-            }
-            if (!flag)
-            {
-                newlist.Add(__result[i]);
-            }
-        }
-
-        __result = newlist;
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(PathFinder), nameof(PathFinder.GetMoveOptions))]
-    public static void CantEmbark(this GameState gameState, WorldCoordinates start, int maxCost, UnitState unit, ref Il2CppSystem.Collections.Generic.List<WorldCoordinates> __result)
-    {
-
-        if (!unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_cantembark")))
-        {
-            return;
-        }
-
-        Il2CppSystem.Collections.Generic.List<WorldCoordinates> newlist = new Il2CppSystem.Collections.Generic.List<WorldCoordinates>();
-
-        for (int i = 0; i < __result.Count; i++)
-        {
-            bool flag = false;
-            if (__result[i] != WorldCoordinates.NULL_COORDINATES)
-            {
-                TileData tile = gameState.Map.GetTile(__result[i]);
-                if (tile != null)
-                {
-                    if (tile.terrain == Polytopia.Data.TerrainData.Type.Water || tile.terrain == Polytopia.Data.TerrainData.Type.Ocean)
-                    {
-                        flag = true;
-                    }
-                }
-            }
-            if (!flag)
-            {
-                newlist.Add(__result[i]);
-            }
-        }
-
-        __result = newlist;
-    }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PathFinder), nameof(PathFinder.GetPath), typeof(MapData), typeof(WorldCoordinates), typeof(WorldCoordinates), typeof(int), typeof(PathFinderSettings))]
-    public static void NoWaterForYou(this MapData map, WorldCoordinates start, WorldCoordinates destination, int maxCost, PathFinderSettings settings, ref Il2CppSystem.Collections.Generic.List<WorldCoordinates> __result)
-    { //lmao
+    public static void CantEmbarkExtraFix(this MapData map, WorldCoordinates start, WorldCoordinates destination, int maxCost, PathFinderSettings settings, ref Il2Gen.List<WorldCoordinates> __result)
+    {
         TileData tile1 = map.GetTile(start);
-        if(tile1 == null || tile1.unit == null || !tile1.unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_cantembark"))) return;
+        if (tile1 == null || tile1.unit == null || !tile1.unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_cantembark"))) return;
 
-        if(map.GetTile(destination).IsWater) __result = null;
+        if (map.GetTile(destination).IsWater) __result = null;
     }
-
-    // We need a util for blocking tiles in a pathfinder path and just reference that again and again.
 
     #endregion
 }
