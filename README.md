@@ -4,7 +4,7 @@ Latest verified version: 2.1
 
 ## Installation
 ### Verified (Recommended)
-Download the **verified** .polymod file from the Polymod discord server, in the mods>Polibrary thread's latest pinned message. Download at least version 2.0 to include Modularity's functionalities in the mod.
+Download the **verified** .polymod file from the Polymod discord server, in the mods>Polibrary thread's latest pinned message.
 
 ### Unverified
 This is for people who want to experiment with upcoming features before its released, or give us feedback. 
