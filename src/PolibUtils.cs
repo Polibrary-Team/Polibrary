@@ -573,13 +573,10 @@ public static class PolibUtils
             {
                 TileData tile = GameManager.GameState.Map.GetTile(possibilities[i]);
                 bool CanStepHere = true;
-                Main.modLogger.LogMessage("Trying to eval for tile "+tile.coordinates.ToString());
                 foreach(var f in filters)
                 {
-                    Main.modLogger.LogMessage("Evaling f with return " + f(tile, unit).ToString());
                     if(f(tile, unit)) CanStepHere = false;
                 }
-                Main.modLogger.LogMessage("CanStepHere? "+ CanStepHere);
                 if (CanStepHere) newlist.Add(possibilities[i]);
             }
         }
