@@ -27,6 +27,7 @@ using Il2CppSystem.Linq;
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using pbb = PolytopiaBackendBase.Common;
+using PolytopiaBackendBase;
 
 
 namespace Polibrary;
@@ -39,143 +40,181 @@ public static class UnitManager
         // rest in peace steve, you had a good run, 2025-2025
 
         jeremy = logger; // f you jeremy
+        //yeah jeremy go fuck yourself
 
         Harmony.CreateAndPatchAll(typeof(UnitManager));
     }
 
-
-    [HarmonyPrefix]
+    [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetDefenceBonus))]
-    public static bool UnitDataExtensions_GetDefenceBonus(this UnitState unit, GameState gameState, ref int __result)
+    public static void DefBonus(this UnitState unit, GameState gameState, ref int __result)
     {
+        int defence = 10;
+        bool change = false;
         TileData tile = gameState.Map.GetTile(unit.coordinates);
-        byte playerId = gameState.CurrentPlayer;
-        if (tile != null)
+
+        if (tile.improvement == null) return;
+
+        if (tile.owner == unit.owner && Parse.improvementDefenceBoost.TryGetValue(tile.improvement.type, out int i))
         {
-            int finaldef = 10;
-            int effectMultiplicative = 0;
-            foreach (UnitEffect effect in unit.effects)
+            defence = i;
+            change = true;
+        }
+
+        if (Parse.freelanceImprovementDefenceBoostDict.TryGetValue(tile.improvement.type, out int j))
+        {
+            defence = j;
+            change = true;
+        }
+
+        if (tile.owner == unit.owner && tile.improvement.type == ImprovementData.Type.City && tile.improvement.rewards != null && unit.HasAbility(UnitAbility.Type.Fortify))
+        {
+            foreach (CityReward reward in tile.improvement.rewards)
             {
-                if (Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
+                if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
                 {
-                    effectMultiplicative = (effectData.defenceMult != 0) ? effectMultiplicative + (effectData.defenceMult / 10) : effectMultiplicative;
-                }
-            }
-            if (tile.owner == unit.owner && tile.improvement != null && Parse.defenceBoostDict.TryGetValue(tile.improvement.type, out int def))
-            {
-                finaldef = def; //python users got triggered here
-            }
-            else if (tile.owner == unit.owner && tile.improvement != null && tile.improvement.type == ImprovementData.Type.City && tile.improvement.rewards != null && unit.HasAbility(UnitAbility.Type.Fortify))
-            {
-                int def2 = 0;
-                //steve!.LogInfo(tile.improvement.rewards.Count);
-                foreach (CityReward reward in tile.improvement.rewards)
-                {
-                    if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                    if (cityRewardData.defenceBoost != -1)
                     {
-                        def2 = def2 + cityRewardData.defenceBoost;
+                        defence = (defence < cityRewardData.defenceBoost) ? cityRewardData.defenceBoost : defence;
+                        change = true;
                     }
                 }
-                if (def2 != 0)
-                {
-                    finaldef = def2 - 1;
-                }
-            }
-            if (finaldef == 10)
-            {
-                return true;
-            }
-            else
-            {
-                effectMultiplicative = (effectMultiplicative == 0) ? 1 : effectMultiplicative;
-                __result = finaldef + effectMultiplicative;
-                return false;
             }
         }
-        else { return true; }
+
+        if (change)
+        {
+            __result = defence;
+        }
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetDefence))]
-    public static void UnitDataExtensions_GetDefence(this UnitState unit, GameState state, ref int __result) //banan sugeston
+    public static void Defence(this UnitState unit, GameState state, ref int __result)
     {
-        UnitData unitData;
-        state.GameLogicData.TryGetData(unit.type, out unitData);
-        int boostDefenceOverSpawn = 0;
-        foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitData.type))
+        if (Main.polibGameState.rewardBoostDict.TryGetValue(unit.type, out int num))
         {
-            boostDefenceOverSpawn += PolibUtils.GetRewardData(reward).boostDefenceOverSpawn;
+            foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unit.type))
+            {
+                if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                {
+                    __result += cityRewardData.boostDefenceOverSpawn * num;
+                }
+            }
         }
-        __result = (unitData.defence + boostDefenceOverSpawn * PolibUtils.GetRewardCountForPlayer(unit.owner, PolibUtils.GetSpawningRewardsForUnit(unitData.type))) * unit.GetDefenceBonus(state);
+        
+        foreach (UnitEffect effect in unit.effects)
+        {
+            if (Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
+            {
+                if (effectData.additives.TryGetValue("defence", out int add))
+                {
+                    __result += add;
+                }
+                if (effectData.multiplicatives.TryGetValue("defence", out int mult))
+                {
+                    __result *= mult;
+                }
+            }
+        }
     }
-
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetMovement))]
-    public static void UnitDataExtensions_GetMovement(this UnitState unitState, GameState gameState, ref int __result)
+    public static void Movement(this UnitState unitState, GameState gameState, ref int __result)
     {
-
-        UnitData unitData;
-        gameState.GameLogicData.TryGetData(unitState.type, out unitData);
-        int effectAdditive = 0;
-        int effectMultiplicative = 1;
+        if (Main.polibGameState.rewardBoostDict.TryGetValue(unitState.type, out int num))
+        {
+            foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitState.type))
+            {
+                if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                {
+                    __result += cityRewardData.boostMovementOverSpawn * num;
+                }
+            }
+        }
+        
         foreach (UnitEffect effect in unitState.effects)
         {
             if (Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
             {
-                effectAdditive = effectAdditive + effectData.movementAdd;
-                effectMultiplicative = (effectData.movementMult != 0) ? effectMultiplicative * (effectData.movementMult / 10) : effectMultiplicative;
+                if (effectData.additives.TryGetValue("movement", out int add))
+                {
+                    __result += add;
+                }
+                if (effectData.multiplicatives.TryGetValue("movement", out int mult))
+                {
+                    __result *= mult;
+                }
             }
         }
-        int boostMovementOverSpawn = 0;
-        foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitData.type))
-        {
-            boostMovementOverSpawn += PolibUtils.GetRewardData(reward).boostMovementOverSpawn;
-        }
-        __result = ((unitData.movement + boostMovementOverSpawn * PolibUtils.GetRewardCountForPlayer(unitState.owner, PolibUtils.GetSpawningRewardsForUnit(unitData.type))) * effectMultiplicative) + effectAdditive;
     }
 
-
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetAttack), new System.Type[] { typeof(UnitState), typeof(GameState) })]
-    public static void UnitDataExtensions_GetAttack(this UnitState unitState, GameState gameState, ref int __result)
+    [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetAttack), typeof(UnitState), typeof(GameState))]
+    public static void Attack(this UnitState unitState, GameState gameState, ref int __result)
     {
-        UnitData unitData;
-        gameState.GameLogicData.TryGetData(unitState.type, out unitData);
-        int effectAdditive = 0;
-        int effectMultiplicative = 1;
+        if (Main.polibGameState.rewardBoostDict.TryGetValue(unitState.type, out int num))
+        {
+            foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitState.type))
+            {
+                if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                {
+                    __result += cityRewardData.boostAttackOverSpawn * num;
+                }
+            }
+        }
+        
         foreach (UnitEffect effect in unitState.effects)
         {
             if (Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
             {
-                effectAdditive = effectAdditive + effectData.attackAdd;
-                effectMultiplicative = (effectData.attackMult != 0) ? effectMultiplicative * (effectData.attackMult / 10) : effectMultiplicative;
+                if (effectData.additives.TryGetValue("attack", out int add))
+                {
+                    __result += add;
+                }
+                if (effectData.multiplicatives.TryGetValue("attack", out int mult))
+                {
+                    __result *= mult;
+                }
             }
         }
-        int boostAttackOverSpawn = 0;
-        foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitData.type))
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetRange), typeof(UnitState), typeof(GameState))]
+    public static void Range(this UnitState unitState, GameState gameState, ref int __result)
+    {   
+        foreach (UnitEffect effect in unitState.effects)
         {
-            boostAttackOverSpawn += PolibUtils.GetRewardData(reward).boostAttackOverSpawn;
+            if (Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
+            {
+                if (effectData.additives.TryGetValue("range", out int add))
+                {
+                    __result += add;
+                }
+                if (effectData.multiplicatives.TryGetValue("range", out int mult))
+                {
+                    __result *= mult;
+                }
+            }
         }
-        __result = ((unitData.GetAttack() + boostAttackOverSpawn * PolibUtils.GetRewardCountForPlayer(unitState.owner, PolibUtils.GetSpawningRewardsForUnit(unitData.type)) * 10) * effectMultiplicative) + effectAdditive * 10;
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetMaxHealth))]
     public static void GetMaxHealth(this UnitState unitState, GameState gameState, ref int __result) //man voidmongers using modularity will get me SOO much downloads!!
     {
-        if (unitState.passengerUnit != null && !unitState.HasAbility(UnitAbility.Type.Protect, gameState)) //it in fact did not get me downloads
+        if (Main.polibGameState.rewardBoostDict.TryGetValue(unitState.type, out int num))
         {
-            unitState = unitState.passengerUnit;
+            foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitState.type))
+            {
+                if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                {
+                    __result += cityRewardData.boostMaxHpOverSpawn * num;
+                }
+            }
         }
-        UnitData unitData;
-        gameState.GameLogicData.TryGetData(unitState.type, out unitData);
-        int boostMaxHpOverSpawn = 0;
-        foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitData.type))
-        {
-            boostMaxHpOverSpawn += PolibUtils.GetRewardData(reward).boostMaxHpOverSpawn;
-        }
-        __result = unitData.health + (unitState.promotionLevel * 50) + (boostMaxHpOverSpawn * PolibUtils.GetRewardCountForPlayer(unitState.owner, PolibUtils.GetSpawningRewardsForUnit(unitData.type)));
     }
 
     #region Agent
@@ -290,27 +329,16 @@ public static class UnitManager
 
     #endregion
 
-    #region Lazy
+    #region Lazy & Demotivate
     [HarmonyPostfix] //literally me
     [HarmonyPriority(Priority.Last)]
     [HarmonyPatch(typeof(BattleHelpers), nameof(BattleHelpers.GetBattleResults))]
-    public static void Lazy(GameState gameState, UnitState attackingUnit, UnitState defendingUnit, ref BattleResults __result)
+    public static void LazyOrDemotivate(GameState gameState, UnitState attackingUnit, UnitState defendingUnit, ref BattleResults __result)
     {
         if (attackingUnit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_lazy")))
         {
             __result.shouldMoveToDefeatedEnemyTile = false;
         }
-    }
-
-
-    #endregion
-
-    #region Demotivate
-    [HarmonyPostfix] //literally me
-    [HarmonyPriority(Priority.Last)]
-    [HarmonyPatch(typeof(BattleHelpers), nameof(BattleHelpers.GetBattleResults))]
-    public static void Demotivate(GameState gameState, UnitState attackingUnit, UnitState defendingUnit, ref BattleResults __result)
-    {
         if (defendingUnit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_demotivate")))
         {
             __result.shouldMoveToDefeatedEnemyTile = false;
@@ -319,8 +347,6 @@ public static class UnitManager
 
 
     #endregion
-
-
 
     #region Blind
 

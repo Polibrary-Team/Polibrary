@@ -59,13 +59,17 @@ public static class ActionTriggers
     [HarmonyPatch(typeof(MoveAction), nameof(MoveAction.ExecuteDefault))]
     private static void MoveTriggers(MoveAction __instance, GameState gameState)
     {
-        gameState.TryGetUnit(__instance.UnitId, out UnitState unit);
+        if (!gameState.TryGetUnit(__instance.UnitId, out UnitState unit))
+        {
+            modLogger.LogInfo("shits fucked");
+            return;
+        }
 
         if (Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
         {
             if (unitdict.TryGetValue("onMove", out string name))
             {
-                PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
+                PolibUtils.RunAction(name, __instance.Path[0], __instance.PlayerId);
             }
             if (unitdict.TryGetValue("onMove_AtOrigin", out string name1))
             {
@@ -90,7 +94,7 @@ public static class ActionTriggers
             {
                 if (abilityDict.TryGetValue("onMove", out string name))
                 {
-                    PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
+                    PolibUtils.RunAction(name, __instance.Path[0], __instance.PlayerId);
                 }
                 if (abilityDict.TryGetValue("onMove_AtOrigin", out string name1))
                 {
@@ -102,7 +106,7 @@ public static class ActionTriggers
                     {
                         PolibUtils.RunAction(name2, coords, __instance.PlayerId);
                     }
-                    if (unitdict.TryGetValue("onMove_Trail", out string name3) && coords.X != __instance.Path[0].X && coords.Y != __instance.Path[0].Y)
+                    if (abilityDict.TryGetValue("onMove_Trail", out string name3) && coords.X != __instance.Path[0].X && coords.Y != __instance.Path[0].Y)
                     {
                         PolibUtils.RunAction(name3, coords, __instance.PlayerId);
                     }

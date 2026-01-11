@@ -53,7 +53,8 @@ public static class Parse
     public static Dictionary<ImprovementData.Type, string> ImpBuildersDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<ImprovementData.Type, string> ImpCustomLocKey = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<pbb.TribeType, string> leaderNameDict = new Dictionary<pbb.TribeType, string>();
-    public static Dictionary<ImprovementData.Type, int> defenceBoostDict = new Dictionary<ImprovementData.Type, int>();
+    public static Dictionary<ImprovementData.Type, int> improvementDefenceBoost = new Dictionary<ImprovementData.Type, int>();
+    public static Dictionary<ImprovementData.Type, int> freelanceImprovementDefenceBoostDict = new Dictionary<ImprovementData.Type, int>();
     public static Dictionary<ImprovementData.Type, float> AIScoreDict = new Dictionary<ImprovementData.Type, float>();
     public static Dictionary<pbb.TribeType, List<(ResourceData.Type, int)>> startingResources = new Dictionary<pbb.TribeType, List<(ResourceData.Type, int)>>();
     public class PolibCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
@@ -62,7 +63,7 @@ public static class Parse
         public int currencyReward { get; set; }
         public int populationReward { get; set; }
         public int scoreReward { get; set; }
-        public int defenceBoost { get; set; }
+        public int defenceBoost { get; set; } = -1;
         public int scoutSpawnAmount { get; set; }
         public int scoutMoveAmount { get; set; } = 15;
         public int borderGrowthAmount { get; set; } //yay now its useful
@@ -86,12 +87,6 @@ public static class Parse
     {
         public Dictionary<string, int> additives { get; set; }
         public Dictionary<string, int> multiplicatives { get; set; }
-        public static UnitEffectIntention intention { get; set; } 
-        public int defenceMult { get; set; }
-        public int attackMult { get; set; }
-        public int attackAdd { get; set; }
-        public int movementMult { get; set; }
-        public int movementAdd { get; set; }
         public string color { get; set; }
         public List<string> removal { get; set; }
         public bool freezing { get; set; }
@@ -232,7 +227,8 @@ public static class Parse
     private static void GameLogicData_Parse6(GameLogicData __instance, JObject rootObject) //in this world, its analfuck, or be analfucked
     {
         PolibUtils.ParsePerEach<pbb.TribeType, string>(rootObject, "tribeData", "leaderName", leaderNameDict);
-        PolibUtils.ParsePerEach<ImprovementData.Type, int>(rootObject, "improvementData", "defenceBoost", defenceBoostDict);
+        PolibUtils.ParsePerEach<ImprovementData.Type, int>(rootObject, "improvementData", "defenceBoost", improvementDefenceBoost);
+        PolibUtils.ParsePerEach<ImprovementData.Type, int>(rootObject, "improvementData", "defenceBoost_Neutral", freelanceImprovementDefenceBoostDict);
         PolibUtils.ParsePerEach<ImprovementData.Type, float>(rootObject, "improvementData", "aiScore", AIScoreDict);
         
         foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025

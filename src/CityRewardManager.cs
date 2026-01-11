@@ -91,6 +91,8 @@ public static class CityRewardManager
             {
                 if (cityRewardData.boostAttackOverSpawn != 0 || cityRewardData.boostDefenceOverSpawn != 0 || cityRewardData.boostMaxHpOverSpawn != 0 || cityRewardData.boostMovementOverSpawn != 0 || cityRewardData.healUnitOverSpawn)
                 {
+                    Main.polibGameState.rewardBoostDict[cityRewardData.unitType] = Main.polibGameState.rewardBoostDict.GetValueOrDefault(cityRewardData.unitType) + 1;
+                    
                     int num = 0;
                     MapData map = state.Map;
                     foreach (TileData tile1 in map.tiles)
@@ -110,7 +112,7 @@ public static class CityRewardManager
                         {
                             if (tile1.unit != null && tile1.unit.type == cityRewardData.unitType)
                             {
-                                tile1.unit.health = (ushort)tile1.unit.GetMaxHealth(state);
+                                PolibUtils.HealUnit(state, tile1.unit, tile1.unit.GetMaxHealth(state) - tile1.unit.health);
                             }
                         }
                     }

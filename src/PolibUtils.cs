@@ -216,7 +216,7 @@ public static class PolibUtils
 
     #region UnitUtils
 
-    // is this just a more convoluted way of doing unit.addeffect?
+    // is this just a more convoluted way of doing unit.addeffect? //no clue, was this me?
     /*private static void ApplyEffect(GameState gameState, WorldCoordinates Origin, WorldCoordinates Target, UnitEffect effect)
     {
         TileData tile = gameState.Map.GetTile(Origin);
@@ -300,7 +300,7 @@ public static class PolibUtils
     public static Parse.PolibUnitEffectData SetVanillaUnitEffectDefaults(UnitEffect effect)
     {
         Parse.PolibUnitEffectData effectData = new Parse.PolibUnitEffectData();
-        switch (effect)
+        /*switch (effect)
         {
             case UnitEffect.Boosted:
                 {
@@ -369,7 +369,8 @@ public static class PolibUtils
                     break;
                 }
         }
-        return effectData;
+        return effectData;*/
+        return default;
 
     }
     [HarmonyPrefix]
