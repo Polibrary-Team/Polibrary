@@ -63,6 +63,7 @@ public class pAction
 
     public void Execute()
     {
+        variables["@origin_auto"] = ActionOrigin;
         while (index < lines.Length)
         {
             ReadLine(lines[index]);
@@ -613,7 +614,26 @@ public class pAction
             return;
         }
 
+        if (tile.unit == null) return;
+
         variables[variable] = tile.unit.type == unit;
+    }
+
+    private void HasUnit(string variable, string swcoords)
+    {
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+
+        GameState gameState = GameManager.GameState;
+        MapData map = gameState.Map;
+        TileData tile = map.GetTile(wcoords);
+
+        if (!IsVariable<bool>(variable, out var obj))
+        {
+            LogError("IsUnit", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            return;
+        }
+
+        variables[variable] = tile.unit != null;
     }
 
     private void ContainsUnit(string variable, string swcoordslist, string sunit)
@@ -626,6 +646,7 @@ public class pAction
         List<UnitData.Type> units = new List<UnitData.Type>();
         foreach (WorldCoordinates coords in wcoordslist)
         {
+            if (map.GetTile(coords).unit == null) continue;
             units.Add(map.GetTile(coords).unit.type);
         }
 
@@ -797,6 +818,8 @@ public class pAction
         WorldCoordinates wcoords = ParseWcoords(swcoords);
         TileData.EffectType effect = ParseTileEffectType(stileEffectType);
 
+        if (Tile(wcoords).HasEffect(effect)) return;
+
         Tile(wcoords).AddEffect(effect);
     }
 
@@ -810,6 +833,8 @@ public class pAction
             LogError("AfflictUnit", "Unit is null");
             return;
         }
+
+        if (Tile(wcoords).unit.HasEffect(effect)) return;
 
         Tile(wcoords).unit.AddEffect(effect);
     }

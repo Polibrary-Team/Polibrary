@@ -42,12 +42,6 @@ public static class Parse
         LogMan1997 = logger;
     }
 
-    public enum UnitEffectIntention
-    {
-        Positive,
-        Neutral,
-        Negative
-    }
     public static Dictionary<ImprovementData.Type, string> BuildersDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<ImprovementData.Type, string> NoBuildersDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<ImprovementData.Type, string> ImpBuildersDict = new Dictionary<ImprovementData.Type, string>();
@@ -85,9 +79,9 @@ public static class Parse
     }
     public class PolibUnitEffectData //So I haveth a Laser Pointre...
     {
-        public Dictionary<string, int> additives { get; set; }
-        public Dictionary<string, int> multiplicatives { get; set; }
-        public string color { get; set; }
+        public Dictionary<string, int> additives = new Dictionary<string, int>();
+        public Dictionary<string, double> multiplicatives = new Dictionary<string, double>();
+        public Color color { get; set; }
         public List<string> removal { get; set; }
         public bool freezing { get; set; }
     }
@@ -454,7 +448,37 @@ public static class Parse
                 {
                     PolibUnitEffectData unitEffectData = new PolibUnitEffectData();
 
-                    //will redo
+                    if (token["additives"] != null)
+                    {
+                        unitEffectData.additives = PolibUtils.ParseStringDict<int>(token["additives"]);
+                        token.Remove("additives");
+                    }
+                    if (token["multiplicatives"] != null)
+                    {
+                        unitEffectData.multiplicatives = PolibUtils.ParseStringDict<double>(token["multiplicatives"]);
+                        token.Remove("multiplicatives");
+                    }
+
+                    if (token["color"] != null)
+                    {
+                        string val = token["color"]!.ToObject<string>();
+                        string[] vals = val.Split(',');
+
+                        float r = 0;
+                        float g = 0;
+                        float b = 0;
+                        float a = 1;
+
+                        float.TryParse(vals[0], out r);
+                        float.TryParse(vals[1], out g);
+                        float.TryParse(vals[2], out b);
+                        float.TryParse(vals[3], out a);
+
+                        unitEffectData.color = new Color(r, g, b, a);
+                        token.Remove("color");
+                    }
+
+                    
 
                     unitEffectDataDict[unitEffect] = unitEffectData;
                 }

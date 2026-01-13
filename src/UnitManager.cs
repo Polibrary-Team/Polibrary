@@ -98,7 +98,7 @@ public static class UnitManager
             {
                 if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
                 {
-                    __result += cityRewardData.boostDefenceOverSpawn * num;
+                    __result += cityRewardData.boostDefenceOverSpawn * num * 10;
                 }
             }
         }
@@ -109,11 +109,11 @@ public static class UnitManager
             {
                 if (effectData.additives.TryGetValue("defence", out int add))
                 {
-                    __result += add;
+                    __result += add * 10;
                 }
-                if (effectData.multiplicatives.TryGetValue("defence", out int mult))
+                if (effectData.multiplicatives.TryGetValue("defence", out double mult))
                 {
-                    __result *= mult;
+                    __result =  (int)System.Math.Round(__result * mult);
                 }
             }
         }
@@ -142,9 +142,9 @@ public static class UnitManager
                 {
                     __result += add;
                 }
-                if (effectData.multiplicatives.TryGetValue("movement", out int mult))
+                if (effectData.multiplicatives.TryGetValue("movement", out double mult))
                 {
-                    __result *= mult;
+                    __result =  (int)System.Math.Round(__result * mult);
                 }
             }
         }
@@ -160,7 +160,7 @@ public static class UnitManager
             {
                 if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
                 {
-                    __result += cityRewardData.boostAttackOverSpawn * num;
+                    __result += cityRewardData.boostAttackOverSpawn * num * 10;
                 }
             }
         }
@@ -171,11 +171,11 @@ public static class UnitManager
             {
                 if (effectData.additives.TryGetValue("attack", out int add))
                 {
-                    __result += add;
+                    __result += add * 10;
                 }
-                if (effectData.multiplicatives.TryGetValue("attack", out int mult))
+                if (effectData.multiplicatives.TryGetValue("attack", out double mult))
                 {
-                    __result *= mult;
+                    __result =  (int)System.Math.Round(__result * mult);
                 }
             }
         }
@@ -193,9 +193,9 @@ public static class UnitManager
                 {
                     __result += add;
                 }
-                if (effectData.multiplicatives.TryGetValue("range", out int mult))
+                if (effectData.multiplicatives.TryGetValue("range", out double mult))
                 {
-                    __result *= mult;
+                    __result =  (int)System.Math.Round(__result * mult);
                 }
             }
         }
@@ -212,6 +212,37 @@ public static class UnitManager
                 if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
                 {
                     __result += cityRewardData.boostMaxHpOverSpawn * num;
+                }
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Unit), nameof(Unit.UpdateObject), typeof(MapRenderContext), typeof(SkinVisualsTransientData))]
+    private static void EffectColor(Unit __instance, MapRenderContext ctx, SkinVisualsTransientData transientSkinData)
+    {
+        foreach (UnitEffect effect in __instance.UnitState.effects)
+        {
+            if (Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
+            {
+                if (Parse.vanillaUnitEffects.Contains(effect)) continue;
+                
+                foreach (SkinVisualsReference.VisualPart visualPart in __instance.skinVisuals.visualParts)
+                {
+                    if (visualPart != null)
+                    {
+                        if (visualPart.renderer != null)
+                        {
+                            if (visualPart.renderer.spriteRenderer != null)
+                            {
+                                var materialBlock = new UnityEngine.MaterialPropertyBlock();
+                                visualPart.renderer.spriteRenderer.GetPropertyBlock(materialBlock);
+                                materialBlock.SetColor("_OverlayColor", effectData.color);
+                                materialBlock.SetFloat("_OverlayStrength", 0.5f);
+                                visualPart.renderer.spriteRenderer.SetPropertyBlock(materialBlock);
+                            }
+                        }
+                    }
                 }
             }
         }

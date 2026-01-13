@@ -300,78 +300,55 @@ public static class PolibUtils
     public static Parse.PolibUnitEffectData SetVanillaUnitEffectDefaults(UnitEffect effect)
     {
         Parse.PolibUnitEffectData effectData = new Parse.PolibUnitEffectData();
-        /*switch (effect)
+        switch (effect)
         {
             case UnitEffect.Boosted:
                 {
-                    effectData = new Parse.PolibUnitEffectData
-                    {
-                        movementAdd = 1,
-                        attackAdd = 5,
-                        removal = new List<string> { "action", "attack", "hurt" }
-                    };
+                    effectData.additives.Add("movement", 1);
+                    effectData.additives.Add("attack", 5);
+                    effectData.removal = new List<string> { "action", "attack", "hurt" };
                     break;
                 }
             case UnitEffect.Swift:
                 {
-                    effectData = new Parse.PolibUnitEffectData
-                    {
-                        movementAdd = 1,
-                        removal = new List<string> { "hurt" }
-                    };
+                    effectData.additives.Add("movement", 1);
+                    effectData.removal = new List<string> { "hurt" };
                     break;
                 }
             case UnitEffect.Poisoned:
                 {
-                    effectData = new Parse.PolibUnitEffectData
-                    {
-                        defenceMult = 5,
-                        movementAdd = -1,
-                        removal = new List<string> { "heal" }
-                    };
+                    effectData.additives.Add("movement", -1);
+                    effectData.multiplicatives.Add("defence", 0.5);
+                    effectData.removal = new List<string> { "heal" };
                     break;
                 }
             case UnitEffect.Charmed:
                 {
-                    effectData = new Parse.PolibUnitEffectData
-                    {
-                        defenceMult = 5,
-                        movementAdd = -1,
-                        removal = new List<string> { "heal" }
-                    };
+                    effectData.additives.Add("movement", -1);
+                    effectData.multiplicatives.Add("defence", 0.5);
+                    effectData.removal = new List<string> { "heal" };
                     break;
                 }
             case UnitEffect.Bubble:
                 {
-                    effectData = new Parse.PolibUnitEffectData
-                    {
-                        movementAdd = 1,
-                        removal = new List<string> { "nonflooded", "hurt" }
-                    };
+                    effectData.additives.Add("movement", 1);
+                    effectData.removal = new List<string> { "hurt", "nonflooded" };
                     break;
                 }
             case UnitEffect.Frozen:
                 {
-                    effectData = new Parse.PolibUnitEffectData
-                    {
-                        freezing = true,
-                        removal = new List<string> { "endturn" }
-                    };
+                    effectData.freezing = true;
+                    effectData.removal = new List<string> { "endturn" };
                     break;
                 }
             case UnitEffect.Petrified:
                 {
-                    effectData = new Parse.PolibUnitEffectData
-                    {
-                        freezing = true,
-                        removal = new List<string> { "endturn" }
-                    };
+                    effectData.freezing = true;
+                    effectData.removal = new List<string> { "endturn" };
                     break;
                 }
         }
-        return effectData;*/
-        return default;
-
+        return effectData;
     }
     [HarmonyPrefix]
     [HarmonyPatch(typeof(AI), nameof(AI.CheckForTechNeeds))]
@@ -652,6 +629,22 @@ public static class PolibUtils
 
 
         }
+    }
+
+    public static Dictionary<string,V> ParseStringDict<V>(JToken jtoken)
+    {
+        JObject token = jtoken.TryCast<JObject>();
+        Dictionary<string, V> dict = new Dictionary<string, V>();
+
+        if (token != null)
+        {
+            foreach (JProperty property in token.Properties().ToList())
+            {
+                dict[property.Name] = property.Value.ToObject<V>();
+            }
+        }
+
+        return dict;
     }
 
     #endregion ParseUtils

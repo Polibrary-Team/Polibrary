@@ -105,6 +105,7 @@ public static class CityRewardManager
                     if (num == 0)
                     {
                         ActionUtils.TrainUnitOnOccupiedSpace(state, playerId, cityRewardData.unitType, tile);
+                        Main.polibGameState.rewardBoostDict[cityRewardData.unitType] = 0;
                     }
                     if (cityRewardData.healUnitOverSpawn)
                     {
