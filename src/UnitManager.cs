@@ -133,7 +133,6 @@ public static class UnitManager
                 }
             }
         }
-        
         foreach (UnitEffect effect in unitState.effects)
         {
             if (Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))

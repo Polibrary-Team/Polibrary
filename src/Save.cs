@@ -67,6 +67,7 @@ public static class PolibSave
         }
 
         SaveToCurrentState(Main.polibGameState, __instance.Seed);
+        DeleteUnnecessaryShit();
     }
 
     [HarmonyPostfix]
@@ -150,25 +151,35 @@ public static class PolibSave
         return data;
     }
 
-    /*
-    [HarmonyPostfix]
-    [HarmonyPriority(Priority.Last)]
-    [HarmonyPatch(typeof(GameManager), nameof(GameManager))]*/
     private static void DeleteUnnecessaryShit()
     {
-        string saveDirectoryPath = Paths.GetSaveDirectoryPath("Singleplayer");
-        if (!PolytopiaDirectory.Exists(saveDirectoryPath))
+        string singleSaveDirectoryPath = Paths.GetSaveDirectoryPath("Singleplayer");
+        if (!PolytopiaDirectory.Exists(singleSaveDirectoryPath))
         {
             return;
         }
-        string[] files = PolytopiaDirectory.GetFiles(saveDirectoryPath, "*.state");
+        List<string> files = PolytopiaDirectory.GetFiles(singleSaveDirectoryPath, "*.state").ToList();
+
+        string hotseatSaveDirectoryPath = Paths.GetSaveDirectoryPath("Hotseat");
+        if (!PolytopiaDirectory.Exists(hotseatSaveDirectoryPath))
+        {
+            modLogger.LogInfo("couldnt find hotseat directory");
+            return;
+        }
+        foreach (string file in PolytopiaDirectory.GetFiles(hotseatSaveDirectoryPath, "*.state"))
+        {
+            files.Add(file);
+        }
 
         List<string> filesToIgnore = new List<string>();
 
         foreach (string file in files)
         {
-            byte[] data = PolytopiaFile.ReadAllBytes(file);
-            SerializationHelpers.FromByteArray<GameState>(data, out var state);
+            if (!DiskSerializationHelpers.FromLZ4CompressedDisk<GameState>(file, out var state, out int version))
+            {
+                modLogger.LogInfo("deserialization unsuccessful");
+                continue;
+            }
             if (state == null)
             {
                 modLogger.LogInfo("state is null uh oh");
@@ -180,7 +191,15 @@ public static class PolibSave
                 modLogger.LogInfo("state file doesnt exist");
                 continue;
             }
-            
+            filesToIgnore.Add(filePath);
+        }
+
+        foreach (string file in Directory.GetFiles(DATA_PATH))
+        {
+            if (filesToIgnore.Contains(file)) continue;
+            if (!file.Contains("State")) continue;
+
+            File.Delete(file);
         }
     }
 }

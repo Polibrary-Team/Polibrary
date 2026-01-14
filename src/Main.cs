@@ -23,6 +23,7 @@ public static class Main
         PolyMod.Loader.AddPatchDataType("unitAbilityData", typeof(UnitAbility.Type)); //...casual...      ...fapingvin carry...       ...again
         PolyMod.Loader.AddPatchDataType("tileEffectData", typeof(TileData.EffectType));
         ClassInjector.RegisterTypeInIl2Cpp<CameraShake>();
+
         Directory.CreateDirectory(PolibSave.DATA_PATH);
     }
     public static PolibGameState polibGameState;
