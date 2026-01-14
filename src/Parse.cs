@@ -50,7 +50,6 @@ public static class Parse
     public static Dictionary<ImprovementData.Type, int> improvementDefenceBoost = new Dictionary<ImprovementData.Type, int>();
     public static Dictionary<ImprovementData.Type, int> freelanceImprovementDefenceBoostDict = new Dictionary<ImprovementData.Type, int>();
     public static Dictionary<ImprovementData.Type, float> AIScoreDict = new Dictionary<ImprovementData.Type, float>();
-    public static Dictionary<pbb.TribeType, List<(ResourceData.Type, int)>> startingResources = new Dictionary<pbb.TribeType, List<(ResourceData.Type, int)>>();
     public class PolibCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
     {
         public int addProduction { get; set; }
@@ -478,7 +477,14 @@ public static class Parse
                         token.Remove("color");
                     }
 
-                    
+                    if (token["removal"] != null)
+                    {
+                        JArray array = token["removal"].TryCast<JArray>();
+                        if (array != null)
+                        {
+                            unitEffectData.removal = PolibUtils.ParseToSysList<string>(array);
+                        }
+                    }
 
                     unitEffectDataDict[unitEffect] = unitEffectData;
                 }

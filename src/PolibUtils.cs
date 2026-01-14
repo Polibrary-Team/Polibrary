@@ -306,45 +306,38 @@ public static class PolibUtils
                 {
                     effectData.additives.Add("movement", 1);
                     effectData.additives.Add("attack", 5);
-                    effectData.removal = new List<string> { "action", "attack", "hurt" };
                     break;
                 }
             case UnitEffect.Swift:
                 {
                     effectData.additives.Add("movement", 1);
-                    effectData.removal = new List<string> { "hurt" };
                     break;
                 }
             case UnitEffect.Poisoned:
                 {
                     effectData.additives.Add("movement", -1);
                     effectData.multiplicatives.Add("defence", 0.5);
-                    effectData.removal = new List<string> { "heal" };
                     break;
                 }
             case UnitEffect.Charmed:
                 {
                     effectData.additives.Add("movement", -1);
                     effectData.multiplicatives.Add("defence", 0.5);
-                    effectData.removal = new List<string> { "heal" };
                     break;
                 }
             case UnitEffect.Bubble:
                 {
                     effectData.additives.Add("movement", 1);
-                    effectData.removal = new List<string> { "hurt", "nonflooded" };
                     break;
                 }
             case UnitEffect.Frozen:
                 {
                     effectData.freezing = true;
-                    effectData.removal = new List<string> { "endturn" };
                     break;
                 }
             case UnitEffect.Petrified:
                 {
                     effectData.freezing = true;
-                    effectData.removal = new List<string> { "endturn" };
                     break;
                 }
         }
@@ -599,7 +592,7 @@ public static class PolibUtils
         return t;
     }
 
-    public static List<T> ParseJArrayToSysList<T>(JArray token)
+    public static List<T> ParseToSysList<T>(JArray token)
     {
         List<T> list = new List<T>();
 
@@ -626,8 +619,6 @@ public static class PolibUtils
             }
 
             ogdict[type] = dict;
-
-
         }
     }
 

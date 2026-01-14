@@ -79,7 +79,7 @@ public static class PolibSave
     }
 
 
-    public static void SaveToCurrentState(PolibGameState data, int Seed)
+    private static void SaveToCurrentState(PolibGameState data, int Seed)
     {
         string filePath = Path.Combine(DATA_PATH, $"State{Seed}.json");
 
@@ -113,7 +113,7 @@ public static class PolibSave
         );
     }
 
-    public static PolibGameState LoadCurrentState(int Seed)
+    private static PolibGameState LoadCurrentState(int Seed)
     {
         string filePath = Path.Combine(DATA_PATH, $"State{Seed}.json");
 

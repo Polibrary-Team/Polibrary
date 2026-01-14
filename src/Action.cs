@@ -175,11 +175,17 @@ public class pAction
             case "set": //sets a variable (refer with @)
                 SetVariable(ps[0], ps[1], ps[2]);
                 break;
-            case "dispose": //disposes a variable (removes from variable dict)
-                Dispose(ps[0]);
+            case "setg": //sets a variable (refer with @)
+                SetGlobalVariable(ps[0], ps[1], ps[2]);
                 break;
             case "setd": //sets a disposable variable (refer with #)
                 SetDisposableVariable(ps[0], ps[1], ps[2]);
+                break;
+            case "dispose": //disposes a variable (removes from variable dict)
+                Dispose(ps[0]);
+                break;
+            case "disposeGlobal": //disposes a variable (removes from variable dict)
+                DisposeGlobal(ps[0]);
                 break;
             case "autoDispose": //dispose all disposable variables
                 AutoDispose();
@@ -214,7 +220,7 @@ public class pAction
             case "back": //loops back to the loop with matching id
                 Back(ps[0]);
                 break;
-            case "backPer": //loops back to the loop with matching id based on the count of an area
+            case "backPer": //loops back to the loop with matching id based on the count of an area. basically a foreach loop
                 BackPer(ps[0],ps[1]);
                 break;
 
@@ -265,11 +271,17 @@ public class pAction
             case "destroy": //destroys an improvement
                 Destroy(ps[0]);
                 break;
-            case "afflictTile": //gives a tile a tileeffect
-                AfflictTile(ps[0], ps[1]);
+            case "addTileEffect": //gives a tile a tileeffect
+                AddTileEffect(ps[0], ps[1]);
                 break;
-            case "afflictUnit": //gives a unit a uniteffect
-                AfflictUnit(ps[0], ps[1]);
+            case "addUnitEffect": //gives a unit a uniteffect
+                AddUnitEffect(ps[0], ps[1]);
+                break;
+            case "removeTileEffect": 
+                RemoveTileEffect(ps[0], ps[1]);
+                break;
+            case "removeUnitEffect": 
+                RemoveUnitEffect(ps[0], ps[1]);
                 break;
             case "unitExhaustion": //sets the unit's exhaustion state
                 SetUnitExhaustion(ps[0],ps[1],ps[2]);
@@ -341,52 +353,20 @@ public class pAction
     
     private void SetVariable(string varName, string obj, string value)
     {
-        object valueObj = null;
-        switch (obj)
-        {
-            case "int": //0
-                valueObj = ParseInt(value);
-                break;
-
-            case "string": //helloworld! (no spaces allowed) OR §hello world!§ (spaces allowed)
-                valueObj = ParseString(value);
-                break;
-
-            case "bool":
-                valueObj = ParseBool(value);
-                break;
-
-            case "wcoords": //0;0
-                valueObj = ParseWcoords(value);
-                break;
-            
-            case "area": //0;0|0;0|0;0|0;0
-                valueObj = ParseWcoordsList(value);
-                break;
-
-            case "unitType":
-                valueObj = ParseUnitDataType(value);
-                break;
-            case "improvementType":
-                valueObj = ParseImprovementDataType(value);
-                break;
-            case "techType":
-                valueObj = ParseTechDataType(value);
-                break;
-            case "tribeType":
-                valueObj = ParseTribeType(value);
-                break;
-            case "cityRewardType":
-                valueObj = ParseCityRewardType(value);
-                break;
-            case "unitEffectType":
-                valueObj = ParseUnitEffectType(value);
-                break;
-            case "tileEffectType":
-                valueObj = ParseTileEffectType(value);
-                break;
-        }
+        SwitchType(obj, value, out var valueObj);
         variables['@' + varName] = valueObj;
+    }
+
+    private void SetGlobalVariable(string varName, string obj, string value)
+    {
+        SwitchType(obj, value, out var valueObj);
+        Main.polibGameState.globalVariables['&' + varName] = valueObj;
+    }
+
+    private void SetDisposableVariable(string varName, string obj, string value)
+    {
+        SwitchType(obj, value, out var valueObj);
+        variables['#' + varName] = valueObj;
     }
 
     private void Dispose(string variable)
@@ -400,55 +380,17 @@ public class pAction
         variables.Remove(variable);
     }
 
-    private void SetDisposableVariable(string varName, string obj, string value)
+    private void DisposeGlobal(string variable)
     {
-        object valueObj = null;
-        switch (obj)
+        if (!IsVariable<object>(variable, out var obj))
         {
-            case "int": //0
-                valueObj = ParseInt(value);
-                break;
-
-            case "string": //helloworld! (no spaces allowed) OR §hello world!§ (spaces allowed)
-                valueObj = ParseString(value);
-                break;
-
-            case "bool":
-                valueObj = ParseBool(value);
-                break;
-
-            case "wcoords": //0;0
-                valueObj = ParseWcoords(value);
-                break;
-            
-            case "area": //0;0|0;0|0;0|0;0
-                valueObj = ParseWcoordsList(value);
-                break;
-
-            case "unitType":
-                valueObj = ParseUnitDataType(value);
-                break;
-            case "improvementType":
-                valueObj = ParseImprovementDataType(value);
-                break;
-            case "techType":
-                valueObj = ParseTechDataType(value);
-                break;
-            case "tribeType":
-                valueObj = ParseTribeType(value);
-                break;
-            case "cityRewardType":
-                valueObj = ParseCityRewardType(value);
-                break;
-            case "unitEffectType":
-                valueObj = ParseUnitEffectType(value);
-                break;
-            case "tileEffectType":
-                valueObj = ParseTileEffectType(value);
-                break;
+            LogError("Dispose", "Variable is invalid. Reason: Either variable doesnt exist or spelling is incorrect.");
+            return;
         }
-        variables['#' + varName] = valueObj;
+
+        Main.polibGameState.globalVariables.Remove(variable);
     }
+
 
     private void AutoDispose()
     {
@@ -813,7 +755,7 @@ public class pAction
         GameManager.GameState.ActionStack.Add(new DestroyImprovementAction(playerId, wcoords));
     }
 
-    private void AfflictTile(string stileEffectType, string swcoords)
+    private void AddTileEffect(string stileEffectType, string swcoords)
     {
         WorldCoordinates wcoords = ParseWcoords(swcoords);
         TileData.EffectType effect = ParseTileEffectType(stileEffectType);
@@ -823,7 +765,7 @@ public class pAction
         Tile(wcoords).AddEffect(effect);
     }
 
-    private void AfflictUnit(string sunitEffectType, string swcoords)
+    private void AddUnitEffect(string sunitEffectType, string swcoords)
     {
         WorldCoordinates wcoords = ParseWcoords(swcoords);
         UnitEffect effect = ParseUnitEffectType(sunitEffectType);
@@ -837,6 +779,28 @@ public class pAction
         if (Tile(wcoords).unit.HasEffect(effect)) return;
 
         Tile(wcoords).unit.AddEffect(effect);
+    }
+
+    private void RemoveTileEffect(string stileEffectType, string swcoords)
+    {
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+        TileData.EffectType effect = ParseTileEffectType(stileEffectType);
+
+        Tile(wcoords).RemoveEffect(effect);
+    }
+
+    private void RemoveUnitEffect(string sunitEffectType, string swcoords)
+    {
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+        UnitEffect effect = ParseUnitEffectType(sunitEffectType);
+
+        if (Tile(wcoords).unit == null)
+        {
+            LogError("RemoveUnitEffect", "Unit is null");
+            return;
+        }
+
+        Tile(wcoords).unit.RemoveEffect(effect);
     }
     
     private void SetUnitExhaustion(string swcoords, string smoved, string sattacked)
@@ -1294,6 +1258,55 @@ public class pAction
         return coordinates.X + ";" + coordinates.Y;
     }
 
+    private void SwitchType(string obj, string value, out object valueObj)
+    {
+        valueObj = null;
+        switch (obj)
+        {
+            case "int": //0
+                valueObj = ParseInt(value);
+                break;
+
+            case "string": //helloworld! (no spaces allowed) OR §hello world!§ (spaces allowed)
+                valueObj = ParseString(value);
+                break;
+
+            case "bool":
+                valueObj = ParseBool(value);
+                break;
+
+            case "wcoords": //0;0
+                valueObj = ParseWcoords(value);
+                break;
+            
+            case "area": //0;0|0;0|0;0|0;0
+                valueObj = ParseWcoordsList(value);
+                break;
+
+            case "unitType":
+                valueObj = ParseUnitDataType(value);
+                break;
+            case "improvementType":
+                valueObj = ParseImprovementDataType(value);
+                break;
+            case "techType":
+                valueObj = ParseTechDataType(value);
+                break;
+            case "tribeType":
+                valueObj = ParseTribeType(value);
+                break;
+            case "cityRewardType":
+                valueObj = ParseCityRewardType(value);
+                break;
+            case "unitEffectType":
+                valueObj = ParseUnitEffectType(value);
+                break;
+            case "tileEffectType":
+                valueObj = ParseTileEffectType(value);
+                break;
+        }
+    }
+
     
     private bool IsVariable<T>(string s, out T obj)
     {
@@ -1322,6 +1335,17 @@ public class pAction
             {
                 obj = default;
                 return true;
+            }
+        }
+        if (s[0] == '&')
+        {
+            if (Main.polibGameState.globalVariables.TryGetValue(s, out var value))
+            {
+                obj = (T)value;
+                if (obj != null)
+                {
+                    return true;
+                }
             }
         }
         obj = default;
