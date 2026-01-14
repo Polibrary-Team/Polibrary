@@ -47,10 +47,7 @@ public static class ImprovementManager
     public static bool improvementFlag(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement)
     {
 
-        if (tile.unit == null)
-        {
-        }
-        else
+        if (tile.unit != null)
         {
             if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_woundedbuilder")) && tile.unit.health == tile.unit.GetMaxHealth(gameState))
                 return false;
