@@ -477,15 +477,6 @@ public static class Parse
                         token.Remove("color");
                     }
 
-                    if (token["removal"] != null)
-                    {
-                        JArray array = token["removal"].TryCast<JArray>();
-                        if (array != null)
-                        {
-                            unitEffectData.removal = PolibUtils.ParseToSysList<string>(array);
-                        }
-                    }
-
                     unitEffectDataDict[unitEffect] = unitEffectData;
                 }
             }
