@@ -265,6 +265,9 @@ public class pAction
 
             
             //COMMANDS
+            case "addStars": //builds an improvement
+                AddCurrency(ps[0],ps[1],ps[2]);
+                break;
             case "build": //builds an improvement
                 Build(ps[0],ps[1],ps[2]);
                 break;
@@ -739,6 +742,15 @@ public class pAction
     #endregion
     #region commands
 
+    private void AddCurrency(string si, string swcoords, string sdelay)
+    {
+        int i = ParseInt(si);
+        int delay = ParseInt(sdelay);
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+
+        GameManager.GameState.ActionStack.Add(new IncreaseCurrencyAction(playerId, wcoords, i, delay));
+    }
+    
     private void Build(string swcoords, string simprovement, string sdeductCost)
     {
         WorldCoordinates wcoords = ParseWcoords(swcoords);;

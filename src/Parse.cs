@@ -104,6 +104,7 @@ public static class Parse
     public static Dictionary<ImprovementData.Type, Dictionary<string/*trigger*/, string/*action*/>> improvementTriggers = new Dictionary<ImprovementData.Type, Dictionary<string, string>>();
     public static Dictionary<UnitData.Type, Dictionary<string/*trigger*/, string/*action*/>> unitTriggers = new Dictionary<UnitData.Type, Dictionary<string, string>>();
     public static Dictionary<UnitAbility.Type, Dictionary<string/*trigger*/, string/*action*/>> unitAbilityTriggers = new Dictionary<UnitAbility.Type, Dictionary<string, string>>();
+    public static Dictionary<UnitEffect, Dictionary<string/*trigger*/, string/*action*/>> unitEffectTriggers = new Dictionary<UnitEffect, Dictionary<string, string>>();
     public static Dictionary<CityReward, Dictionary<string/*trigger*/, string/*action*/>> rewardTriggers = new Dictionary<CityReward, Dictionary<string, string>>();
     public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityWhitelist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
     public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityBlacklist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
@@ -475,6 +476,11 @@ public static class Parse
 
                         unitEffectData.color = new Color(r, g, b, a);
                         token.Remove("color");
+                    }
+
+                    if (token["triggers"] != null)
+                    {
+                        PolibUtils.ParseToNestedStringDict(token["triggers"], unitEffect, unitEffectTriggers);
                     }
 
                     unitEffectDataDict[unitEffect] = unitEffectData;

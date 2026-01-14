@@ -114,6 +114,32 @@ public static class ActionTriggers
             }
         }
 
+        foreach (UnitEffect type in unit.effects)
+        {
+            if (Parse.unitEffectTriggers.TryGetValue(type, out var effectDict))
+            {
+                if (effectDict.TryGetValue("onMove", out string name))
+                {
+                    PolibUtils.RunAction(name, __instance.Path[0], __instance.PlayerId);
+                }
+                if (effectDict.TryGetValue("onMove_AtOrigin", out string name1))
+                {
+                    PolibUtils.RunAction(name1, __instance.Path[__instance.Path.Count - 1], __instance.PlayerId);
+                }
+                foreach (WorldCoordinates coords in __instance.Path)
+                {
+                    if (effectDict.TryGetValue("onMove_Path", out string name2))
+                    {
+                        PolibUtils.RunAction(name2, coords, __instance.PlayerId);
+                    }
+                    if (effectDict.TryGetValue("onMove_Trail", out string name3) && coords.X != __instance.Path[0].X && coords.Y != __instance.Path[0].Y)
+                    {
+                        PolibUtils.RunAction(name3, coords, __instance.PlayerId);
+                    }
+                }
+            }
+        }
+
         foreach (WorldCoordinates coords in __instance.Path)
         {
             if (GameManager.GameState.Map.GetTile(coords).improvement == null) continue;
@@ -158,21 +184,6 @@ public static class ActionTriggers
             }
         }
 
-        foreach (UnitAbility.Type unitAbility in attacker.UnitData.unitAbilities)
-        {
-            if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
-            {
-                if (unitAbilitydict.TryGetValue("onAttack_AtDefender", out string name3))
-                {
-                    PolibUtils.RunAction(name3, defender.coordinates, __instance.PlayerId);
-                }
-                if (unitAbilitydict.TryGetValue("onAttack_AtAttacker", out string name2))
-                {
-                    PolibUtils.RunAction(name2, attacker.coordinates, __instance.PlayerId);
-                }
-            }
-        }
-
         if (Parse.unitTriggers.TryGetValue(defender.type, out var unitdict1))
         {
             if (unitdict1.TryGetValue("onAttacked_AtDefender", out string name1))
@@ -194,6 +205,66 @@ public static class ActionTriggers
                     PolibUtils.RunAction(name3, defender.coordinates, __instance.PlayerId);
                 }
                 if (unitAbilitydict.TryGetValue("onAttacked_AtAttacker", out string name2))
+                {
+                    PolibUtils.RunAction(name2, attacker.coordinates, __instance.PlayerId);
+                }
+            }
+        }
+
+        foreach (UnitAbility.Type unitAbility in attacker.UnitData.unitAbilities)
+        {
+            if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
+            {
+                if (unitAbilitydict.TryGetValue("onAttack_AtDefender", out string name3))
+                {
+                    PolibUtils.RunAction(name3, defender.coordinates, __instance.PlayerId);
+                }
+                if (unitAbilitydict.TryGetValue("onAttack_AtAttacker", out string name2))
+                {
+                    PolibUtils.RunAction(name2, attacker.coordinates, __instance.PlayerId);
+                }
+            }
+        }
+
+        foreach (UnitAbility.Type unitAbility in defender.UnitData.unitAbilities)
+        {
+            if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
+            {
+                if (unitAbilitydict.TryGetValue("onAttacked_AtDefender", out string name3))
+                {
+                    PolibUtils.RunAction(name3, defender.coordinates, __instance.PlayerId);
+                }
+                if (unitAbilitydict.TryGetValue("onAttacked_AtAttacker", out string name2))
+                {
+                    PolibUtils.RunAction(name2, attacker.coordinates, __instance.PlayerId);
+                }
+            }
+        }
+        
+        foreach (UnitEffect effect in attacker.effects)
+        {
+            if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            {
+                if (effectDict.TryGetValue("onAttack_AtDefender", out string name3))
+                {
+                    PolibUtils.RunAction(name3, defender.coordinates, __instance.PlayerId);
+                }
+                if (effectDict.TryGetValue("onAttack_AtAttacker", out string name2))
+                {
+                    PolibUtils.RunAction(name2, attacker.coordinates, __instance.PlayerId);
+                }
+            }
+        }
+
+        foreach (UnitEffect effect in defender.effects)
+        {
+            if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            {
+                if (effectDict.TryGetValue("onAttacked_AtDefender", out string name3))
+                {
+                    PolibUtils.RunAction(name3, defender.coordinates, __instance.PlayerId);
+                }
+                if (effectDict.TryGetValue("onAttacked_AtAttacker", out string name2))
                 {
                     PolibUtils.RunAction(name2, attacker.coordinates, __instance.PlayerId);
                 }
@@ -231,6 +302,17 @@ public static class ActionTriggers
                 }
             }
         }
+
+        foreach (UnitEffect effect in unit.effects)
+        {
+            if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            {
+                if (effectDict.TryGetValue("onKilled", out string name))
+                {
+                    PolibUtils.RunAction(name, tile.coordinates, unit.owner);
+                }
+            }
+        }
     }
 
     [HarmonyPostfix]
@@ -258,6 +340,17 @@ public static class ActionTriggers
             if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
             {
                 if (unitAbilitydict.TryGetValue("onMoveCommand", out string name))
+                {
+                    PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
+                }
+            }
+        }
+
+        foreach (UnitEffect effect in unit.effects)
+        {
+            if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            {
+                if (effectDict.TryGetValue("onMoveCommand", out string name))
                 {
                     PolibUtils.RunAction(name, unit.coordinates, __instance.PlayerId);
                 }
@@ -312,11 +405,23 @@ public static class ActionTriggers
                 PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId);
             }
         }
+
         foreach (UnitAbility.Type unitAbility in state.Map.GetTile(__instance.Coordinates).unit.UnitData.unitAbilities)
         {
             if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
             {
                 if (unitAbilitydict.TryGetValue("onCapture", out string name))
+                {
+                    PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId);
+                }
+            }
+        }
+
+        foreach (UnitEffect effect in state.Map.GetTile(__instance.Coordinates).unit.effects)
+        {
+            if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            {
+                if (effectDict.TryGetValue("onCapture", out string name))
                 {
                     PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId);
                 }
@@ -328,14 +433,17 @@ public static class ActionTriggers
     [HarmonyPatch(typeof(CaptureCityAction), nameof(CaptureCityAction.Execute))]
     private static bool CaptureCityTriggersPre(CaptureCityAction __instance, GameState state)
     {
+        bool flag = true;
+        
         if (Parse.unitTriggers.TryGetValue(state.Map.GetTile(__instance.Coordinates).unit.type, out var unitdict))
         {
             if (unitdict.TryGetValue("onCapture_Override", out string name))
             {
                 PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId);
-                return false;
+                flag = false;
             }
         }
+
         foreach (UnitAbility.Type unitAbility in state.Map.GetTile(__instance.Coordinates).unit.UnitData.unitAbilities)
         {
             if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
@@ -343,11 +451,23 @@ public static class ActionTriggers
                 if (unitAbilitydict.TryGetValue("onCapture_Override", out string name))
                 {
                     PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId);
-                    return false;
+                    flag = false;
+                }
+            }
+        }
+
+        foreach (UnitEffect effect in state.Map.GetTile(__instance.Coordinates).unit.effects)
+        {
+            if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            {
+                if (effectDict.TryGetValue("onCapture", out string name))
+                {
+                    PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId);
+                    flag = false;
                 }
             }
         }
         
-        return true;
+        return flag;
     }
 }
