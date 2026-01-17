@@ -448,15 +448,15 @@ public static class Parse
                 {
                     PolibUnitEffectData unitEffectData = new PolibUnitEffectData();
 
-                    if (token["additives"] != null)
+                    if (token["add"] != null)
                     {
-                        unitEffectData.additives = PolibUtils.ParseStringDict<int>(token["additives"]);
-                        token.Remove("additives");
+                        unitEffectData.additives = PolibUtils.ParseStringDict<int>(token["add"]);
+                        token.Remove("add");
                     }
-                    if (token["multiplicatives"] != null)
+                    if (token["mult"] != null)
                     {
-                        unitEffectData.multiplicatives = PolibUtils.ParseStringDict<double>(token["multiplicatives"]);
-                        token.Remove("multiplicatives");
+                        unitEffectData.multiplicatives = PolibUtils.ParseStringDict<double>(token["mult"]);
+                        token.Remove("mult");
                     }
 
                     if (token["color"] != null)
