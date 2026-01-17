@@ -139,7 +139,14 @@ public static class UnitManager
             {
                 if (effectData.additives.TryGetValue("movement", out int add))
                 {
-                    __result += add;
+                    if (__result + add < 1)
+                    {
+                        __result = 1;
+                    }
+                    else
+                    {
+                        __result += add;
+                    }
                 }
                 if (effectData.multiplicatives.TryGetValue("movement", out double mult))
                 {
