@@ -9,25 +9,23 @@ namespace Polibrary;
 
 public static class Main
 {
-
-
-    public static ManualLogSource modLogger;
-    public static void Load(ManualLogSource logger)
-    {
-        new Harmony("com.polibraryteam.polibrary").PatchAll(); //???
-        modLogger = logger;
-        logger.LogMessage("Polibrary.dll loaded.");
-        modLogger.LogMessage("Version 2.1");
-        PolyMod.Loader.AddPatchDataType("cityRewardData", typeof(CityReward)); //casual fapingvin carry
-        PolyMod.Loader.AddPatchDataType("unitEffectData", typeof(UnitEffect)); //casual fapingvin carry... ...again
-        PolyMod.Loader.AddPatchDataType("unitAbilityData", typeof(UnitAbility.Type)); //...casual...      ...fapingvin carry...       ...again
-        PolyMod.Loader.AddPatchDataType("tileEffectData", typeof(TileData.EffectType));
-        ClassInjector.RegisterTypeInIl2Cpp<CameraShake>();
-
-        Directory.CreateDirectory(PolibSave.DATA_PATH);
-    }
-    public static PolibGameState polibGameState;
-
+  public static PolibGameState polibGameState;
+  public static ManualLogSource modLogger;
+  public static void Load(ManualLogSource logger)
+  {
+    new Harmony("com.polibraryteam.polibrary").PatchAll(); //???
+    Harmony.CreateAndPatchAll(typeof(Main));
+    modLogger = logger;
+    logger.LogMessage("Polibrary.dll loaded.");
+    modLogger.LogMessage("Version 2.1");
+    PolyMod.Loader.AddPatchDataType("cityRewardData", typeof(CityReward)); //casual fapingvin carry
+    PolyMod.Loader.AddPatchDataType("unitEffectData", typeof(UnitEffect)); //casual fapingvin carry... ...again
+    PolyMod.Loader.AddPatchDataType("unitAbilityData", typeof(UnitAbility.Type)); //...casual...      ...fapingvin carry...       ...again
+    PolyMod.Loader.AddPatchDataType("tileEffectData", typeof(TileData.EffectType));
+    ClassInjector.RegisterTypeInIl2Cpp<CameraShake>();
+    Directory.CreateDirectory(PolibSave.DATA_PATH);
+  }
+}
     // Good for quick reference getting:
     /*using System.ComponentModel;
     using System.Globalization;
@@ -166,7 +164,7 @@ public static class Main
                       ██                   ███                        █████████████████████████████████████████      ███████  █████                      ███                                  
                        ██                 ██                           ███████████████████████████████████████                                            ███                                 
         */
-}
+
 
 public class CameraShake : MonoBehaviour
 {

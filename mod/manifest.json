@@ -1,7 +1,7 @@
 {
     "id": "polibrary",
     "name": "Polibrary",
-    "version": "2.1",
+    "version": "2.1.1",
     "authors": [
         "Fapingvin: Main guye 1", "wasd_: Main guye 2", "With help from: exploit, johnklipi, incomplete_tree"
     ],
@@ -11,5 +11,5 @@
             "min": "2.10.0"
         }
     ],
-    "description": "Polibrary 2.1. General library of tools for modders."
+    "description": "Polibrary 2.1.1. General library of tools for modders."
 }

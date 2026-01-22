@@ -102,10 +102,9 @@
 			"idx": -1
 		}
 	},
-	"pActions": {
-		"polib_basiclog": [
-			"set:var string §Abandon all hope, ye who enters here!§",
-			"log:@var"
-		]
+	"techData": {
+		"polib_pactionbs": {
+			"idx": -1
+		}
 	}
 }
