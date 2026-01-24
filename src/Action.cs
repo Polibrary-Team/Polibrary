@@ -30,6 +30,7 @@ using Il2CppSystem.Linq.Expressions;
 using UnityEngine.Rendering.Universal;
 using LibCpp2IL.Elf;
 using PolytopiaBackendBase.Common;
+using UnityEngine.Rendering;
 
 
 namespace Polibrary;
@@ -51,15 +52,21 @@ public class pAction
 
     int index = 0;
     int increment = 1;
+    bool wait = false;
     public Dictionary<string, object> variables = new Dictionary<string, object>(); 
     Dictionary<string, int> cycleIds = new Dictionary<string, int>();
-    List<ActionBase> localStack = new List<ActionBase>();
     GameState state;
 
     public pAction() { }
     public pAction(pAction other)
     {
         lines = other.lines;
+    }
+
+    public void Subscribe(System.IntPtr ptr) //Like and Subscribe
+    {
+        Main.waitList[ptr] = this;
+        wait = true;
     }
 
     public void Execute()
@@ -80,12 +87,11 @@ public class pAction
             }
 
             index += increment;
-        }
 
-        localStack.Reverse();
-        foreach (ActionBase actionBase in localStack)
-        {
-            GameManager.GameState.ActionStack.Add(actionBase);
+            if (wait)
+            {
+                return;
+            }
         }
     }
 
@@ -262,6 +268,12 @@ public class pAction
                 break;
             case "isTribe": //checks if owner is a tribe of specified type
                 IsTribe(ps[0],ps[1]);
+                break;
+            case "hasEffect": //checks if the unit has a specific effect
+                HasEffect(ps[0],ps[1],ps[2]);
+                break;
+            case "unitExists": //checks if unit isnt null
+                UnitExists(ps[0],ps[1]);
                 break;
             
 
@@ -660,6 +672,37 @@ public class pAction
 
         variables[variable] = playerState.tribe == tribeType;
     }
+
+    private void HasEffect(string variable, string swcoords, string sunitEffectType)
+    {   
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+        UnitEffect unitEffect = ParseUnitEffectType(sunitEffectType);
+        if (!IsVariable<bool>(variable, out var obj))
+        {
+            LogError("HasEffect", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            return;
+        }
+
+        if (Tile(wcoords).unit == null)
+        {
+            LogError("HasEffect", "Unit is null");
+            return;
+        }
+        variables[variable] = Tile(wcoords).unit.effects.Contains(unitEffect);
+    }
+
+    private void UnitExists(string variable, string swcoords)
+    {
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+
+        if (!IsVariable<bool>(variable, out var obj))
+        {
+            LogError("UnitExists", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            return;
+        }
+
+        variables[variable] = Tile(wcoords).unit != null;
+    }
     #endregion
 
     #region functions
@@ -777,7 +820,9 @@ public class pAction
         int delay = ParseInt(sdelay);
         WorldCoordinates wcoords = ParseWcoords(swcoords);
 
-        new IncreaseCurrencyAction(playerId, wcoords, i, delay).Execute(state);
+        IncreaseCurrencyAction action = new IncreaseCurrencyAction(playerId, wcoords, i, delay);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
     
     private void Build(string swcoords, string simprovement, string sdeductCost)
@@ -786,14 +831,18 @@ public class pAction
         ImprovementData.Type imp = ParseImprovementDataType(simprovement);
         bool deductCost = ParseBool(sdeductCost);
         
-        new BuildAction(playerId, imp, wcoords, deductCost).Execute(state);
+        BuildAction action = new BuildAction(playerId, imp, wcoords, deductCost);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void Destroy(string swcoords)
     {
         WorldCoordinates wcoords = ParseWcoords(swcoords);;
         
-        new DestroyImprovementAction(playerId, wcoords).Execute(state);
+        DestroyImprovementAction action = new DestroyImprovementAction(playerId, wcoords);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void AddTileEffect(string stileEffectType, string swcoords)
@@ -866,7 +915,9 @@ public class pAction
 
         GameLogicData gameLogicData = new GameLogicData();
         int cost = deductCost ? gameLogicData.GetUnitData(unit).cost : 0;
-        new TrainAction(playerId, unit, wcoords, cost).Execute(state);
+        TrainAction action = new TrainAction(playerId, unit, wcoords, cost);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void AttackUnit(string sorigin, string starget, string shouldMove)
@@ -880,8 +931,12 @@ public class pAction
         state.TryGetPlayer(playerId, out var owner);
         
         BattleResults battleResults = BattleHelpers.GetBattleResults(state, Tile(origin).unit, Tile(target).unit);
-        if (Tile(target).unit.HasActivePeaceTreaty(state, owner) || Tile(target).unit.owner == playerId)
-        new AttackAction(playerId, origin, target, battleResults.attackDamage, move, AttackAction.AnimationType.Normal, 20).Execute(state);
+        if (!Tile(target).unit.HasActivePeaceTreaty(state, owner) || Tile(target).unit.owner != playerId)
+        {
+            AttackAction action = new AttackAction(playerId, origin, target, battleResults.attackDamage, move, AttackAction.AnimationType.Normal, 20);
+            Subscribe(action.Pointer);
+            state.ActionStack.Add(action);
+        }
     }
 
     private void DamageUnit(string sorigin, string starget, string shouldMove)
@@ -895,8 +950,12 @@ public class pAction
         state.TryGetPlayer(playerId, out var owner);
         
         BattleResults battleResults = BattleHelpers.GetBattleResults(state, Tile(origin).unit, Tile(target).unit);
-        if (Tile(target).unit.HasActivePeaceTreaty(state, owner) || Tile(target).unit.owner == playerId)
-        new AttackAction(playerId, target, target, battleResults.attackDamage, move, AttackAction.AnimationType.Splash, 20).Execute(state);
+        if (!Tile(target).unit.HasActivePeaceTreaty(state, owner) || Tile(target).unit.owner != playerId)
+        {
+            AttackAction action = new AttackAction(playerId, target, target, battleResults.attackDamage, move, AttackAction.AnimationType.Normal, 20);
+            Subscribe(action.Pointer);
+            state.ActionStack.Add(action);
+        }
     }
 
     private void DamageUnitManual(string sorigin, string starget, string si, string shouldMove)
@@ -908,7 +967,9 @@ public class pAction
 
         if (Tile(origin).unit == null || Tile(target).unit == null) return;
 
-        new AttackAction(playerId, origin, target, i, move, AttackAction.AnimationType.Splash, 20).Execute(state);
+        AttackAction action = new AttackAction(playerId, origin, target, i, move, AttackAction.AnimationType.Splash, 20);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void HealUnit(string swcoords, string si)
@@ -922,8 +983,7 @@ public class pAction
             return;
         }
 
-        GameState gameState = GameManager.GameState;
-        PolibUtils.HealUnit(gameState, Tile(wcoords).unit, i);
+        PolibUtils.HealUnit(state, Tile(wcoords).unit, i);
     }
 
     private void ConvertUnit(string sorigin, string starget)
@@ -933,16 +993,18 @@ public class pAction
 
         if (Tile(origin).unit == null || Tile(target).unit == null) return;
 
-        GameState gameState = GameManager.GameState;
-        new ConvertAction(playerId, origin, target).Execute(state);
+        ConvertAction action = new ConvertAction(playerId, origin, target);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void Explore(string sorigin)
     {
         WorldCoordinates origin = ParseWcoords(sorigin);
 
-        GameState gameState = GameManager.GameState;
-        new ExploreAction(playerId, origin).Execute(state);
+        ExploreAction action = new ExploreAction(playerId, origin);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void Promote(string sorigin)
@@ -955,9 +1017,9 @@ public class pAction
             return;
         }
 
-
-        GameState gameState = GameManager.GameState;
-        new PromoteAction(playerId, origin).Execute(state);
+        PromoteAction action = new PromoteAction(playerId, origin);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void Upgrade(string sorigin, string sunit)
@@ -974,8 +1036,9 @@ public class pAction
             return;
         }
         
-        GameState gameState = GameManager.GameState;
-        new UpgradeAction(playerId, type, origin, data.cost).Execute(state);
+        UpgradeAction action = new UpgradeAction(playerId, type, origin, data.cost);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void Reveal(string sorigin, string sshowPopup)
@@ -988,7 +1051,9 @@ public class pAction
             return;
         }
 
-        new RevealAction(playerId, origin, showPopup).Execute(state);
+        RevealAction action = new RevealAction(playerId, origin, showPopup);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void KillUnit(string sorigin)
@@ -1000,7 +1065,9 @@ public class pAction
             return;
         }
 
-        new KillUnitAction(playerId, origin).Execute(state);
+        KillUnitAction action = new KillUnitAction(playerId, origin);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void RecoverUnit(string sorigin)
@@ -1012,7 +1079,9 @@ public class pAction
             return;
         }
 
-        new RecoverAction(playerId, origin).Execute(state);
+        RecoverAction action = new RecoverAction(playerId, origin);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void Research(string stech, string si)
@@ -1020,14 +1089,18 @@ public class pAction
         TechData.Type tech = ParseTechDataType(stech);
         int i = ParseInt(si);
 
-        new ResearchAction(playerId, tech, i).Execute(state);
+        ResearchAction action = new ResearchAction(playerId, tech, i);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void RuleArea(string sorigin)
     {
         WorldCoordinates origin = ParseWcoords(sorigin);
 
-        new RuleAreaAction(playerId, origin).Execute(state);
+        RuleAreaAction action = new RuleAreaAction(playerId, origin);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void AddCityReward(string sorigin, string sreward)
@@ -1035,7 +1108,9 @@ public class pAction
         WorldCoordinates origin = ParseWcoords(sorigin);
         CityReward reward = ParseCityRewardType(sreward);
 
-        new CityRewardAction(playerId, reward, origin).Execute(state);
+        CityRewardAction action = new CityRewardAction(playerId, reward, origin);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void IncreaseScore(string si, string sorigin)
@@ -1043,14 +1118,18 @@ public class pAction
         WorldCoordinates origin = ParseWcoords(sorigin);
         int i = ParseInt(si);
 
-        new IncreaseScoreAction(playerId, i, origin).Execute(state);
+        IncreaseScoreAction action = new IncreaseScoreAction(playerId, i, origin);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void DecreaseScore(string si)
     {
         int i = ParseInt(si);
 
-        new DecreaseScoreAction(playerId, i).Execute(state);
+        DecreaseScoreAction action = new DecreaseScoreAction(playerId, i);
+        Subscribe(action.Pointer);
+        state.ActionStack.Add(action);
     }
 
     private void PlaySfx(string ssfx)
@@ -1081,7 +1160,6 @@ public class pAction
 
         GameManager.GameState.TryGetPlayer(Tile(wcoords).owner, out var playerState);
         SkinType skinType = (playerState != null) ? playerState.skinType : SkinType.None;
-
         switch (vfx)
         {
             case "darkpuff":

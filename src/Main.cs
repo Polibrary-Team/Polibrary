@@ -9,22 +9,79 @@ namespace Polibrary;
 
 public static class Main
 {
-  public static PolibGameState polibGameState;
-  public static ManualLogSource modLogger;
-  public static void Load(ManualLogSource logger)
-  {
-    new Harmony("com.polibraryteam.polibrary").PatchAll(); //???
-    Harmony.CreateAndPatchAll(typeof(Main));
-    modLogger = logger;
-    logger.LogMessage("Polibrary.dll loaded.");
-    modLogger.LogMessage("Version 2.1");
-    PolyMod.Loader.AddPatchDataType("cityRewardData", typeof(CityReward)); //casual fapingvin carry
-    PolyMod.Loader.AddPatchDataType("unitEffectData", typeof(UnitEffect)); //casual fapingvin carry... ...again
-    PolyMod.Loader.AddPatchDataType("unitAbilityData", typeof(UnitAbility.Type)); //...casual...      ...fapingvin carry...       ...again
-    PolyMod.Loader.AddPatchDataType("tileEffectData", typeof(TileData.EffectType));
-    ClassInjector.RegisterTypeInIl2Cpp<CameraShake>();
-    Directory.CreateDirectory(PolibSave.DATA_PATH);
-  }
+    public static PolibGameState polibGameState;
+    public static Dictionary<IntPtr, pAction> waitList = new Dictionary<IntPtr, pAction>();
+    public static ManualLogSource modLogger;
+    public static void Load(ManualLogSource logger)
+    {
+        Harmony harmony = new Harmony("com.polibraryteam.polibrary"); //???
+        harmony.PatchAll();
+        Harmony.CreateAndPatchAll(typeof(Main));
+        modLogger = logger;
+        logger.LogMessage("Polibrary.dll loaded.");
+        modLogger.LogMessage("Version 2.1");
+        PolyMod.Loader.AddPatchDataType("cityRewardData", typeof(CityReward)); //casual fapingvin carry
+        PolyMod.Loader.AddPatchDataType("unitEffectData", typeof(UnitEffect)); //casual fapingvin carry... ...again
+        PolyMod.Loader.AddPatchDataType("tileEffectData", typeof(TileData.EffectType));
+        ClassInjector.RegisterTypeInIl2Cpp<CameraShake>();
+        Directory.CreateDirectory(PolibSave.DATA_PATH);
+
+        var myPostfix = new HarmonyMethod(typeof(Main).GetMethod(nameof(Main.MethodThing))); //a brief thanks to our sponsor, chatGPT!
+
+        HashSet<string> targetActions = new HashSet<string> 
+        {
+            "IncreaseCurrencyAction",
+            "BuildAction",
+            "DestroyImprovementAction",
+            "TrainAction",
+            "AttackAction",
+            "ConvertAction",
+            "ExploreAction",
+            "PromoteAction",
+            "UpgradeAction",
+            "RevealAction",
+            "KillUnitAction",
+            "RecoverAction",
+            "ResearchAction",
+            "RuleAreaAction",
+            "CityRewardAction",
+            "IncreaseScoreAction",
+            "DecreaseScoreAction"
+        };
+
+        var actionTypes = typeof(ActionBase).Assembly.GetTypes()
+            .Where(t => t.IsSubclassOf(typeof(ActionBase)) && !t.IsAbstract);
+
+        int count = 0;
+        foreach (var actionType in actionTypes)
+        {
+            if (!targetActions.Contains(actionType.Name)) continue;
+
+            var executeMethod = actionType.GetMethod("Execute", new Type[] { typeof(GameState) });
+            if (executeMethod != null)
+            {
+                try 
+                {
+                    harmony.Patch(executeMethod, postfix: myPostfix);
+                    count++;
+                }
+                catch (Exception e)
+                {
+                    modLogger.LogWarning($"Failed {actionType.Name}: {e.Message}");
+                }
+            }
+        }
+        modLogger.LogInfo($"Dynamically patched {count} Action types!");
+    }
+
+    public static void MethodThing(ActionBase __instance)
+    {
+        if (waitList.TryGetValue(__instance.Pointer, out var action))
+        {
+            waitList.Remove(__instance.Pointer);
+            action.Execute();
+        }
+    }
 }
     // Good for quick reference getting:
     /*using System.ComponentModel;
