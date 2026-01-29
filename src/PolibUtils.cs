@@ -482,6 +482,20 @@ public static class PolibUtils
         return DataFromType(GameManager.GameState, type);
     }
 
+    public static void RemoveEmbassies(GameState gameState, TileData tile)
+    {
+        if (tile.capitalOf != 0)
+        {
+            gameState.TryGetPlayer(tile.capitalOf, out var playerState);
+            Il2Gen.List<byte> embassiesInCapitalOf = playerState.GetEmbassiesInCapitalOf(gameState);
+            for (int i = 0; i < embassiesInCapitalOf.Count; i++)
+            {
+                byte playerId = embassiesInCapitalOf[i];
+                gameState.ActionStack.Add(new DestroyEmbassyAction(playerId, playerState.Id));
+            }
+        }
+    }
+
     #endregion
 
     #region Unit Utils

@@ -31,6 +31,7 @@ using UnityEngine.Rendering.Universal;
 using LibCpp2IL.Elf;
 using PolytopiaBackendBase.Common;
 using UnityEngine.Rendering;
+using UnityEngine.SocialPlatforms.Impl;
 
 
 namespace Polibrary;
@@ -378,6 +379,9 @@ public class pAction
                 break;
             case "decreaseScore":
                 DecreaseScore(ps[0]);
+                break;
+            case "unfound": 
+                Unfound(ps[0]);
                 break;
             case "sfx": //plays a sound effect
                 PlaySfx(ps[0]);
@@ -1132,6 +1136,71 @@ public class pAction
         DecreaseScoreAction action = new DecreaseScoreAction(playerId, i);
         Subscribe(action.Pointer);
         state.ActionStack.Add(action);
+    }
+
+    private void Unfound(string swcoords)
+    {
+        WorldCoordinates wcoords = ParseWcoords(swcoords);
+
+        TileData tile = state.Map.GetTile(wcoords);
+        byte previousOwnerId = tile.owner;
+        if (previousOwnerId == 0) return;
+
+        state.TryGetPlayer(previousOwnerId, out var playerState);
+
+        if (playerState != null)
+        {
+            playerState.cities--;
+        }
+
+        for (int i = 0; i < state.Map.Tiles.Length; i++)
+        {
+            TileData tileData = state.Map.Tiles[i];
+            if (tileData.unit != null && tileData.unit.home == wcoords)
+            {
+                tileData.unit.home = WorldCoordinates.NULL_COORDINATES;
+            }
+        }
+
+        Il2Gen.List<TileData> cityAreaSorted = ActionUtils.GetCityAreaSorted(state, tile);
+        List<ActionBase> scoreActions = new List<ActionBase>();
+
+        for (int j = 0; j < cityAreaSorted.Count; j++)
+        {
+            TileData territoryTile = cityAreaSorted[j];
+
+            if (territoryTile.owner == previousOwnerId)
+            {
+                int scoreValue = ScoreSheet.tileValue;
+                if (territoryTile.improvement != null && territoryTile.coordinates != tile.coordinates)
+                {
+                    scoreValue += state.CalculateImprovementScore(territoryTile);
+                }
+
+                scoreActions.Add(new DecreaseScoreAction(previousOwnerId, scoreValue));
+
+                territoryTile.owner = 0;
+                territoryTile.rulingCityCoordinates = WorldCoordinates.NULL_COORDINATES;
+            }
+        }
+
+        int cityCenterScore = state.CalculateImprovementScore(tile);
+        ActionUtils.AddScore(state, playerState, -cityCenterScore);
+        foreach (ActionBase ab in scoreActions)
+        {
+            state.ActionStack.Add(ab);
+        }
+
+        PolibUtils.RemoveEmbassies(state, tile);
+
+        tile.owner = 0;
+        
+        tile.improvement.level = 1;
+        
+        if (playerState != null && !playerState.IsAlive(state, state.Settings.rules.PlayerDeathCondition))
+        {
+            state.ActionStack.Add(new WipePlayerAction(playerId, previousOwnerId));
+        }
     }
 
     private void PlaySfx(string ssfx)
