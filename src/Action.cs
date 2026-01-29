@@ -71,6 +71,8 @@ public class pAction
 
     public void Execute()
     {
+        wait = false;
+
         state = GameManager.GameState;
 
         variables["@origin_auto"] = ActionOrigin;
@@ -546,7 +548,7 @@ public class pAction
 
         if (!cycleIds.TryGetValue(id, out var i))
         {
-            LogError("Back",$"Couldn't find start of cycle '{id}'");
+            LogError("BackPer",$"Couldn't find start of cycle '{id}'");
             return;
         }
 
@@ -952,7 +954,7 @@ public class pAction
         BattleResults battleResults = BattleHelpers.GetBattleResults(state, Tile(origin).unit, Tile(target).unit);
         if (!Tile(target).unit.HasActivePeaceTreaty(state, owner) || Tile(target).unit.owner != playerId)
         {
-            AttackAction action = new AttackAction(playerId, target, target, battleResults.attackDamage, move, AttackAction.AnimationType.Normal, 20);
+            AttackAction action = new AttackAction(playerId, target, target, battleResults.attackDamage, move, AttackAction.AnimationType.Splash, 20);
             Subscribe(action.Pointer);
             state.ActionStack.Add(action);
         }
