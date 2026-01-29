@@ -110,110 +110,10 @@ public static class Parse
     public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityBlacklist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
     public static Dictionary<ImprovementData.Type, List<UnitData.Type>> unitWhitelist = new Dictionary<ImprovementData.Type, List<UnitData.Type>>();
     public static Dictionary<ImprovementData.Type, List<UnitData.Type>> unitBlacklist = new Dictionary<ImprovementData.Type, List<UnitData.Type>>();
-
-    [HarmonyPrefix]
-    [HarmonyPriority(Priority.Last)]
-    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))] //dude why tf do you have 176387126 different patches for ts??
-    private static void GameLogicData_Parse(GameLogicData __instance, JObject rootObject)
-    {
-        foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-
-            if (token != null)
-            {
-                if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
-                {
-                    string key = token["BuiltBySpecific"] != null ? "BuiltBySpecific" : "builtBySpecific";
-                    if (token[key] != null)
-                    {
-                        string ability = token[key]!.ToObject<string>();
-                        BuildersDict[impType] = ability;
-                        token.Remove(key);
-                        LogMan1997.LogInfo($"Added {ability} ability to {impType} in BuildersDict");
-                    }
-                }
-            }
-        }
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPriority(Priority.Last)]
-    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
-    private static void GameLogicData_Parse5(GameLogicData __instance, JObject rootObject)
-    {
-        foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
-                {
-                    string key = token["BuiltOnSpecific"] != null ? "BuiltOnSpecific" : "builtOnSpecific";
-                    if (token[key] != null)
-                    {
-                        string ability = token[key]!.ToObject<string>();
-                        ImpBuildersDict[impType] = ability;
-                        token.Remove(key);
-                        LogMan1997.LogInfo($"Added {ability} ability to {impType} in ImpBuildersDict");
-                    }
-                }
-            }
-        }
-    }
-
-    [HarmonyPrefix]
-    [HarmonyPriority(Priority.Last)]
-    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
-    private static void GameLogicData_Parse4(GameLogicData __instance, JObject rootObject)
-    {
-        foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
-                {
-                    string key = token["NotBuiltBySpecific"] != null ? "NotBuiltBySpecific" : "notBuiltBySpecific";
-                    if (token[key] != null)
-                    {
-                        string ability = token[key]!.ToObject<string>();
-                        NoBuildersDict[impType] = ability;
-                        token.Remove(key);
-                        LogMan1997.LogInfo($"Added {ability} ability to {impType} in NoBuildersDict");
-                    }
-                }
-            }
-        }
-    }
-
     public static Dictionary<ImprovementData.Type, string> UnblockDict = new Dictionary<ImprovementData.Type, string>();
 
-    [HarmonyPrefix]
-    [HarmonyPriority(Priority.Last)]
-    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
-    private static void GameLogicData_Parse3(GameLogicData __instance, JObject rootObject)
-    {
-        foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
-                {
-                    string key = token["Unblock"] != null ? "Unblock" : "unblock";
-                    if (token[key] != null)
-                    {
-                        string ability = token[key]!.ToObject<string>();
-                        UnblockDict[impType] = ability;
-                        token.Remove(key);
-                        LogMan1997.LogInfo($"Added {ability} ability to {impType} in UnblockDict");
-                    }
-                }
-            }
-        }
-    }
 
+    
     //thanks exploit
     [HarmonyPrefix]
     [HarmonyPriority(Priority.Last)]
@@ -224,6 +124,8 @@ public static class Parse
         PolibUtils.ParsePerEach<ImprovementData.Type, int>(rootObject, "improvementData", "defenceBoost", improvementDefenceBoost);
         PolibUtils.ParsePerEach<ImprovementData.Type, int>(rootObject, "improvementData", "defenceBoost_Neutral", freelanceImprovementDefenceBoostDict);
         PolibUtils.ParsePerEach<ImprovementData.Type, float>(rootObject, "improvementData", "aiScore", AIScoreDict);
+        PolibUtils.ParsePerEach<ImprovementData.Type, string>(rootObject, "improvementData", "builtOnSpecific", ImpBuildersDict);
+        PolibUtils.ParsePerEach<ImprovementData.Type, string>(rootObject, "improvementData", "unblock", UnblockDict);
         
         foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
         {
