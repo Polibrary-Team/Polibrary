@@ -588,7 +588,49 @@ public static class PolibUtils
                         T v = token[fieldName]!.ToObject<T>();
                         dict[type] = v;
                         token.Remove(fieldName);
-                        utilGuy!.LogInfo($"Parsed variable {v} into dict {dict} with key {type}");
+                    }
+                }
+            }
+        }
+    }
+
+    public static void ParseEnumPerEach<targetType, T>(JObject rootObject, string categoryName, string fieldName, Dictionary<targetType, T> dict)
+    where targetType : struct, System.IConvertible
+    where T : struct, System.IConvertible
+    {
+        foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
+        {
+            JObject token = jtoken.TryCast<JObject>();
+            if (token != null)
+            {
+                if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
+                {
+                    if (token[fieldName] != null)
+                    {
+                        if (EnumCache<T>.TryGetType(token[fieldName].ToObject<string>(), out var v))
+                        dict[type] = v;
+                        token.Remove(fieldName);
+                    }
+                }
+            }
+        }
+    }
+
+    public static void ParseListPerEach<targetType, T>(JObject rootObject, string categoryName, string fieldName, Dictionary<targetType, List<T>> dict)
+        where targetType : struct, System.IConvertible
+    {
+        foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
+        {
+            JObject token = jtoken.TryCast<JObject>();
+            if (token != null)
+            {
+                if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
+                {
+                    if (token[fieldName] != null)
+                    {
+                        List<T> v = ParseToSysList<T>(token[fieldName]);
+                        dict[type] = v;
+                        token.Remove(fieldName);
                     }
                 }
             }
@@ -602,11 +644,35 @@ public static class PolibUtils
 
         T t = token[target]!.ToObject<T>();
         token.Remove(target);
-        utilGuy!.LogInfo($"Parsed {target}");
         return t;
     }
 
-    public static List<T> ParseToSysList<T>(JArray token)
+    public static List<T> ParseEnumsToSysList<T>(JToken token)
+    where T : struct, System.IConvertible
+    {
+        List<T> types = new List<T>();
+
+        foreach (string s in token.Values<string>().ToList())
+        {
+            EnumCache<T>.TryGetType(s, out var type);
+            types.Add(type);
+        }
+
+        return types;
+    }
+
+    public static List<T> ParseToSysList<T>(JToken token)
+    {
+        JArray jArray = token.TryCast<JArray>();
+        if (jArray == null)
+        {
+            utilGuy.LogWarning($"couldnt parse {token.GetName()}, not a jArray");
+            return new List<T>();
+        }
+        return ParseJArray<T>(jArray);
+    }
+
+    public static List<T> ParseJArray<T>(JArray token)
     {
         List<T> list = new List<T>();
 

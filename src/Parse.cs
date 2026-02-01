@@ -98,12 +98,11 @@ public static class Parse
     }
     public static Dictionary<UnitAbility.Type, PolibUnitAbilityData> unitAbilityDataDict = new Dictionary<UnitAbility.Type, PolibUnitAbilityData>();
     public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] { UnitEffect.Boosted, UnitEffect.Bubble, UnitEffect.Frozen, UnitEffect.Invisible, UnitEffect.Petrified, UnitEffect.Poisoned };
-    
-    
     public static Dictionary<string, pAction> actions = new Dictionary<string, pAction>();
     public static Dictionary<ImprovementData.Type, Dictionary<string/*trigger*/, string/*action*/>> improvementTriggers = new Dictionary<ImprovementData.Type, Dictionary<string, string>>();
     public static Dictionary<UnitData.Type, Dictionary<string/*trigger*/, string/*action*/>> unitTriggers = new Dictionary<UnitData.Type, Dictionary<string, string>>();
     public static Dictionary<UnitAbility.Type, Dictionary<string/*trigger*/, string/*action*/>> unitAbilityTriggers = new Dictionary<UnitAbility.Type, Dictionary<string, string>>();
+    public static Dictionary<TribeAbility.Type, Dictionary<string/*trigger*/, string/*action*/>> tribeAbilityTriggers = new Dictionary<TribeAbility.Type, Dictionary<string, string>>();
     public static Dictionary<UnitEffect, Dictionary<string/*trigger*/, string/*action*/>> unitEffectTriggers = new Dictionary<UnitEffect, Dictionary<string, string>>();
     public static Dictionary<CityReward, Dictionary<string/*trigger*/, string/*action*/>> rewardTriggers = new Dictionary<CityReward, Dictionary<string, string>>();
     public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityWhitelist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
@@ -111,21 +110,28 @@ public static class Parse
     public static Dictionary<ImprovementData.Type, List<UnitData.Type>> unitWhitelist = new Dictionary<ImprovementData.Type, List<UnitData.Type>>();
     public static Dictionary<ImprovementData.Type, List<UnitData.Type>> unitBlacklist = new Dictionary<ImprovementData.Type, List<UnitData.Type>>();
     public static Dictionary<ImprovementData.Type, string> UnblockDict = new Dictionary<ImprovementData.Type, string>();
-
-
+    public static Dictionary<UnitData.Type, List<string>> unitDataTargets = new Dictionary<UnitData.Type, List<string>>();
+    public static Dictionary<UnitAbility.Type, List<string>> unitAbilityTargets = new Dictionary<UnitAbility.Type, List<string>>();
+    public static Dictionary<UnitEffect, List<string>> unitEffectTargets = new Dictionary<UnitEffect, List<string>>();
     
+
+
+
     //thanks exploit
     [HarmonyPrefix]
     [HarmonyPriority(Priority.Last)]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
-    private static void GameLogicData_Parse6(GameLogicData __instance, JObject rootObject) //in this world, its analfuck, or be analfucked
+    private static void GameLogicData_Parse(GameLogicData __instance, JObject rootObject) //in this world, its analfuck, or be analfucked
     {
-        PolibUtils.ParsePerEach<pbb.TribeType, string>(rootObject, "tribeData", "leaderName", leaderNameDict);
-        PolibUtils.ParsePerEach<ImprovementData.Type, int>(rootObject, "improvementData", "defenceBoost", improvementDefenceBoost);
-        PolibUtils.ParsePerEach<ImprovementData.Type, int>(rootObject, "improvementData", "defenceBoost_Neutral", freelanceImprovementDefenceBoostDict);
-        PolibUtils.ParsePerEach<ImprovementData.Type, float>(rootObject, "improvementData", "aiScore", AIScoreDict);
-        PolibUtils.ParsePerEach<ImprovementData.Type, string>(rootObject, "improvementData", "builtOnSpecific", ImpBuildersDict);
-        PolibUtils.ParsePerEach<ImprovementData.Type, string>(rootObject, "improvementData", "unblock", UnblockDict);
+        PolibUtils.ParsePerEach(rootObject, "tribeData", "leaderName", leaderNameDict);
+        PolibUtils.ParsePerEach(rootObject, "improvementData", "defenceBoost", improvementDefenceBoost);
+        PolibUtils.ParsePerEach(rootObject, "improvementData", "defenceBoost_Neutral", freelanceImprovementDefenceBoostDict);
+        PolibUtils.ParsePerEach(rootObject, "improvementData", "aiScore", AIScoreDict);
+        PolibUtils.ParsePerEach(rootObject, "improvementData", "builtOnSpecific", ImpBuildersDict);
+        PolibUtils.ParsePerEach(rootObject, "improvementData", "unblock", UnblockDict);
+        PolibUtils.ParseListPerEach(rootObject, "unitData", "targets", unitDataTargets);
+        PolibUtils.ParseListPerEach(rootObject, "unitAbility", "targets", unitAbilityTargets);
+        PolibUtils.ParseListPerEach(rootObject, "unitEffectData", "targets", unitEffectTargets);
         
         foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
         {
@@ -182,52 +188,22 @@ public static class Parse
                 {
                     if (token["unitAbilityWhitelist"] != null)
                     {
-                        List<UnitAbility.Type> types = new List<UnitAbility.Type>();
-
-                        foreach (string s in token["unitAbilityWhitelist"].Values<string>().ToList())
-                        {
-                            EnumCache<UnitAbility.Type>.TryGetType(s, out var type);
-                            types.Add(type);
-                        }
-
-                        unitAbilityWhitelist[impType] = types;
+                        unitAbilityWhitelist[impType] = PolibUtils.ParseEnumsToSysList<UnitAbility.Type>(token["unitAbilityWhitelist"]);
                     }
                     
                     if (token["unitAbilityBlacklist"] != null)
                     {
-                        List<UnitAbility.Type> types = new List<UnitAbility.Type>();
-
-                        foreach (string s in token["unitAbilityBlacklist"].Values<string>().ToList())
-                        {
-                            EnumCache<UnitAbility.Type>.TryGetType(s, out var type);
-                            types.Add(type);
-                        }
-                        unitAbilityBlacklist[impType] = types;
-                        
+                        unitAbilityBlacklist[impType] = PolibUtils.ParseEnumsToSysList<UnitAbility.Type>(token["unitAbilityBlacklist"]);
                     }
 
                     if (token["unitWhitelist"] != null)
                     {
-                        List<UnitData.Type> types = new List<UnitData.Type>();
-
-                        foreach (string s in token["unitWhitelist"].Values<string>().ToList())
-                        {
-                            EnumCache<UnitData.Type>.TryGetType(s, out var type);
-                            types.Add(type);
-                        }
-                        unitWhitelist[impType] = types;
+                        unitWhitelist[impType] = PolibUtils.ParseEnumsToSysList<UnitData.Type>(token["unitWhitelist"]);
                     }
                     
                     if (token["unitBlacklist"] != null)
                     {
-                        List<UnitData.Type> types = new List<UnitData.Type>();
-
-                        foreach (string s in token["unitBlacklist"].Values<string>().ToList())
-                        {
-                            EnumCache<UnitData.Type>.TryGetType(s, out var type);
-                            types.Add(type);
-                        }
-                        unitBlacklist[impType] = types;
+                        unitBlacklist[impType] = PolibUtils.ParseEnumsToSysList<UnitData.Type>(token["unitBlacklist"]);
                     }
 
                     if (token["triggers"] != null)
@@ -277,6 +253,25 @@ public static class Parse
         }
 
         #endregion Unit Abilities
+
+        #region Tribe Ablities
+
+        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeAbility.*").ToList())
+        {
+            JObject token = jtoken.TryCast<JObject>();
+            if (token != null)
+            {
+                if (EnumCache<TribeAbility.Type>.TryGetType(token.Path.Split('.').Last(), out var abilityType))
+                {
+                    if (token["triggers"] != null)
+                    {
+                        PolibUtils.ParseToNestedStringDict(token["triggers"], abilityType, tribeAbilityTriggers);
+                    }
+                }
+            }
+        }
+
+        #endregion Tribe Abilities
 
         #region City Rewards
 

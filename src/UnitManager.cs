@@ -552,4 +552,121 @@ public static class UnitManager
     }
 
     #endregion
+
+    #region Targets
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetAttackOptionsAtPosition))]
+    private static void GetAttackOptionsAtPosition(Il2Gen.List<WorldCoordinates> __result, GameState gameState, byte playerId, WorldCoordinates position, int range, bool includeHiddenTiles = false, UnitState customUnitState = null, bool ignoreDiplomacyRelation = false)
+    {
+        bool change = false;
+
+        Il2Gen.List<TileData> list = new Il2Gen.List<TileData>();
+        Il2Gen.List<TileData> area = gameState.Map.GetArea(position, range, allowDiagonal: true, includeCenter: false);
+        UnitState unit = gameState.Map.GetTile(position).unit;
+        if (unit == null) return;
+        gameState.TryGetPlayer(playerId, out var owner);
+
+        if (Parse.unitDataTargets.TryGetValue(unit.UnitData.type, out var unitDataTargetList))
+        {
+            foreach (TileData tile in area)
+            {
+                if (tile.unit == null && unitDataTargetList.Contains("empty"))
+                {
+                    if (list.Contains(tile)) continue;
+                    list.Add(tile);
+                    change = true;
+                    continue;
+                }
+                if (tile.unit != null && (tile.unit.owner == playerId || tile.unit.HasActivePeaceTreaty(gameState, owner)) && unitDataTargetList.Contains("friendly"))
+                {
+                    if (list.Contains(tile)) continue;
+                    list.Add(tile);
+                    change = true;
+                    continue;
+                }
+                if (tile.unit != null && !(tile.unit.owner == playerId || tile.unit.HasActivePeaceTreaty(gameState, owner)) && unitDataTargetList.Contains("enemy"))
+                {
+                    if (list.Contains(tile)) continue;
+                    list.Add(tile);
+                    change = true;
+                    continue;
+                }
+            }
+        }
+
+        foreach (UnitAbility.Type ability in unit.UnitData.unitAbilities)
+        {
+            if (Parse.unitAbilityTargets.TryGetValue(ability, out var targetList))
+            {
+                foreach (TileData tile in area)
+                {
+                    if (tile.unit == null && targetList.Contains("empty"))
+                    {
+                        if (list.Contains(tile)) continue;
+                        list.Add(tile);
+                        change = true;
+                        continue;
+                    }
+                    if (tile.unit != null && (tile.unit.owner == playerId || tile.unit.HasActivePeaceTreaty(gameState, owner)) && targetList.Contains("friendly"))
+                    {
+                        if (list.Contains(tile)) continue;
+                        list.Add(tile);
+                        change = true;
+                        continue;
+                    }
+                    if (tile.unit != null && !(tile.unit.owner == playerId || tile.unit.HasActivePeaceTreaty(gameState, owner)) && targetList.Contains("enemy"))
+                    {
+                        if (list.Contains(tile)) continue;
+                        list.Add(tile);
+                        change = true;
+                        continue;
+                    }
+                }
+            }
+        }
+
+        foreach (UnitEffect effect in unit.effects)
+        {
+            if (Parse.unitEffectTargets.TryGetValue(effect, out var targetList))
+            {
+                foreach (TileData tile in area)
+                {
+                    if (tile.unit == null && targetList.Contains("empty"))
+                    {
+                        if (list.Contains(tile)) continue;
+                        list.Add(tile);
+                        change = true;
+                        continue;
+                    }
+                    if (tile.unit != null && (tile.unit.owner == playerId || tile.unit.HasActivePeaceTreaty(gameState, owner)) && targetList.Contains("friendly"))
+                    {
+                        if (list.Contains(tile)) continue;
+                        list.Add(tile);
+                        change = true;
+                        continue;
+                    }
+                    if (tile.unit != null && !(tile.unit.owner == playerId || tile.unit.HasActivePeaceTreaty(gameState, owner)) && targetList.Contains("enemy"))
+                    {
+                        if (list.Contains(tile)) continue;
+                        list.Add(tile);
+                        change = true;
+                        continue;
+                    }
+                }
+            }
+        }
+
+
+
+        if (change)
+        {
+            foreach (TileData tile in list)
+            {
+                __result.Add(tile.coordinates);
+            }
+        }
+    }
+
+    #endregion Targets
 }

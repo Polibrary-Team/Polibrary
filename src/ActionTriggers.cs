@@ -156,6 +156,34 @@ public static class ActionTriggers
             }
         }
 
+        gameState.TryGetPlayer(unit.owner, out var player);
+        TribeData tribe = gameState.GameLogicData.GetTribeData(player.tribe);
+        foreach (TribeAbility.Type ability in tribe.tribeAbilities)
+        {
+            if (Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
+            {
+                if (tribeAbilitydict.TryGetValue("onMove", out string name))
+                {
+                    stack.Add(new ActionData(name, __instance.Path[0], __instance.PlayerId));
+                }
+                if (tribeAbilitydict.TryGetValue("onMove_AtOrigin", out string name1))
+                {
+                    stack.Add(new ActionData(name1, __instance.Path[__instance.Path.Count - 1], __instance.PlayerId));
+                }
+                foreach (WorldCoordinates coords in __instance.Path)
+                {
+                    if (tribeAbilitydict.TryGetValue("onMove_Path", out string name2))
+                    {
+                        stack.Add(new ActionData(name2, coords, __instance.PlayerId));
+                    }
+                    if (tribeAbilitydict.TryGetValue("onMove_Trail", out string name3) && coords.X != __instance.Path[0].X && coords.Y != __instance.Path[0].Y)
+                    {
+                        stack.Add(new ActionData(name3, coords, __instance.PlayerId));
+                    }
+                }
+            }
+        }
+
         foreach (WorldCoordinates coords in __instance.Path)
         {
             if (GameManager.GameState.Map.GetTile(coords).improvement == null) continue;
@@ -273,6 +301,41 @@ public static class ActionTriggers
                     stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId));
                 }
                 if (unitAbilitydict.TryGetValue("onAttacked_AtAttacker", out string name2))
+                {
+                    stack.Add(new ActionData(name2, attacker.coordinates, __instance.PlayerId));
+                }
+            }
+        }
+
+
+        state.TryGetPlayer(attacker.owner, out var attackPlayer);
+        TribeData atkTribe = state.GameLogicData.GetTribeData(attackPlayer.tribe);
+        foreach (TribeAbility.Type ability in atkTribe.tribeAbilities)
+        {
+            if (Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
+            {
+                if (tribeAbilitydict.TryGetValue("onAttack_AtDefender", out string name3))
+                {
+                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId));
+                }
+                if (tribeAbilitydict.TryGetValue("onAttack_AtAttacker", out string name2))
+                {
+                    stack.Add(new ActionData(name2, attacker.coordinates, __instance.PlayerId));
+                }
+            }
+        }
+
+        state.TryGetPlayer(attacker.owner, out var defendPlayer);
+        TribeData defTribe = state.GameLogicData.GetTribeData(defendPlayer.tribe);
+        foreach (TribeAbility.Type ability in defTribe.tribeAbilities)
+        {
+            if (Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
+            {
+                if (tribeAbilitydict.TryGetValue("onAttack_AtDefender", out string name3))
+                {
+                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId));
+                }
+                if (tribeAbilitydict.TryGetValue("onAttack_AtAttacker", out string name2))
                 {
                     stack.Add(new ActionData(name2, attacker.coordinates, __instance.PlayerId));
                 }
@@ -425,8 +488,11 @@ public static class ActionTriggers
     private static void CaptureCityTriggers(CaptureCityAction __instance, GameState state)
     {
         List<ActionData> stack = new List<ActionData>();
+
+        UnitState unit = state.Map.GetTile(__instance.Coordinates).unit;
+        if (unit == null) return;
         
-        if (Parse.unitTriggers.TryGetValue(state.Map.GetTile(__instance.Coordinates).unit.type, out var unitdict))
+        if (Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
         {
             if (unitdict.TryGetValue("onCapture", out string name))
             {
@@ -434,7 +500,7 @@ public static class ActionTriggers
             }
         }
 
-        foreach (UnitAbility.Type unitAbility in state.Map.GetTile(__instance.Coordinates).unit.UnitData.unitAbilities)
+        foreach (UnitAbility.Type unitAbility in unit.UnitData.unitAbilities)
         {
             if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
             {
@@ -445,11 +511,24 @@ public static class ActionTriggers
             }
         }
 
-        foreach (UnitEffect effect in state.Map.GetTile(__instance.Coordinates).unit.effects)
+        foreach (UnitEffect effect in unit.effects)
         {
             if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
             {
                 if (effectDict.TryGetValue("onCapture", out string name))
+                {
+                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
+                }
+            }
+        }
+
+        state.TryGetPlayer(unit.owner, out var player);
+        TribeData tribe = state.GameLogicData.GetTribeData(player.tribe);
+        foreach (TribeAbility.Type ability in tribe.tribeAbilities)
+        {
+            if (Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
+            {
+                if (tribeAbilitydict.TryGetValue("onCapture", out string name))
                 {
                     stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
                 }
@@ -469,6 +548,9 @@ public static class ActionTriggers
         bool flag = true;
         
         List<ActionData> stack = new List<ActionData>();
+
+        UnitState unit = state.Map.GetTile(__instance.Coordinates).unit;
+        if (unit == null) return true;
 
         if (Parse.unitTriggers.TryGetValue(state.Map.GetTile(__instance.Coordinates).unit.type, out var unitdict))
         {
@@ -496,6 +578,20 @@ public static class ActionTriggers
             if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
             {
                 if (effectDict.TryGetValue("onCapture", out string name))
+                {
+                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
+                    flag = false;
+                }
+            }
+        }
+
+        state.TryGetPlayer(unit.owner, out var player);
+        TribeData tribe = state.GameLogicData.GetTribeData(player.tribe);
+        foreach (TribeAbility.Type ability in tribe.tribeAbilities)
+        {
+            if (Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
+            {
+                if (tribeAbilitydict.TryGetValue("onCapture", out string name))
                 {
                     stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
                     flag = false;
