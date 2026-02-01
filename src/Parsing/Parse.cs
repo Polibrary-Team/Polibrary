@@ -1,37 +1,15 @@
-using System.ComponentModel;
-using System.Globalization;
-using System.Runtime.CompilerServices;
 using BepInEx.Logging;
-using EnumsNET;
 using HarmonyLib;
-using Il2CppInterop.Runtime;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem;
-using Il2CppSystem.Linq.Expressions.Interpreter;
-using JetBrains.Annotations;
 using Polytopia.Data;
-using PolytopiaBackendBase.Auth;
-using PolytopiaBackendBase.Game;
-using SevenZip.Compression.LZMA;
-using Unity.Collections;
-using Unity.Jobs;
-using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEngine.UIElements.UIR;
-using System.Reflection;
-using UnityEngine.EventSystems;
 using Newtonsoft.Json.Linq;
 using Il2CppSystem.Linq;
 
-using Une = UnityEngine;
-using Il2Gen = Il2CppSystem.Collections.Generic;
-using MS.Internal.Xml.XPath;
 using pbb = PolytopiaBackendBase.Common;
-using UnityEngine.InputSystem;
+using Steamworks.Data;
 
 
-namespace Polibrary;
+namespace Polibrary.Parsing;
 
 public static class Parse
 {
@@ -41,15 +19,16 @@ public static class Parse
         Harmony.CreateAndPatchAll(typeof(Parse));
         LogMan1997 = logger;
     }
+    public static List<Parsing.PolibImprovementData> polibImprovementDatas = new();
 
     public static Dictionary<ImprovementData.Type, string> BuildersDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<ImprovementData.Type, string> NoBuildersDict = new Dictionary<ImprovementData.Type, string>();
-    public static Dictionary<ImprovementData.Type, string> ImpBuildersDict = new Dictionary<ImprovementData.Type, string>();
+    //public static Dictionary<ImprovementData.Type, string> ImpBuildersDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<ImprovementData.Type, string> ImpCustomLocKey = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<pbb.TribeType, string> leaderNameDict = new Dictionary<pbb.TribeType, string>();
     public static Dictionary<ImprovementData.Type, int> improvementDefenceBoost = new Dictionary<ImprovementData.Type, int>();
     public static Dictionary<ImprovementData.Type, int> freelanceImprovementDefenceBoostDict = new Dictionary<ImprovementData.Type, int>();
-    public static Dictionary<ImprovementData.Type, float> AIScoreDict = new Dictionary<ImprovementData.Type, float>();
+    //public static Dictionary<ImprovementData.Type, float> AIScoreDict = new Dictionary<ImprovementData.Type, float>();
     public class PolibCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
     {
         public int addProduction { get; set; }
@@ -80,7 +59,7 @@ public static class Parse
     {
         public Dictionary<string, int> additives = new Dictionary<string, int>();
         public Dictionary<string, double> multiplicatives = new Dictionary<string, double>();
-        public Color color { get; set; }
+        public UnityEngine.Color color { get; set; }
         public List<string> removal { get; set; }
         public bool freezing { get; set; }
     }
@@ -123,11 +102,12 @@ public static class Parse
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
     private static void GameLogicData_Parse(GameLogicData __instance, JObject rootObject) //in this world, its analfuck, or be analfucked
     {
+        System.Func<PolibImprovementData> factory = () => new PolibImprovementData();
         PolibUtils.ParsePerEach(rootObject, "tribeData", "leaderName", leaderNameDict);
         PolibUtils.ParsePerEach(rootObject, "improvementData", "defenceBoost", improvementDefenceBoost);
         PolibUtils.ParsePerEach(rootObject, "improvementData", "defenceBoost_Neutral", freelanceImprovementDefenceBoostDict);
-        PolibUtils.ParsePerEach(rootObject, "improvementData", "aiScore", AIScoreDict);
-        PolibUtils.ParsePerEach(rootObject, "improvementData", "builtOnSpecific", ImpBuildersDict);
+        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, float, PolibImprovementData>(rootObject, "improvementData", "aiScore", polibImprovementDatas, factory);
+        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "builtOnSpecific", polibImprovementDatas, factory);
         PolibUtils.ParsePerEach(rootObject, "improvementData", "unblock", UnblockDict);
         PolibUtils.ParseListPerEach(rootObject, "unitData", "targets", unitDataTargets);
         PolibUtils.ParseListPerEach(rootObject, "unitAbility", "targets", unitAbilityTargets);
@@ -371,7 +351,7 @@ public static class Parse
                         float.TryParse(vals[2], out b);
                         float.TryParse(vals[3], out a);
 
-                        unitEffectData.color = new Color(r, g, b, a);
+                        unitEffectData.color = new UnityEngine.Color(r, g, b, a);
                         token.Remove("color");
                     }
 

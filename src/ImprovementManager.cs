@@ -15,6 +15,8 @@ using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using pbb = PolytopiaBackendBase.Common;
 using Il2CppSystem.Xml;
+using Polibrary.Parsing;
+using Il2CppMono.Security.Protocol.Ntlm;
 
 
 namespace Polibrary;
@@ -108,7 +110,7 @@ public static class ImprovementManager
     public static void mBuiltBySpecific(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
     {
         if (__result == false) return;
-        if (Parse.BuildersDict.TryGetValue(improvement.type, out string ability))
+        if (Parsing.Parse.BuildersDict.TryGetValue(improvement.type, out string ability))
         {
             if (tile.unit == null)
             {
@@ -120,7 +122,7 @@ public static class ImprovementManager
                 __result = false;
             }
         }
-        if (Parse.NoBuildersDict.TryGetValue(improvement.type, out string ability2))
+        if (Parsing.Parse.NoBuildersDict.TryGetValue(improvement.type, out string ability2))
         {
             if (tile.unit == null)
             {
@@ -139,10 +141,10 @@ public static class ImprovementManager
     public static void CheckImprovementPlaceability(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
     {
         if (__result == false) return;
-        Parse.unitAbilityWhitelist.TryGetValue(improvement.type, out List<UnitAbility.Type> allowAbilityList);
-        Parse.unitWhitelist.TryGetValue(improvement.type, out List<UnitData.Type> allowList);
-        Parse.unitAbilityBlacklist.TryGetValue(improvement.type, out List<UnitAbility.Type> denyAbilityList);
-        Parse.unitBlacklist.TryGetValue(improvement.type, out List<UnitData.Type> denyList);
+        Parsing.Parse.unitAbilityWhitelist.TryGetValue(improvement.type, out List<UnitAbility.Type> allowAbilityList);
+        Parsing.Parse.unitWhitelist.TryGetValue(improvement.type, out List<UnitData.Type> allowList);
+        Parsing.Parse.unitAbilityBlacklist.TryGetValue(improvement.type, out List<UnitAbility.Type> denyAbilityList);
+        Parsing.Parse.unitBlacklist.TryGetValue(improvement.type, out List<UnitData.Type> denyList);
 
         if (allowAbilityList == null && denyAbilityList == null && allowList == null && denyList == null) return;
         if (tile.unit == null)
@@ -168,8 +170,11 @@ public static class ImprovementManager
     public static void mBuiltOnSpecific(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
     {
         if (__result == false) return;
-        if (Parse.ImpBuildersDict.TryGetValue(improvement.type, out string ability))
+        int idx = PolibData.FindData(Parse.polibImprovementDatas, improvement.type);
+        if(idx >= 0)
         {
+            string ability = Parse.polibImprovementDatas[idx].builtOnSpecific;
+            if(ability == null) return;
             if (tile.improvement == null)
             {
                 __result = false;
@@ -327,9 +332,12 @@ public static class ImprovementManager
         {
             return;
         }
-        if (Parse.AIScoreDict.TryGetValue(improvementData.type, out float value))
+        int idx = PolibData.FindData(Parse.polibImprovementDatas, improvementData.type);
+        if(idx >= 0)
         {
-            __result += value;
+            float? value = Parse.polibImprovementDatas[idx].aiScore;
+            if(value != null) __result += (float)value;
+            Main.modLogger.LogMessage("Aiscore: " + (float)value);
         }
     }
 
@@ -342,7 +350,7 @@ public static class ImprovementManager
     [HarmonyPatch(typeof(BuildingUtils), nameof(BuildingUtils.GetInfo))]
     public static void SetImprovementInfo(ref string __result, pbb.SkinType skinOfCurrentLocalPlayer, ImprovementData improvementData, ImprovementState improvementState = null, PlayerState owner = null, TileData tileData = null)
     {
-        if (Parse.ImpCustomLocKey.TryGetValue(improvementData.type, out var key))
+        if (Parsing.Parse.ImpCustomLocKey.TryGetValue(improvementData.type, out var key))
         {
             __result = Localization.GetSkinned(skinOfCurrentLocalPlayer, key, new Il2CppReferenceArray<Il2CppSystem.Object>(null));
         }

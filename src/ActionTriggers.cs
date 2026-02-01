@@ -60,7 +60,7 @@ public static class ActionTriggers
     [HarmonyPatch(typeof(BuildAction), nameof(BuildAction.ExecuteDefault))]
     private static void BuildTriggers(BuildAction __instance, GameState gameState)
     {
-        if (Parse.improvementTriggers.TryGetValue(__instance.Type, out var dict))
+        if (Parsing.Parse.improvementTriggers.TryGetValue(__instance.Type, out var dict))
         {
             if (dict.TryGetValue("onBuild", out string name))
             {
@@ -81,7 +81,7 @@ public static class ActionTriggers
 
         List<ActionData> stack = new List<ActionData>();
 
-        if (Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
+        if (Parsing.Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
         {
             if (unitdict.TryGetValue("onMove", out string name))
             {
@@ -106,7 +106,7 @@ public static class ActionTriggers
         
         foreach (UnitAbility.Type type in unit.UnitData.unitAbilities)
         {
-            if (Parse.unitAbilityTriggers.TryGetValue(type, out var abilityDict))
+            if (Parsing.Parse.unitAbilityTriggers.TryGetValue(type, out var abilityDict))
             {
                 if (abilityDict.TryGetValue("onMove", out string name))
                 {
@@ -132,7 +132,7 @@ public static class ActionTriggers
 
         foreach (UnitEffect type in unit.effects)
         {
-            if (Parse.unitEffectTriggers.TryGetValue(type, out var effectDict))
+            if (Parsing.Parse.unitEffectTriggers.TryGetValue(type, out var effectDict))
             {
                 if (effectDict.TryGetValue("onMove", out string name))
                 {
@@ -160,7 +160,7 @@ public static class ActionTriggers
         TribeData tribe = gameState.GameLogicData.GetTribeData(player.tribe);
         foreach (TribeAbility.Type ability in tribe.tribeAbilities)
         {
-            if (Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
+            if (Parsing.Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
             {
                 if (tribeAbilitydict.TryGetValue("onMove", out string name))
                 {
@@ -188,7 +188,7 @@ public static class ActionTriggers
         {
             if (GameManager.GameState.Map.GetTile(coords).improvement == null) continue;
             
-            if (Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(coords).improvement.type, out var impdict))
+            if (Parsing.Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(coords).improvement.type, out var impdict))
             {
                 if (impdict.TryGetValue("onStep", out string name))
                 {
@@ -199,7 +199,7 @@ public static class ActionTriggers
 
         if (GameManager.GameState.Map.GetTile(__instance.Path[0]).improvement != null)
         {
-            if (Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(__instance.Path[0]).improvement.type, out var impdict1))
+            if (Parsing.Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(__instance.Path[0]).improvement.type, out var impdict1))
             {
                 if (impdict1.TryGetValue("onLand", out string name))
                 {
@@ -225,7 +225,7 @@ public static class ActionTriggers
 
         foreach (UnitEffect effect in attacker.effects)
         {
-            if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            if (Parsing.Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
             {
                 if (effectDict.TryGetValue("onAttack_AtDefender", out string name3))
                 {
@@ -240,7 +240,7 @@ public static class ActionTriggers
 
         foreach (UnitEffect effect in defender.effects)
         {
-            if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            if (Parsing.Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
             {
                 if (effectDict.TryGetValue("onAttacked_AtDefender", out string name3))
                 {
@@ -253,7 +253,7 @@ public static class ActionTriggers
             }
         }
 
-        if (Parse.unitTriggers.TryGetValue(attacker.type, out var unitdict))
+        if (Parsing.Parse.unitTriggers.TryGetValue(attacker.type, out var unitdict))
         {
             if (unitdict.TryGetValue("onAttack_AtDefender", out string name1))
             {
@@ -265,7 +265,7 @@ public static class ActionTriggers
             }
         }
 
-        if (Parse.unitTriggers.TryGetValue(defender.type, out var unitdict1))
+        if (Parsing.Parse.unitTriggers.TryGetValue(defender.type, out var unitdict1))
         {
             if (unitdict1.TryGetValue("onAttacked_AtDefender", out string name1))
             {
@@ -279,7 +279,7 @@ public static class ActionTriggers
 
         foreach (UnitAbility.Type unitAbility in attacker.UnitData.unitAbilities)
         {
-            if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
+            if (Parsing.Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
             {
                 if (unitAbilitydict.TryGetValue("onAttack_AtDefender", out string name3))
                 {
@@ -294,7 +294,7 @@ public static class ActionTriggers
 
         foreach (UnitAbility.Type unitAbility in defender.UnitData.unitAbilities)
         {
-            if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
+            if (Parsing.Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
             {
                 if (unitAbilitydict.TryGetValue("onAttacked_AtDefender", out string name3))
                 {
@@ -312,7 +312,7 @@ public static class ActionTriggers
         TribeData atkTribe = state.GameLogicData.GetTribeData(attackPlayer.tribe);
         foreach (TribeAbility.Type ability in atkTribe.tribeAbilities)
         {
-            if (Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
+            if (Parsing.Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
             {
                 if (tribeAbilitydict.TryGetValue("onAttack_AtDefender", out string name3))
                 {
@@ -329,7 +329,7 @@ public static class ActionTriggers
         TribeData defTribe = state.GameLogicData.GetTribeData(defendPlayer.tribe);
         foreach (TribeAbility.Type ability in defTribe.tribeAbilities)
         {
-            if (Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
+            if (Parsing.Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
             {
                 if (tribeAbilitydict.TryGetValue("onAttack_AtDefender", out string name3))
                 {
@@ -361,7 +361,7 @@ public static class ActionTriggers
 
         UnitState unit = tile.unit;
 
-        if (Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
+        if (Parsing.Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
         {
             if (unitdict.TryGetValue("onKilled", out string name))
             {
@@ -371,7 +371,7 @@ public static class ActionTriggers
         
         foreach (UnitAbility.Type type in unit.UnitData.unitAbilities)
         {
-            if (Parse.unitAbilityTriggers.TryGetValue(type, out var abilityDict))
+            if (Parsing.Parse.unitAbilityTriggers.TryGetValue(type, out var abilityDict))
             {
                 if (abilityDict.TryGetValue("onKilled", out string name))
                 {
@@ -382,7 +382,7 @@ public static class ActionTriggers
 
         foreach (UnitEffect effect in unit.effects)
         {
-            if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            if (Parsing.Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
             {
                 if (effectDict.TryGetValue("onKilled", out string name))
                 {
@@ -411,7 +411,7 @@ public static class ActionTriggers
 
         List<ActionData> stack = new List<ActionData>();
 
-        if (Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
+        if (Parsing.Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
         {
             if (unitdict.TryGetValue("onMoveCommand", out string name))
             {
@@ -421,7 +421,7 @@ public static class ActionTriggers
 
         foreach (UnitAbility.Type unitAbility in unit.UnitData.unitAbilities)
         {
-            if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
+            if (Parsing.Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
             {
                 if (unitAbilitydict.TryGetValue("onMoveCommand", out string name))
                 {
@@ -432,7 +432,7 @@ public static class ActionTriggers
 
         foreach (UnitEffect effect in unit.effects)
         {
-            if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            if (Parsing.Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
             {
                 if (effectDict.TryGetValue("onMoveCommand", out string name))
                 {
@@ -460,7 +460,7 @@ public static class ActionTriggers
         {
             if (tile1.improvement == null) continue;
 
-            if (Parse.improvementTriggers.TryGetValue(tile1.improvement.type, out var impdict))
+            if (Parsing.Parse.improvementTriggers.TryGetValue(tile1.improvement.type, out var impdict))
             {
                 if (impdict.TryGetValue("onExpand", out string name))
                 {
@@ -474,7 +474,7 @@ public static class ActionTriggers
     [HarmonyPatch(typeof(CityRewardAction), nameof(CityRewardAction.Execute))]
     private static void CityRewardTriggers(CityRewardAction __instance, GameState state)
     {
-        if (Parse.rewardTriggers.TryGetValue(__instance.Reward, out var rewarddict))
+        if (Parsing.Parse.rewardTriggers.TryGetValue(__instance.Reward, out var rewarddict))
         {
             if (rewarddict.TryGetValue("onRewardChosen", out string name))
             {
@@ -492,7 +492,7 @@ public static class ActionTriggers
         UnitState unit = state.Map.GetTile(__instance.Coordinates).unit;
         if (unit == null) return;
         
-        if (Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
+        if (Parsing.Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
         {
             if (unitdict.TryGetValue("onCapture", out string name))
             {
@@ -502,7 +502,7 @@ public static class ActionTriggers
 
         foreach (UnitAbility.Type unitAbility in unit.UnitData.unitAbilities)
         {
-            if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
+            if (Parsing.Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
             {
                 if (unitAbilitydict.TryGetValue("onCapture", out string name))
                 {
@@ -513,7 +513,7 @@ public static class ActionTriggers
 
         foreach (UnitEffect effect in unit.effects)
         {
-            if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            if (Parsing.Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
             {
                 if (effectDict.TryGetValue("onCapture", out string name))
                 {
@@ -526,7 +526,7 @@ public static class ActionTriggers
         TribeData tribe = state.GameLogicData.GetTribeData(player.tribe);
         foreach (TribeAbility.Type ability in tribe.tribeAbilities)
         {
-            if (Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
+            if (Parsing.Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
             {
                 if (tribeAbilitydict.TryGetValue("onCapture", out string name))
                 {
@@ -552,7 +552,7 @@ public static class ActionTriggers
         UnitState unit = state.Map.GetTile(__instance.Coordinates).unit;
         if (unit == null) return true;
 
-        if (Parse.unitTriggers.TryGetValue(state.Map.GetTile(__instance.Coordinates).unit.type, out var unitdict))
+        if (Parsing.Parse.unitTriggers.TryGetValue(state.Map.GetTile(__instance.Coordinates).unit.type, out var unitdict))
         {
             if (unitdict.TryGetValue("onCapture_Override", out string name))
             {
@@ -563,7 +563,7 @@ public static class ActionTriggers
 
         foreach (UnitAbility.Type unitAbility in state.Map.GetTile(__instance.Coordinates).unit.UnitData.unitAbilities)
         {
-            if (Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
+            if (Parsing.Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
             {
                 if (unitAbilitydict.TryGetValue("onCapture_Override", out string name))
                 {
@@ -575,7 +575,7 @@ public static class ActionTriggers
 
         foreach (UnitEffect effect in state.Map.GetTile(__instance.Coordinates).unit.effects)
         {
-            if (Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            if (Parsing.Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
             {
                 if (effectDict.TryGetValue("onCapture", out string name))
                 {
@@ -589,7 +589,7 @@ public static class ActionTriggers
         TribeData tribe = state.GameLogicData.GetTribeData(player.tribe);
         foreach (TribeAbility.Type ability in tribe.tribeAbilities)
         {
-            if (Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
+            if (Parsing.Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
             {
                 if (tribeAbilitydict.TryGetValue("onCapture", out string name))
                 {

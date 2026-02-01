@@ -58,7 +58,7 @@ public static class CityRewardManager
         byte playerId = __instance.PlayerId;
         TileData tile = state.Map.GetTile(__instance.Coordinates);
 
-        if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+        if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
         {
             if (cityRewardData.addProduction != 0)
             {
@@ -151,16 +151,16 @@ public static class CityRewardManager
         }
         else { nubert!.LogInfo($"STUFF IS SERIOUSLY GNOMED"); } //fappy what?
 
-        foreach (CityReward reward in Parse.rewardList)
+        foreach (CityReward reward in Parsing.Parse.rewardList)
         {
-            if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+            if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
             {
                 if ((cityRewardData.level == level || (cityRewardData.persistence == "post" && cityRewardData.level <= level) || (cityRewardData.persistence == "pre" && cityRewardData.level >= level)) && !cityRewardData.hidden)
                 {
-                    if (Parse.cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
+                    if (Parsing.Parse.cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
                     {
                         int num2 = 0;
-                        foreach (Parse.CityRewardOverrideClass overrideClass in cityRewardOverrideClasses)
+                        foreach (Parsing.Parse.CityRewardOverrideClass overrideClass in cityRewardOverrideClasses)
                         {
                             if (overrideClass != null)
                             {
@@ -188,7 +188,7 @@ public static class CityRewardManager
         }
 
         List<CityReward> orderedlist = PolibUtils.ToSystemList(list);
-        System.Comparison<CityReward> comparison = (a, b) => Parse.cityRewardDict[a].order.CompareTo(Parse.cityRewardDict[b].order);
+        System.Comparison<CityReward> comparison = (a, b) => Parsing.Parse.cityRewardDict[a].order.CompareTo(Parsing.Parse.cityRewardDict[b].order);
 
         orderedlist.Sort(comparison);
 
@@ -279,16 +279,16 @@ public static class CityRewardManager
         }
         else { nubert!.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED"); }
 
-        foreach (CityReward reward in Parse.rewardList)
+        foreach (CityReward reward in Parsing.Parse.rewardList)
         {
-            if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+            if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
             {
                 if ((cityRewardData.level == level || (cityRewardData.persistence == "post" && cityRewardData.level <= level) || (cityRewardData.persistence == "pre" && cityRewardData.level >= level)) && !cityRewardData.hidden)
                 {
-                    if (Parse.cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
+                    if (Parsing.Parse.cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
                     {
                         int num2 = 0;
-                        foreach (Parse.CityRewardOverrideClass overrideClass in cityRewardOverrideClasses)
+                        foreach (Parsing.Parse.CityRewardOverrideClass overrideClass in cityRewardOverrideClasses)
                         {
                             if (overrideClass != null)
                             {
@@ -316,7 +316,7 @@ public static class CityRewardManager
             }
         }
         List<CityReward> orderedlist = PolibUtils.ToSystemList(list);
-        System.Comparison<CityReward> comparison = (a, b) => Parse.cityRewardDict[a].order.CompareTo(Parse.cityRewardDict[b].order);
+        System.Comparison<CityReward> comparison = (a, b) => Parsing.Parse.cityRewardDict[a].order.CompareTo(Parsing.Parse.cityRewardDict[b].order);
 
         orderedlist.Sort(comparison);
 

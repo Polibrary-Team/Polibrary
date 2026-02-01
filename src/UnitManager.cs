@@ -55,13 +55,13 @@ public static class UnitManager
 
         if (tile.improvement == null) return;
 
-        if (tile.owner == unit.owner && Parse.improvementDefenceBoost.TryGetValue(tile.improvement.type, out int i))
+        if (tile.owner == unit.owner && Parsing.Parse.improvementDefenceBoost.TryGetValue(tile.improvement.type, out int i))
         {
             defence = i;
             change = true;
         }
 
-        if (Parse.freelanceImprovementDefenceBoostDict.TryGetValue(tile.improvement.type, out int j))
+        if (Parsing.Parse.freelanceImprovementDefenceBoostDict.TryGetValue(tile.improvement.type, out int j))
         {
             defence = j;
             change = true;
@@ -71,7 +71,7 @@ public static class UnitManager
         {
             foreach (CityReward reward in tile.improvement.rewards)
             {
-                if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
                 {
                     if (cityRewardData.defenceBoost != -1)
                     {
@@ -96,7 +96,7 @@ public static class UnitManager
         {
             foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unit.type))
             {
-                if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
                 {
                     __result += cityRewardData.boostDefenceOverSpawn * num * 10;
                 }
@@ -105,7 +105,7 @@ public static class UnitManager
         
         foreach (UnitEffect effect in unit.effects)
         {
-            if (Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
+            if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
             {
                 if (effectData.additives.TryGetValue("defence", out int add))
                 {
@@ -127,7 +127,7 @@ public static class UnitManager
         {
             foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitState.type))
             {
-                if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
                 {
                     __result += cityRewardData.boostMovementOverSpawn * num;
                 }
@@ -135,7 +135,7 @@ public static class UnitManager
         }
         foreach (UnitEffect effect in unitState.effects)
         {
-            if (Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
+            if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
             {
                 if (effectData.additives.TryGetValue("movement", out int add))
                 {
@@ -164,7 +164,7 @@ public static class UnitManager
         {
             foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitState.type))
             {
-                if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
                 {
                     __result += cityRewardData.boostAttackOverSpawn * num * 10;
                 }
@@ -173,7 +173,7 @@ public static class UnitManager
         
         foreach (UnitEffect effect in unitState.effects)
         {
-            if (Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
+            if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
             {
                 if (effectData.additives.TryGetValue("attack", out int add))
                 {
@@ -193,7 +193,7 @@ public static class UnitManager
     {   
         foreach (UnitEffect effect in unitState.effects)
         {
-            if (Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
+            if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
             {
                 if (effectData.additives.TryGetValue("range", out int add))
                 {
@@ -215,7 +215,7 @@ public static class UnitManager
         {
             foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitState.type))
             {
-                if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
                 {
                     __result += cityRewardData.boostMaxHpOverSpawn * num;
                 }
@@ -229,9 +229,9 @@ public static class UnitManager
     {
         foreach (UnitEffect effect in __instance.UnitState.effects)
         {
-            if (Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
+            if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
             {
-                if (Parse.vanillaUnitEffects.Contains(effect)) continue;
+                if (Parsing.Parse.vanillaUnitEffects.Contains(effect)) continue;
                 
                 foreach (SkinVisualsReference.VisualPart visualPart in __instance.skinVisuals.visualParts)
                 {
@@ -567,7 +567,7 @@ public static class UnitManager
         if (unit == null) return;
         gameState.TryGetPlayer(playerId, out var owner);
 
-        if (Parse.unitDataTargets.TryGetValue(unit.UnitData.type, out var unitDataTargetList))
+        if (Parsing.Parse.unitDataTargets.TryGetValue(unit.UnitData.type, out var unitDataTargetList))
         {
             foreach (TileData tile in area)
             {
@@ -597,7 +597,7 @@ public static class UnitManager
 
         foreach (UnitAbility.Type ability in unit.UnitData.unitAbilities)
         {
-            if (Parse.unitAbilityTargets.TryGetValue(ability, out var targetList))
+            if (Parsing.Parse.unitAbilityTargets.TryGetValue(ability, out var targetList))
             {
                 foreach (TileData tile in area)
                 {
@@ -628,7 +628,7 @@ public static class UnitManager
 
         foreach (UnitEffect effect in unit.effects)
         {
-            if (Parse.unitEffectTargets.TryGetValue(effect, out var targetList))
+            if (Parsing.Parse.unitEffectTargets.TryGetValue(effect, out var targetList))
             {
                 foreach (TileData tile in area)
                 {

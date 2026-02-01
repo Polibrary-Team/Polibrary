@@ -485,7 +485,7 @@ public class pAction
     {
         string name = ParseString(s);
 
-        if (Parse.actions.TryGetValue(name, out pAction action))
+        if (Parsing.Parse.actions.TryGetValue(name, out pAction action))
         {
             LogError("CallAction", $"Couldn't find action '{name}'");
             return;
@@ -498,7 +498,7 @@ public class pAction
     {
         string name = ParseString(s);
 
-        if (Parse.actions.TryGetValue(name, out pAction action))
+        if (Parsing.Parse.actions.TryGetValue(name, out pAction action))
         {
             LogError("CallAction", $"Couldn't find action '{name}'");
             return;
@@ -512,7 +512,7 @@ public class pAction
         string name = ParseString(s);
         WorldCoordinates wcoords = ParseWcoords(swcoords);
 
-        if (Parse.actions.TryGetValue(name, out pAction action))
+        if (Parsing.Parse.actions.TryGetValue(name, out pAction action))
         {
             LogError("CallAction", $"Couldn't find action '{name}'");
             return;

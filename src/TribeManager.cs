@@ -52,7 +52,7 @@ public static class TribeManager
         {
             TribeData tribeData;
             gameState.GameLogicData.TryGetData(playerState.tribe, out tribeData);
-            if (string.IsNullOrEmpty(playerState.GetNameInternal()) && Parse.leaderNameDict.TryGetValue(tribeData.type, out string name))
+            if (string.IsNullOrEmpty(playerState.GetNameInternal()) && Parsing.Parse.leaderNameDict.TryGetValue(tribeData.type, out string name))
             {
                 playerState.UserName = name;
             }

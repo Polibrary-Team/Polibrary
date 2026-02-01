@@ -7,6 +7,7 @@ using UnityEngine;
 
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using pbb = PolytopiaBackendBase.Common;
+using Polibrary.Parsing;
 
 
 namespace Polibrary;
@@ -100,9 +101,9 @@ public static class PolibUtils
     public static CityReward[] GetSpawningRewardsForUnit(UnitData.Type unit)
     {
         List<CityReward> list = new List<CityReward>();
-        foreach (CityReward reward in Parse.rewardList)
+        foreach (CityReward reward in Parsing.Parse.rewardList)
         {
-            if (Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+            if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
             {
                 if (cityRewardData.unitType == unit)
                 {
@@ -112,21 +113,21 @@ public static class PolibUtils
         }
         return ArrayFromListSystem(list);
     }
-    public static Parse.PolibCityRewardData GetRewardData(CityReward reward)
+    public static Parsing.Parse.PolibCityRewardData GetRewardData(CityReward reward)
     {
-        Parse.cityRewardDict.TryGetValue(reward, out var data);
+        Parsing.Parse.cityRewardDict.TryGetValue(reward, out var data);
         return data;
     }
 
 
-    public static Parse.PolibCityRewardData SetVanillaCityRewardDefaults(CityReward reward) //dont laugh // Wtf??? I will laugh >:)
+    public static Parsing.Parse.PolibCityRewardData SetVanillaCityRewardDefaults(CityReward reward) //dont laugh // Wtf??? I will laugh >:)
     {
-        Parse.PolibCityRewardData rewardData = new Parse.PolibCityRewardData();
+        Parsing.Parse.PolibCityRewardData rewardData = new Parsing.Parse.PolibCityRewardData();
         switch (reward)
         {
             case CityReward.Workshop:
                 {
-                    rewardData = new Parse.PolibCityRewardData
+                    rewardData = new Parsing.Parse.PolibCityRewardData
                     {
                         addProduction = 1,
                         level = 1,
@@ -136,7 +137,7 @@ public static class PolibUtils
                 }
             case CityReward.Explorer:
                 {
-                    rewardData = new Parse.PolibCityRewardData
+                    rewardData = new Parsing.Parse.PolibCityRewardData
                     {
                         scoutSpawnAmount = 1,
                         scoutMoveAmount = 15,
@@ -147,7 +148,7 @@ public static class PolibUtils
                 }
             case CityReward.Resources:
                 {
-                    rewardData = new Parse.PolibCityRewardData
+                    rewardData = new Parsing.Parse.PolibCityRewardData
                     {
                         currencyReward = 5,
                         level = 2,
@@ -157,7 +158,7 @@ public static class PolibUtils
                 }
             case CityReward.CityWall:
                 {
-                    rewardData = new Parse.PolibCityRewardData
+                    rewardData = new Parsing.Parse.PolibCityRewardData
                     {
                         defenceBoost = 40,
                         level = 2,
@@ -167,7 +168,7 @@ public static class PolibUtils
                 }
             case CityReward.PopulationGrowth:
                 {
-                    rewardData = new Parse.PolibCityRewardData
+                    rewardData = new Parsing.Parse.PolibCityRewardData
                     {
                         populationReward = 3,
                         level = 3,
@@ -177,7 +178,7 @@ public static class PolibUtils
                 }
             case CityReward.BorderGrowth:
                 {
-                    rewardData = new Parse.PolibCityRewardData
+                    rewardData = new Parsing.Parse.PolibCityRewardData
                     {
                         borderGrowthAmount = 1,
                         level = 3,
@@ -187,7 +188,7 @@ public static class PolibUtils
                 }
             case CityReward.Park:
                 {
-                    rewardData = new Parse.PolibCityRewardData
+                    rewardData = new Parsing.Parse.PolibCityRewardData
                     {
                         addProduction = 1,
                         scoreReward = 250,
@@ -199,7 +200,7 @@ public static class PolibUtils
                 }
             case CityReward.SuperUnit:
                 {
-                    rewardData = new Parse.PolibCityRewardData
+                    rewardData = new Parsing.Parse.PolibCityRewardData
                     {
                         unitType = UnitData.Type.Giant, //i really like that I dont have to account for unitOverride
                         level = 4,
@@ -297,9 +298,9 @@ public static class PolibUtils
     }
 
 
-    public static Parse.PolibUnitEffectData SetVanillaUnitEffectDefaults(UnitEffect effect)
+    public static Parsing.Parse.PolibUnitEffectData SetVanillaUnitEffectDefaults(UnitEffect effect)
     {
-        Parse.PolibUnitEffectData effectData = new Parse.PolibUnitEffectData();
+        Parsing.Parse.PolibUnitEffectData effectData = new Parsing.Parse.PolibUnitEffectData();
         switch (effect)
         {
             case UnitEffect.Boosted:
@@ -533,7 +534,7 @@ public static class PolibUtils
         if (tile == null || tile.improvement == null) return false;
         ImprovementData data = PolibUtils.DataFromState(tile.improvement, GameManager.GameState);
         bool UnitCanBeBlocked = true;
-        if (Parse.UnblockDict.TryGetValue(data.type, out string value))
+        if (Parsing.Parse.UnblockDict.TryGetValue(data.type, out string value))
         {
             if (unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(value)))
             {
@@ -572,6 +573,39 @@ public static class PolibUtils
 
 
     #region ParseUtils
+
+    public static void ParseIntoClassPerEach<targetType, T, T2>(JObject rootObject, string categoryName, string fieldName, List<T2> list, Func<T2> factory) where targetType : struct, System.IConvertible
+    {
+        foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
+        {
+            JObject token = jtoken.TryCast<JObject>();
+            if (token != null)
+            {
+                if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
+                {
+                    if (token[fieldName] != null)
+                    {
+                        T v = token[fieldName]!.ToObject<T>();
+                        int idx = PolibData.FindData<T2, targetType>(list, type);
+                        if(idx >= 0)
+                        {
+                           PolibData.SetForList<T2, T>(list, fieldName, idx, v);
+                           Main.modLogger.LogMessage($"Added to existing class in list: {type.ToString()} because of value {v} in field {fieldName}");
+                        }
+                        else
+                        {
+                            T2 newone = factory();
+                            list.Add(newone);
+                            PolibData.SetForList<T2, targetType>(list, "type", list.Count -1, type);
+                            PolibData.SetForList<T2, T>(list, fieldName, list.Count -1, v);
+                            Main.modLogger.LogMessage($"Added a new class to list: {type.ToString()} because of value {v} in field {fieldName}");
+                        }
+                        token.Remove(fieldName);
+                    }
+                }
+            }
+        }
+    }
 
     public static void ParsePerEach<targetType, T>(JObject rootObject, string categoryName, string fieldName, Dictionary<targetType, T> dict)
         where targetType : struct, System.IConvertible
@@ -722,7 +756,7 @@ public static class PolibUtils
 
     public static void RunAction(string name, WorldCoordinates coordinates, byte ownerPlayer)
     {
-        if (Parse.actions.TryGetValue(name, out pAction refaction))
+        if (Parsing.Parse.actions.TryGetValue(name, out pAction refaction))
         {
             pAction action = new pAction(refaction);
             action.ActionOrigin = coordinates;
@@ -738,7 +772,7 @@ public static class PolibUtils
 
     public static void RunChildAction(string name, WorldCoordinates coordinates, byte ownerPlayer, Dictionary<string, object> variables)
     {
-        if (Parse.actions.TryGetValue(name, out pAction refaction))
+        if (Parsing.Parse.actions.TryGetValue(name, out pAction refaction))
         {
             pAction action = new pAction(refaction);
             action.ActionOrigin = coordinates;
