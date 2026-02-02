@@ -506,16 +506,16 @@ public static class PolibUtils
     // Movement Filters: Return TRUE if tile is invalid
     public static bool IsTileWaterForHydrophobics(TileData tile, UnitState unit)
     {
-        if(tile == null) return false;
+        if (tile == null) return false;
         if (!unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_cantembark"))) return false;
         return tile.IsWater;
     }
     public static bool IsTileOutOfBounds(TileData tile, UnitState unit)
     {
-        if(tile == null) return false;
+        if (tile == null) return false;
         if (!unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_bounded")) && !unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_homesick"))) return false;
         Il2Gen.List<TileData> citytiles;
-        if(unit.home != WorldCoordinates.NULL_COORDINATES) citytiles = ActionUtils.GetCityArea(GameManager.GameState, GameManager.GameState.Map.GetTile(unit.home));
+        if (unit.home != WorldCoordinates.NULL_COORDINATES) citytiles = ActionUtils.GetCityArea(GameManager.GameState, GameManager.GameState.Map.GetTile(unit.home));
         else citytiles = new Il2Gen.List<TileData>(); // Necessary nullcheck for independent units
         var owner = unit.owner;
         if (unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_bounded")))
@@ -525,7 +525,7 @@ public static class PolibUtils
             {
                 if (citytile.coordinates == tile.coordinates) iscitytile = true;
             }
-            if(!iscitytile) return true;
+            if (!iscitytile) return true;
         }
         else if (tile.owner != owner) return true;
         return false;
@@ -536,13 +536,10 @@ public static class PolibUtils
         if (tile == null || tile.improvement == null) return false;
         ImprovementData data = PolibUtils.DataFromState(tile.improvement, GameManager.GameState);
         bool UnitCanBeBlocked = true;
-        if (Parsing.Parse.UnblockDict.TryGetValue(data.type, out string value))
-        {
-            if (unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(value)))
-            {
-                UnitCanBeBlocked = false;
-            }
-        }
+        int idx = PolibData.FindData(Parse.polibImprovementDatas, data.type);
+        var ability = Parse.polibImprovementDatas[idx].unblock;
+        if(idx >= 0 && ability != null && unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(ability)))
+            UnitCanBeBlocked = false;
 
         if (data != null && data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_block")) && UnitCanBeBlocked)
         {
@@ -561,9 +558,9 @@ public static class PolibUtils
             {
                 TileData tile = GameManager.GameState.Map.GetTile(possibilities[i]);
                 bool CanStepHere = true;
-                foreach(var f in filters)
+                foreach (var f in filters)
                 {
-                    if(f(tile, unit)) CanStepHere = false;
+                    if (f(tile, unit)) CanStepHere = false;
                 }
                 if (CanStepHere) newlist.Add(possibilities[i]);
             }
@@ -576,7 +573,33 @@ public static class PolibUtils
 
     #region ParseUtils
 
-    public static void ParseIntoClassPerEach<targetType, T, T2>(JObject rootObject, string categoryName, string fieldName, List<T2> list, Func<T2> factory) where targetType : struct, System.IConvertible
+    public static void ParseIntoClassPerArray<PDataType, targetType, listType>(JObject rootObject, string categoryName, string fieldName, List<PDataType> list, Func<PDataType> factory) where targetType : struct, System.IConvertible where listType : struct, System.IConvertible
+    {
+        foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
+        {
+            JObject token = jtoken.TryCast<JObject>();
+            if (token != null)
+            {
+                if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
+                {
+                    int idx = PolibData.FindData(list, type);
+                    if(idx == -1)
+                    {
+                        PDataType newone = factory();
+                        list.Add(newone);
+                        PolibData.OverrideField(list, "type", list.Count - 1, type);
+                        idx = list.Count -1;
+                    }
+                    if (token[fieldName] != null)
+                    {
+                        PolibData.OverrideField(list, fieldName, idx, PolibUtils.ParseEnumsToSysList<listType>(token[fieldName]));
+                    }
+                }
+            }
+        }
+    }
+
+    public static void ParseIntoClassPerEach<targetType, T, PDataType>(JObject rootObject, string categoryName, string fieldName, List<PDataType> list, Func<PDataType> factory) where targetType : struct, System.IConvertible
     {
         foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
         {
@@ -588,18 +611,18 @@ public static class PolibUtils
                     if (token[fieldName] != null)
                     {
                         T v = token[fieldName]!.ToObject<T>();
-                        int idx = PolibData.FindData<T2, targetType>(list, type);
-                        if(idx >= 0)
+                        int idx = PolibData.FindData<PDataType, targetType>(list, type);
+                        if (idx >= 0)
                         {
-                           PolibData.SetForList<T2, T>(list, fieldName, idx, v);
-                           Main.modLogger.LogMessage($"Added to existing class in list: {type.ToString()} because of value {v} in field {fieldName}");
+                            PolibData.OverrideField<PDataType, T>(list, fieldName, idx, v);
+                            Main.modLogger.LogMessage($"Added to existing class in list: {type.ToString()} because of value {v} in field {fieldName}");
                         }
                         else
                         {
-                            T2 newone = factory();
+                            PDataType newone = factory();
                             list.Add(newone);
-                            PolibData.SetForList<T2, targetType>(list, "type", list.Count -1, type);
-                            PolibData.SetForList<T2, T>(list, fieldName, list.Count -1, v);
+                            PolibData.OverrideField<PDataType, targetType>(list, "type", list.Count - 1, type);
+                            PolibData.OverrideField<PDataType, T>(list, fieldName, list.Count - 1, v);
                             Main.modLogger.LogMessage($"Added a new class to list: {type.ToString()} because of value {v} in field {fieldName}");
                         }
                         token.Remove(fieldName);
@@ -644,7 +667,7 @@ public static class PolibUtils
                     if (token[fieldName] != null)
                     {
                         if (EnumCache<T>.TryGetType(token[fieldName].ToObject<string>(), out var v))
-                        dict[type] = v;
+                            dict[type] = v;
                         token.Remove(fieldName);
                     }
                 }
@@ -738,7 +761,7 @@ public static class PolibUtils
         }
     }
 
-    public static Dictionary<string,V> ParseStringDict<V>(JToken jtoken)
+    public static Dictionary<string, V> ParseStringDict<V>(JToken jtoken)
     {
         JObject token = jtoken.TryCast<JObject>();
         Dictionary<string, V> dict = new Dictionary<string, V>();

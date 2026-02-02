@@ -7,6 +7,7 @@ using Il2CppSystem.Linq;
 
 using pbb = PolytopiaBackendBase.Common;
 using Steamworks.Data;
+using MS.Internal.Xml.XPath;
 
 
 namespace Polibrary.Parsing;
@@ -19,15 +20,11 @@ public static class Parse
         Harmony.CreateAndPatchAll(typeof(Parse));
         LogMan1997 = logger;
     }
-    public static List<Parsing.PolibImprovementData> polibImprovementDatas = new();
+    public static List<PolibImprovementData> polibImprovementDatas = new();
 
-    public static Dictionary<ImprovementData.Type, string> BuildersDict = new Dictionary<ImprovementData.Type, string>();
-    public static Dictionary<ImprovementData.Type, string> NoBuildersDict = new Dictionary<ImprovementData.Type, string>();
     //public static Dictionary<ImprovementData.Type, string> ImpBuildersDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<ImprovementData.Type, string> ImpCustomLocKey = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<pbb.TribeType, string> leaderNameDict = new Dictionary<pbb.TribeType, string>();
-    public static Dictionary<ImprovementData.Type, int> improvementDefenceBoost = new Dictionary<ImprovementData.Type, int>();
-    public static Dictionary<ImprovementData.Type, int> freelanceImprovementDefenceBoostDict = new Dictionary<ImprovementData.Type, int>();
     //public static Dictionary<ImprovementData.Type, float> AIScoreDict = new Dictionary<ImprovementData.Type, float>();
     public class PolibCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
     {
@@ -84,11 +81,6 @@ public static class Parse
     public static Dictionary<TribeAbility.Type, Dictionary<string/*trigger*/, string/*action*/>> tribeAbilityTriggers = new Dictionary<TribeAbility.Type, Dictionary<string, string>>();
     public static Dictionary<UnitEffect, Dictionary<string/*trigger*/, string/*action*/>> unitEffectTriggers = new Dictionary<UnitEffect, Dictionary<string, string>>();
     public static Dictionary<CityReward, Dictionary<string/*trigger*/, string/*action*/>> rewardTriggers = new Dictionary<CityReward, Dictionary<string, string>>();
-    public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityWhitelist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
-    public static Dictionary<ImprovementData.Type, List<UnitAbility.Type>> unitAbilityBlacklist = new Dictionary<ImprovementData.Type, List<UnitAbility.Type>>();
-    public static Dictionary<ImprovementData.Type, List<UnitData.Type>> unitWhitelist = new Dictionary<ImprovementData.Type, List<UnitData.Type>>();
-    public static Dictionary<ImprovementData.Type, List<UnitData.Type>> unitBlacklist = new Dictionary<ImprovementData.Type, List<UnitData.Type>>();
-    public static Dictionary<ImprovementData.Type, string> UnblockDict = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<UnitData.Type, List<string>> unitDataTargets = new Dictionary<UnitData.Type, List<string>>();
     public static Dictionary<UnitAbility.Type, List<string>> unitAbilityTargets = new Dictionary<UnitAbility.Type, List<string>>();
     public static Dictionary<UnitEffect, List<string>> unitEffectTargets = new Dictionary<UnitEffect, List<string>>();
@@ -102,13 +94,13 @@ public static class Parse
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
     private static void GameLogicData_Parse(GameLogicData __instance, JObject rootObject) //in this world, its analfuck, or be analfucked
     {
-        System.Func<PolibImprovementData> factory = () => new PolibImprovementData();
+        System.Func<PolibImprovementData> impDataFactory = () => new PolibImprovementData();
         PolibUtils.ParsePerEach(rootObject, "tribeData", "leaderName", leaderNameDict);
-        PolibUtils.ParsePerEach(rootObject, "improvementData", "defenceBoost", improvementDefenceBoost);
-        PolibUtils.ParsePerEach(rootObject, "improvementData", "defenceBoost_Neutral", freelanceImprovementDefenceBoostDict);
-        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, float, PolibImprovementData>(rootObject, "improvementData", "aiScore", polibImprovementDatas, factory);
-        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "builtOnSpecific", polibImprovementDatas, factory);
-        PolibUtils.ParsePerEach(rootObject, "improvementData", "unblock", UnblockDict);
+        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, int, PolibImprovementData>(rootObject, "improvementData", "defenceBoost", polibImprovementDatas, impDataFactory);
+        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, int, PolibImprovementData>(rootObject, "improvementData", "defenceBoost_Neutral", polibImprovementDatas, impDataFactory);
+        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, float, PolibImprovementData>(rootObject, "improvementData", "aiScore", polibImprovementDatas, impDataFactory);
+        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "builtOnSpecific", polibImprovementDatas, impDataFactory);
+        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "unblock", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseListPerEach(rootObject, "unitData", "targets", unitDataTargets);
         PolibUtils.ParseListPerEach(rootObject, "unitAbility", "targets", unitAbilityTargets);
         PolibUtils.ParseListPerEach(rootObject, "unitEffectData", "targets", unitEffectTargets);
@@ -158,6 +150,10 @@ public static class Parse
         #endregion pActions
 
         #region Improvements
+        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(rootObject, "improvementData", "unitAbilityWhitelist", polibImprovementDatas, impDataFactory);
+        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(rootObject, "improvementData", "unitAbilityBlacklist", polibImprovementDatas, impDataFactory);
+        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(rootObject, "improvementData", "unitWhitelist", polibImprovementDatas, impDataFactory);
+        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(rootObject, "improvementData", "unitBlacklist", polibImprovementDatas, impDataFactory);
 
         foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
         {
@@ -166,25 +162,6 @@ public static class Parse
             {
                 if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
                 {
-                    if (token["unitAbilityWhitelist"] != null)
-                    {
-                        unitAbilityWhitelist[impType] = PolibUtils.ParseEnumsToSysList<UnitAbility.Type>(token["unitAbilityWhitelist"]);
-                    }
-                    
-                    if (token["unitAbilityBlacklist"] != null)
-                    {
-                        unitAbilityBlacklist[impType] = PolibUtils.ParseEnumsToSysList<UnitAbility.Type>(token["unitAbilityBlacklist"]);
-                    }
-
-                    if (token["unitWhitelist"] != null)
-                    {
-                        unitWhitelist[impType] = PolibUtils.ParseEnumsToSysList<UnitData.Type>(token["unitWhitelist"]);
-                    }
-                    
-                    if (token["unitBlacklist"] != null)
-                    {
-                        unitBlacklist[impType] = PolibUtils.ParseEnumsToSysList<UnitData.Type>(token["unitBlacklist"]);
-                    }
 
                     if (token["triggers"] != null)
                     {

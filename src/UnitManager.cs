@@ -28,6 +28,7 @@ using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using pbb = PolytopiaBackendBase.Common;
 using PolytopiaBackendBase;
+using Polibrary.Parsing;
 
 
 namespace Polibrary;
@@ -54,17 +55,19 @@ public static class UnitManager
         TileData tile = gameState.Map.GetTile(unit.coordinates);
 
         if (tile.improvement == null) return;
-
-        if (tile.owner == unit.owner && Parsing.Parse.improvementDefenceBoost.TryGetValue(tile.improvement.type, out int i))
+        int idx = PolibData.FindData(Parse.polibImprovementDatas, tile.improvement.type);
+        if(idx >= 0)
         {
-            defence = i;
-            change = true;
-        }
-
-        if (Parsing.Parse.freelanceImprovementDefenceBoostDict.TryGetValue(tile.improvement.type, out int j))
-        {
-            defence = j;
-            change = true;
+            if(tile.owner == unit.owner && Parse.polibImprovementDatas[idx].defenceBoost != null)
+            {
+                defence = (int)Parse.polibImprovementDatas[idx].defenceBoost;
+                change = true;
+            }
+            if(Parse.polibImprovementDatas[idx].defenceBoost_Neutral != null)
+            {
+                defence = (int)Parse.polibImprovementDatas[idx].defenceBoost_Neutral;
+                change = true;
+            }
         }
 
         if (tile.owner == unit.owner && tile.improvement.type == ImprovementData.Type.City && tile.improvement.rewards != null && unit.HasAbility(UnitAbility.Type.Fortify))

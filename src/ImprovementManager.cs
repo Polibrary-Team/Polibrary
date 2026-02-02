@@ -1,22 +1,10 @@
-using System.ComponentModel;
-using System.Globalization;
-using System.Runtime.CompilerServices;
 using BepInEx.Logging;
-using EnumsNET;
 using HarmonyLib;
-using Il2CppInterop.Runtime;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem;
-using Il2CppSystem.Linq.Expressions.Interpreter;
-using JetBrains.Annotations;
 using Polytopia.Data;
 
-using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using pbb = PolytopiaBackendBase.Common;
-using Il2CppSystem.Xml;
 using Polibrary.Parsing;
-using Il2CppMono.Security.Protocol.Ntlm;
 
 
 namespace Polibrary;
@@ -107,45 +95,17 @@ public static class ImprovementManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
-    public static void mBuiltBySpecific(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
-    {
-        if (__result == false) return;
-        if (Parsing.Parse.BuildersDict.TryGetValue(improvement.type, out string ability))
-        {
-            if (tile.unit == null)
-            {
-                __result = false;
-                return;
-            }
-            if (!tile.unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(ability)))
-            {
-                __result = false;
-            }
-        }
-        if (Parsing.Parse.NoBuildersDict.TryGetValue(improvement.type, out string ability2))
-        {
-            if (tile.unit == null)
-            {
-                __result = false;
-                return;
-            }
-            if (tile.unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(ability2)))
-            {
-                __result = false;
-            }
-        }
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
     public static void CheckImprovementPlaceability(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
     {
         if (__result == false) return;
-        Parsing.Parse.unitAbilityWhitelist.TryGetValue(improvement.type, out List<UnitAbility.Type> allowAbilityList);
-        Parsing.Parse.unitWhitelist.TryGetValue(improvement.type, out List<UnitData.Type> allowList);
-        Parsing.Parse.unitAbilityBlacklist.TryGetValue(improvement.type, out List<UnitAbility.Type> denyAbilityList);
-        Parsing.Parse.unitBlacklist.TryGetValue(improvement.type, out List<UnitData.Type> denyList);
+        int idx = PolibData.FindData<PolibImprovementData, ImprovementData.Type>(Parse.polibImprovementDatas, improvement.type);
+        if(idx < 0) return;
 
+        var allowAbilityList = Parse.polibImprovementDatas[idx].unitAbilityWhitelist;
+        var denyAbilityList = Parse.polibImprovementDatas[idx].unitAbilityBlacklist;
+        var allowList = Parse.polibImprovementDatas[idx].unitWhitelist;
+        var denyList = Parse.polibImprovementDatas[idx].unitBlacklist;
+        
         if (allowAbilityList == null && denyAbilityList == null && allowList == null && denyList == null) return;
         if (tile.unit == null)
         {

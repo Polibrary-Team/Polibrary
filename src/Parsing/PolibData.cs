@@ -13,6 +13,7 @@ public class PolibImprovementData
     public float? aiScore = null;
     public List<UnitAbility.Type> unitAbilityWhitelist = null;
     public List<UnitAbility.Type> unitAbilityBlacklist = null;
+    public int? defenceBoost_Neutral = null; //dpne
     public List<UnitData.Type> unitWhitelist = null;
     public List<UnitData.Type> unitBlacklist = null;
 
@@ -63,7 +64,7 @@ public class PolibData
     /// <param name="idx"></param>
     /// <param name="newValue"></param>
     /// <returns></returns>
-    public static bool SetForList<T1, T2>(List<T1> list, string fieldName, int idx, T2 newValue)
+    public static bool OverrideField<T1, T2>(List<T1> list, string fieldName, int idx, T2 newValue)
     {
         var item = list[idx];
         var field = item.GetType().GetField(fieldName);
