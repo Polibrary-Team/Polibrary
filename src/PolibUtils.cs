@@ -20,6 +20,7 @@ public static class PolibUtils
         Harmony.CreateAndPatchAll(typeof(PolibUtils));
         utilGuy = logger;
         //utilGuy.LogInfo("I ran out of ideas");
+        // btw we can just use Main.modLogger everywhere
     }
 
     #region Sys2Cpp Stuff
@@ -412,6 +413,7 @@ public static class PolibUtils
     }
 
     #region Unnecessary stuff
+    /*
     public static bool IsResourceVisibleToPlayer2ElectricBoogaloo(GameLogicData gld, ResourceData.Type resourceType, PlayerState player)
     {
         return gld.GetUnlockedImprovements(player).ContainsImprovementRequiredForResource(resourceType) || gld.GetUnlockableImprovements(player, GameManager.GameState).ContainsImprovementRequiredForResource(resourceType);
@@ -452,7 +454,7 @@ public static class PolibUtils
             return list;
         }
         return null;
-    }
+    }*/
 
     #endregion Unnecessary stuff
 

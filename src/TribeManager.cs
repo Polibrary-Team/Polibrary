@@ -33,14 +33,9 @@ namespace Polibrary;
 
 public static class TribeManager
 {
-    private static ManualLogSource wingLogster;
     public static void Load(ManualLogSource logger)
     {
         Harmony.CreateAndPatchAll(typeof(TribeManager));
-        wingLogster = logger;
-        //wingLogster.LogInfo("I'm wing gaster");
-        //wingLogster.LogInfo("UHH I MEAN");
-        //wingLogster.LogInfo("✋︎ ✂︎♌︎♏︎♐︎❒︎♓︎♏︎■︎♎︎♏︎♎︎✂︎ ⍓︎□︎◆︎❒︎ ❍︎□︎⧫︎♒︎♏︎❒︎ ●︎♋︎⬧︎⧫︎ ■︎♓︎♑︎♒︎⧫︎");
     }
 
     // Simpler than it seems, and it seems very simple (Fapingvin, 2025)
