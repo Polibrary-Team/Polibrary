@@ -564,7 +564,7 @@ public static class UnitManager
     {
         bool change = false;
 
-        Il2Gen.List<TileData> list = new Il2Gen.List<TileData>();
+        Il2Gen.List<TileData> finallist = new Il2Gen.List<TileData>();
         Il2Gen.List<TileData> area = gameState.Map.GetArea(position, range, allowDiagonal: true, includeCenter: false);
         UnitState unit = gameState.Map.GetTile(position).unit;
         if (unit == null) return;
@@ -572,6 +572,7 @@ public static class UnitManager
 
         if (Parsing.Parse.unitDataTargets.TryGetValue(unit.UnitData.type, out var unitDataTargetList))
         {
+            Il2Gen.List<TileData> list = new Il2Gen.List<TileData>();
             foreach (TileData tile in area)
             {
                 if (tile.unit == null && unitDataTargetList.Contains("empty"))
@@ -596,12 +597,14 @@ public static class UnitManager
                     continue;
                 }
             }
+            finallist = list;
         }
 
         foreach (UnitAbility.Type ability in unit.UnitData.unitAbilities)
         {
             if (Parsing.Parse.unitAbilityTargets.TryGetValue(ability, out var targetList))
             {
+                Il2Gen.List<TileData> list = new Il2Gen.List<TileData>();
                 foreach (TileData tile in area)
                 {
                     if (tile.unit == null && targetList.Contains("empty"))
@@ -626,6 +629,7 @@ public static class UnitManager
                         continue;
                     }
                 }
+                finallist = list;
             }
         }
 
@@ -633,6 +637,7 @@ public static class UnitManager
         {
             if (Parsing.Parse.unitEffectTargets.TryGetValue(effect, out var targetList))
             {
+                Il2Gen.List<TileData> list = new Il2Gen.List<TileData>();
                 foreach (TileData tile in area)
                 {
                     if (tile.unit == null && targetList.Contains("empty"))
@@ -657,6 +662,7 @@ public static class UnitManager
                         continue;
                     }
                 }
+                finallist = list;
             }
         }
 
@@ -664,7 +670,7 @@ public static class UnitManager
 
         if (change)
         {
-            foreach (TileData tile in list)
+            foreach (TileData tile in finallist)
             {
                 __result.Add(tile.coordinates);
             }
