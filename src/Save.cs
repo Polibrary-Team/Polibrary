@@ -186,7 +186,6 @@ public static class PolibSave
             string filePath = Path.Combine(DATA_PATH, $"State{seed}.json");
             if (!File.Exists(filePath))
             {
-                modLogger.LogInfo("state file doesnt exist");
                 continue;
             }
             filesToIgnore.Add(filePath);
