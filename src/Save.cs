@@ -5,6 +5,9 @@ using System.Text.Json.Serialization;
 using Polytopia.Data;
 using Polytopia.IO;
 using PolytopiaBackendBase.Common;
+using K4os.Compression.LZ4;
+using Il2CppInterop.Runtime.Runtime;
+using UnityEngine.Rendering;
 
 
 namespace Polibrary;
@@ -66,7 +69,7 @@ public static class PolibSave
             Main.polibGameState = new PolibGameState();
         }
 
-        SaveToCurrentState(Main.polibGameState, __instance.Seed);
+        SaveToState(Main.polibGameState, __instance.Seed);
         DeleteUnnecessaryShit();
     }
 
@@ -75,11 +78,11 @@ public static class PolibSave
     [HarmonyPatch(typeof(GameState), nameof(GameState.Deserialize))]
     private static void Load(GameState __instance, Il2CppSystem.IO.BinaryReader reader, int version)
     {
-        Main.polibGameState = LoadCurrentState(__instance.Seed);
+        Main.polibGameState = LoadState(__instance.Seed);
     }
 
 
-    private static void SaveToCurrentState(PolibGameState data, int Seed)
+    private static void SaveToState(PolibGameState data, int Seed)
     {
         string filePath = Path.Combine(DATA_PATH, $"State{Seed}.json");
 
@@ -113,7 +116,7 @@ public static class PolibSave
         );
     }
 
-    private static PolibGameState LoadCurrentState(int Seed)
+    private static PolibGameState LoadState(int Seed)
     {
         string filePath = Path.Combine(DATA_PATH, $"State{Seed}.json");
 
@@ -175,17 +178,12 @@ public static class PolibSave
 
         foreach (string file in files)
         {
-            if (!DiskSerializationHelpers.FromLZ4CompressedDisk<GameState>(file, out var state, out int version))
+            if (!GetSeed(file, out int seed))
             {
                 modLogger.LogInfo("deserialization unsuccessful");
                 continue;
             }
-            if (state == null)
-            {
-                modLogger.LogInfo("state is null uh oh");
-                continue;
-            }
-            string filePath = Path.Combine(DATA_PATH, $"State{state.Seed}.json");
+            string filePath = Path.Combine(DATA_PATH, $"State{seed}.json");
             if (!File.Exists(filePath))
             {
                 modLogger.LogInfo("state file doesnt exist");
@@ -201,5 +199,51 @@ public static class PolibSave
 
             File.Delete(file);
         }
+    }
+
+
+
+    private static bool GetSeed(string filename, out int seed)
+    {
+        seed = 0;
+        if (string.IsNullOrEmpty(filename) || !PolytopiaFile.Exists(filename))
+        {
+            return false;
+        }
+        try
+        {
+            byte[] array = PolytopiaFile.ReadAllBytes(filename);
+            byte[] array2 = LZ4Pickler.Unpickle(array);
+            if (array != null && array.Length != 0 && (array2 == null || array2.Length == 0))
+            {
+                throw new Exception("Failed to uncompress");
+            }
+
+            Il2CppSystem.IO.MemoryStream input = new Il2CppSystem.IO.MemoryStream(array2);
+            Il2CppSystem.IO.BinaryReader reader = new Il2CppSystem.IO.BinaryReader(input);
+
+            try
+            {
+                SerializationHelpers.ReadVersion(reader);
+                reader.ReadInt32();
+                reader.ReadUInt16();
+                reader.ReadUInt32();
+                reader.ReadByte();
+                reader.ReadUInt32();
+                reader.ReadByte();
+                seed = reader.ReadInt32();
+            }
+            finally
+            {
+                reader.Close();
+                input.Close();
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            modLogger.LogInfo($"shat pants: {ex.Message}");
+        }
+        return false;
     }
 }

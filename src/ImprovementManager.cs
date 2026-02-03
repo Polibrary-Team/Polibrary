@@ -297,7 +297,6 @@ public static class ImprovementManager
         {
             float? value = Parse.polibImprovementDatas[idx].aiScore;
             if(value != null) __result += (float)value;
-            Main.modLogger.LogMessage("Aiscore: " + (float)value);
         }
     }
 

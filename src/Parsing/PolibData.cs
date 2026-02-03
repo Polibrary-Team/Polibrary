@@ -3,13 +3,14 @@ using Polytopia.Data;
 namespace Polibrary.Parsing;
 
 // It is imperative that fields are called what the user calls them in patch.json
+//idk what imperative means but i totally agree, have been doing it since cityrewards
 public class PolibImprovementData
 {
     public ImprovementData.Type? type;
     public string builtOnSpecific = null;
     public string unblock = null;
     public int? defenceBoost = null;
-    public int? freelanceImprovementDefenceBoost = null; // didnt even know we had something like this
+    public int? freelanceImprovementDefenceBoost = null; // didnt even know we had something like this //honestly i completely forgot aswell lmao i think bananique asked for it once
     public float? aiScore = null;
     public List<UnitAbility.Type> unitAbilityWhitelist = null;
     public List<UnitAbility.Type> unitAbilityBlacklist = null;
@@ -33,6 +34,8 @@ public class PolibData
     /// <param name="list">List of PolibDatas to search in</param>
     /// <param name="type">The PolibData.type to search with</param>
     /// <returns>Returns -1 if not found, otherwise the index</returns>
+    
+    // ooh whats this?
     public static int FindData<T1, T2>(List<T1> list, T2 type)
     {
         for (int i = 0; i < list.Count; i++)
