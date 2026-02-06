@@ -577,7 +577,7 @@ public static class ActionTriggers
         {
             if (Parsing.Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
             {
-                if (effectDict.TryGetValue("onCapture", out string name))
+                if (effectDict.TryGetValue("onCapture_Override", out string name))
                 {
                     stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
                     flag = false;
@@ -591,7 +591,7 @@ public static class ActionTriggers
         {
             if (Parsing.Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
             {
-                if (tribeAbilitydict.TryGetValue("onCapture", out string name))
+                if (tribeAbilitydict.TryGetValue("onCapture_Override", out string name))
                 {
                     stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
                     flag = false;

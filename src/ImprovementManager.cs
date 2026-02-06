@@ -113,6 +113,8 @@ public static class ImprovementManager
         }
 
         bool value = false;
+        if (denyAbilityList != null || denyList != null) value = true;
+        if (allowAbilityList != null || allowList != null) value = false;
 
         foreach (UnitAbility.Type type in tile.unit.UnitData.unitAbilities)
         {
