@@ -21,11 +21,7 @@ public static class Parse
         LogMan1997 = logger;
     }
     public static List<PolibImprovementData> polibImprovementDatas = new();
-
-    //public static Dictionary<ImprovementData.Type, string> ImpBuildersDict = new Dictionary<ImprovementData.Type, string>();
-    public static Dictionary<ImprovementData.Type, string> ImpCustomLocKey = new Dictionary<ImprovementData.Type, string>();
     public static Dictionary<pbb.TribeType, string> leaderNameDict = new Dictionary<pbb.TribeType, string>();
-    //public static Dictionary<ImprovementData.Type, float> AIScoreDict = new Dictionary<ImprovementData.Type, float>();
     public class PolibCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
     {
         public int addProduction { get; set; }
@@ -101,6 +97,7 @@ public static class Parse
         PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, float, PolibImprovementData>(rootObject, "improvementData", "aiScore", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "builtOnSpecific", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "unblock", polibImprovementDatas, impDataFactory);
+        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "infoOverride", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseListPerEach(rootObject, "unitData", "targets", unitDataTargets);
         PolibUtils.ParseListPerEach(rootObject, "unitAbility", "targets", unitAbilityTargets);
         PolibUtils.ParseListPerEach(rootObject, "unitEffectData", "targets", unitEffectTargets);

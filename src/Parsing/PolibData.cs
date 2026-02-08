@@ -1,24 +1,35 @@
 using Polytopia.Data;
+using PolytopiaBackendBase.Common;
 
 namespace Polibrary.Parsing;
 
 // It is imperative that fields are called what the user calls them in patch.json
-//idk what imperative means but i totally agree, have been doing it since cityrewards
 public class PolibImprovementData
 {
     public ImprovementData.Type? type;
     public string builtOnSpecific = null;
     public string unblock = null;
+    public string infoOverride = null;
     public int? defenceBoost = null;
-    public int? freelanceImprovementDefenceBoost = null; // didnt even know we had something like this //honestly i completely forgot aswell lmao i think bananique asked for it once
+    public int? freelanceImprovementDefenceBoost = null;
     public float? aiScore = null;
     public List<UnitAbility.Type> unitAbilityWhitelist = null;
     public List<UnitAbility.Type> unitAbilityBlacklist = null;
-    public int? defenceBoost_Neutral = null; //dpne
+    public int? defenceBoost_Neutral = null;
     public List<UnitData.Type> unitWhitelist = null;
     public List<UnitData.Type> unitBlacklist = null;
 
     public PolibImprovementData()
+    {
+        type = null;
+    }
+}
+
+public class PolibTribeData
+{
+    public TribeType? type;
+    public string leaderName = null;
+    public PolibTribeData()
     {
         type = null;
     }

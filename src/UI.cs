@@ -27,6 +27,7 @@ using Il2CppSystem.Linq;
 
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
+using Polibrary.Parsing;
 
 namespace Polibrary;
 
@@ -39,5 +40,53 @@ public static class UI
         modLogger = logger;
     }
 
-    //insane
+    #region BuildingUI
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(InteractionBar), nameof(InteractionBar.AddUnitActionButtons))]
+    private static void TryShowCost(InteractionBar __instance, Il2Gen.List<CommandBase> availableActions)
+    {
+        if (__instance == null) return;
+        if (GameManager.LocalPlayer == null || GameManager.LocalPlayer.AutoPlay) return;
+        if (availableActions == null || availableActions.Count == 0) return;
+
+        var commands = availableActions.ToArray();
+        foreach (var command in commands)
+        {
+            BuildCommand buildCommand = command.TryCast<BuildCommand>();
+            if (buildCommand == null) continue;
+            if (!GameManager.GameState.GameLogicData.TryGetData(buildCommand.Type, out ImprovementData improvementData)) continue;
+
+            var refLoc = LocalizationUtils.CapitalizeString(Localization.Get(improvementData.displayName));
+            var buttons = __instance.buttons.ToArray();
+            foreach (var button in buttons)
+            {
+                if (button.text == refLoc)
+                {
+
+                    if (buildCommand != null && improvementData.cost > 0)
+                    {
+                        button.Cost = improvementData.cost;
+                        button.ShowLabel = true;
+                        button.m_showLabelBackground = true;
+                        button.UpdateLabelVisibility();
+                    }
+                }
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(BuildingUtils), nameof(BuildingUtils.GetInfo))]
+    private static void InfoOverride(ref string __result, PolytopiaBackendBase.Common.SkinType skinOfCurrentLocalPlayer, ImprovementData improvementData, ImprovementState improvementState = null, PlayerState owner = null, TileData tileData = null)
+    {
+        var index = PolibData.FindData(Parsing.Parse.polibImprovementDatas, improvementData.type);
+        if(index != -1)
+        {
+            string overr = Parse.polibImprovementDatas[index].infoOverride;
+            if(overr != null)
+                __result = Localization.Get(overr);
+        }
+    }
+    #endregion
 }

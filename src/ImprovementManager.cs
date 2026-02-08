@@ -247,43 +247,6 @@ public static class ImprovementManager
 
     #endregion
 
-    #region UI
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(InteractionBar), nameof(InteractionBar.AddUnitActionButtons))]
-    public static void TryShowCost(InteractionBar __instance, Il2Gen.List<CommandBase> availableActions)
-    {
-        if (__instance == null) return;
-        if (GameManager.LocalPlayer == null || GameManager.LocalPlayer.AutoPlay) return;
-        if (availableActions == null || availableActions.Count == 0) return;
-
-        var commands = availableActions.ToArray();
-        foreach (var command in commands)
-        {
-            BuildCommand buildCommand = command.TryCast<BuildCommand>();
-            if (buildCommand == null) continue;
-            if (!GameManager.GameState.GameLogicData.TryGetData(buildCommand.Type, out ImprovementData improvementData)) continue;
-
-            var refLoc = LocalizationUtils.CapitalizeString(Localization.Get(improvementData.displayName));
-            var buttons = __instance.buttons.ToArray();
-            foreach (var button in buttons)
-            {
-                if (button.text == refLoc)
-                {
-
-                    if (buildCommand != null && improvementData.cost > 0)
-                    {
-                        button.Cost = improvementData.cost;
-                        button.ShowLabel = true;
-                        button.m_showLabelBackground = true;
-                        button.UpdateLabelVisibility();
-                    }
-                }
-            }
-        }
-    }
-    #endregion
-
     #region AI
 
     [HarmonyPostfix]
