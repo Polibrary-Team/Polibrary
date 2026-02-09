@@ -619,7 +619,7 @@ public class pAction
 
         if (!IsVariable<bool>(variable, out var obj))
         {
-            LogError("IsUnit", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
+            LogError("Has", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
             return;
         }
 
