@@ -1,3 +1,4 @@
+using System.Reflection;
 using Polytopia.Data;
 using PolytopiaBackendBase.Common;
 
@@ -37,6 +38,39 @@ public class PolibTribeData
 
 public class PolibData
 {
+
+    /// <summary>
+    /// Tries to get a specific field's data. Return true if successful, false otherwise.
+    /// </summary>
+    /// <typeparam name="T1">PolibData list type</typeparam>
+    /// <typeparam name="T2">id type</typeparam>
+    /// <typeparam name="T3">field value type</typeparam>
+    /// <param name="list">Polibdata list</param>
+    /// <param name="type">ID</param>
+    /// <param name="fieldName">nameof(FieldName)</param>
+    /// <param name="result">Field's value outted</param>
+    /// <returns>Returns success value</returns>
+    public static bool TryGetValue<T1, T2, T3>(List<T1> list, T2 type, string fieldName, out T3 result)
+    {
+        int index = FindData(list, type);
+        if(index == -1)
+        {
+            result = default;
+            return false;
+        }
+        object obj = list[index].GetType().GetField(fieldName).GetValue(list[index]);
+        if(obj is T3 value && !EqualityComparer<T3>.Default.Equals(value, default(T3)))
+        {
+            result = value;
+            return true;
+        }
+
+        result = default;
+        return false;
+    }
+
+
+
     /// <summary>
     /// Finds an entry based on "type" for a list of a specific PolibData
     /// </summary>

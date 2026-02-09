@@ -99,7 +99,7 @@ public static class ImprovementManager
     {
         if (__result == false) return;
         int idx = PolibData.FindData<PolibImprovementData, ImprovementData.Type>(Parse.polibImprovementDatas, improvement.type);
-        if(idx < 0) return;
+        if(idx < 0) return; // It is cleaner here to use index rather than PD.TryGetValue()
 
         var allowAbilityList = Parse.polibImprovementDatas[idx].unitAbilityWhitelist;
         var denyAbilityList = Parse.polibImprovementDatas[idx].unitAbilityBlacklist;
@@ -132,11 +132,8 @@ public static class ImprovementManager
     public static void mBuiltOnSpecific(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
     {
         if (__result == false) return;
-        int idx = PolibData.FindData(Parse.polibImprovementDatas, improvement.type);
-        if(idx >= 0)
+        if(PolibData.TryGetValue(Parse.polibImprovementDatas, improvement.type, nameof(PolibImprovementData.builtOnSpecific), out string ability))
         {
-            string ability = Parse.polibImprovementDatas[idx].builtOnSpecific;
-            if(ability == null) return;
             if (tile.improvement == null)
             {
                 __result = false;
@@ -254,31 +251,11 @@ public static class ImprovementManager
     public static void AIBoost(ref float __result, GameState gameState, ImprovementData improvementData, TileData tileData, PlayerState player)
     {
         if (!gameState.GameLogicData.CanBuild(gameState, tileData, player, improvementData))
-        {
             return;
-        }
-        int idx = PolibData.FindData(Parse.polibImprovementDatas, improvementData.type);
-        if(idx >= 0)
-        {
-            float? value = Parse.polibImprovementDatas[idx].aiScore;
-            if(value != null) __result += (float)value;
-        }
+        if(PolibData.TryGetValue(Parse.polibImprovementDatas, improvementData.type, nameof(PolibImprovementData.aiScore), out float? result))
+            __result += (float)result;
     }
 
 
-    #endregion
-
-    #region Custom Description
-
-    /*[HarmonyPostfix]
-    [HarmonyPatch(typeof(BuildingUtils), nameof(BuildingUtils.GetInfo))]
-    public static void SetImprovementInfo(ref string __result, pbb.SkinType skinOfCurrentLocalPlayer, ImprovementData improvementData, ImprovementState improvementState = null, PlayerState owner = null, TileData tileData = null)
-    {
-        if (Parsing.Parse.ImpCustomLocKey.TryGetValue(improvementData.type, out var key))
-        {
-            __result = Localization.GetSkinned(skinOfCurrentLocalPlayer, key, new Il2CppReferenceArray<Il2CppSystem.Object>(null));
-        }
-    }
-    */
     #endregion
 }

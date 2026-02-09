@@ -80,28 +80,54 @@ public static class Parse
     public static Dictionary<UnitData.Type, List<string>> unitDataTargets = new Dictionary<UnitData.Type, List<string>>();
     public static Dictionary<UnitAbility.Type, List<string>> unitAbilityTargets = new Dictionary<UnitAbility.Type, List<string>>();
     public static Dictionary<UnitEffect, List<string>> unitEffectTargets = new Dictionary<UnitEffect, List<string>>();
-    
 
 
 
+
+    #region Parse
+    #endregion
     //thanks exploit
     [HarmonyPrefix]
     [HarmonyPriority(Priority.Last)]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
     private static void GameLogicData_Parse(GameLogicData __instance, JObject rootObject) //in this world, its analfuck, or be analfucked
     {
+        #region Improvements
+
         System.Func<PolibImprovementData> impDataFactory = () => new PolibImprovementData();
-        PolibUtils.ParsePerEach(rootObject, "tribeData", "leaderName", leaderNameDict);
+
         PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, int, PolibImprovementData>(rootObject, "improvementData", "defenceBoost", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, int, PolibImprovementData>(rootObject, "improvementData", "defenceBoost_Neutral", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, float, PolibImprovementData>(rootObject, "improvementData", "aiScore", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "builtOnSpecific", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "unblock", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "infoOverride", polibImprovementDatas, impDataFactory);
+        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(rootObject, "improvementData", "unitAbilityWhitelist", polibImprovementDatas, impDataFactory);
+        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(rootObject, "improvementData", "unitAbilityBlacklist", polibImprovementDatas, impDataFactory);
+        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(rootObject, "improvementData", "unitWhitelist", polibImprovementDatas, impDataFactory);
+        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(rootObject, "improvementData", "unitBlacklist", polibImprovementDatas, impDataFactory);
+
+        foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
+        {
+            JObject token = jtoken.TryCast<JObject>();
+            if (token != null)
+            {
+                if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
+                {
+
+                    if (token["triggers"] != null)
+                    {
+                        PolibUtils.ParseToNestedStringDict(token["triggers"], impType, improvementTriggers);
+                    }
+                }
+            }
+        }
+        #endregion
+
+        PolibUtils.ParsePerEach(rootObject, "tribeData", "leaderName", leaderNameDict);
         PolibUtils.ParseListPerEach(rootObject, "unitData", "targets", unitDataTargets);
         PolibUtils.ParseListPerEach(rootObject, "unitAbility", "targets", unitAbilityTargets);
         PolibUtils.ParseListPerEach(rootObject, "unitEffectData", "targets", unitEffectTargets);
-        
         foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
         {
             JObject token = jtoken.TryCast<JObject>();
@@ -129,7 +155,7 @@ public static class Parse
                 }
             }
         }
-        
+
         #region pActions
 
         foreach (JToken jtoken in rootObject.SelectTokens("$.pActions.*").ToList())
@@ -146,29 +172,9 @@ public static class Parse
 
         #endregion pActions
 
-        #region Improvements
-        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(rootObject, "improvementData", "unitAbilityWhitelist", polibImprovementDatas, impDataFactory);
-        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(rootObject, "improvementData", "unitAbilityBlacklist", polibImprovementDatas, impDataFactory);
-        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(rootObject, "improvementData", "unitWhitelist", polibImprovementDatas, impDataFactory);
-        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(rootObject, "improvementData", "unitBlacklist", polibImprovementDatas, impDataFactory);
 
-        foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
-                {
 
-                    if (token["triggers"] != null)
-                    {
-                        PolibUtils.ParseToNestedStringDict(token["triggers"], impType, improvementTriggers);
-                    }
-                }
-            }
-        }
 
-        #endregion Improvements
 
         #region Units
 
@@ -234,7 +240,7 @@ public static class Parse
             cityRewardDict[reward] = PolibUtils.SetVanillaCityRewardDefaults(reward);
         }
 
-        
+
         foreach (JToken jtoken in rootObject.SelectTokens("$.cityRewardData.*").ToList())
         {
             JObject token = jtoken.TryCast<JObject>();

@@ -80,13 +80,8 @@ public static class UI
     [HarmonyPatch(typeof(BuildingUtils), nameof(BuildingUtils.GetInfo))]
     private static void InfoOverride(ref string __result, PolytopiaBackendBase.Common.SkinType skinOfCurrentLocalPlayer, ImprovementData improvementData, ImprovementState improvementState = null, PlayerState owner = null, TileData tileData = null)
     {
-        var index = PolibData.FindData(Parsing.Parse.polibImprovementDatas, improvementData.type);
-        if(index != -1)
-        {
-            string overr = Parse.polibImprovementDatas[index].infoOverride;
-            if(overr != null)
-                __result = Localization.Get(overr);
-        }
+        if(PolibData.TryGetValue(Parse.polibImprovementDatas, improvementData.type, nameof(PolibImprovementData.infoOverride), out string result))
+            __result = Localization.Get(result);
     }
     #endregion
 }
