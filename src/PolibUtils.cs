@@ -632,6 +632,7 @@ public static class PolibUtils
         }
     }
 
+    //MAKE SURE TO LEAVE PARSEPEREACH / PARSEENUMPEREACH CUZ IT WILL GO PUBLIC AND SHIT!!!!
     public static void ParsePerEach<targetType, T>(JObject rootObject, string categoryName, string fieldName, Dictionary<targetType, T> dict)
         where targetType : struct, System.IConvertible
     {
