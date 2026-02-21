@@ -609,23 +609,6 @@ public class pAction
         variables[variable] = tile.unit.type == unit;
     }
 
-    private void HasUnit(string variable, string swcoords)
-    {
-        WorldCoordinates wcoords = ParseWcoords(swcoords);
-
-        GameState gameState = GameManager.GameState;
-        MapData map = gameState.Map;
-        TileData tile = map.GetTile(wcoords);
-
-        if (!IsVariable<bool>(variable, out var obj))
-        {
-            LogError("Has", "Variable is invalid. Reason: Either variable doesnt exist, spelling is incorrect or the variable is not of type: bool.");
-            return;
-        }
-
-        variables[variable] = tile.unit != null;
-    }
-
     private void ContainsUnit(string variable, string swcoordslist, string sunit)
     {
         List<WorldCoordinates> wcoordslist = ParseWcoordsList(swcoordslist);
