@@ -4,6 +4,7 @@ using Polytopia.Data;
 using UnityEngine;
 using Newtonsoft.Json.Linq;
 using Il2CppSystem.Linq;
+using NAudio.Wave;
 
 using pbb = PolytopiaBackendBase.Common;
 using Steamworks.Data;
@@ -20,6 +21,7 @@ public static class Parse
         Harmony.CreateAndPatchAll(typeof(Parse));
         LogMan1997 = logger;
     }
+    public static Dictionary<string, CachedSound> sounds = new();
     public static List<PolibImprovementData> polibImprovementDatas = new();
     public static Dictionary<pbb.TribeType, string> leaderNameDict = new Dictionary<pbb.TribeType, string>();
     public class PolibCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
