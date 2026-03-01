@@ -40,22 +40,52 @@ namespace Polibrary;
 
 public static class PolibAudiomanager
 {
-    private static readonly string DATA_PATH = Path.Combine(PolyMod.Plugin.BASE_PATH, "PolibraryData");
-    public static AudioEngine engine = new();
     public static ManualLogSource modLogger;
+    public static AudioEngineBehaviour Instance;
     public static void Load(ManualLogSource logger)
     {
         Harmony.CreateAndPatchAll(typeof(PolibAudiomanager));
         modLogger = logger;
-        string filePath = Path.Combine(DATA_PATH, "AudioTest.wav");
-        Parse.sounds.Add("basic", new CachedSound(filePath));
+
+        ClassInjector.RegisterTypeInIl2Cpp<AudioEngineBehaviour>();
+        GameObject audioGO = new GameObject("AudioEngineGO");
+        Instance = audioGO.AddComponent<AudioEngineBehaviour>();
+        GameObject.DontDestroyOnLoad(audioGO);
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(AudioManager), nameof(AudioManager.PlaySFX))]
-    private static void Thing(SFXTypes id, PolytopiaBackendBase.Common.SkinType skinType, float volume, float pitchMod, float pan)
+    private static void AudioManager_PlaySFX(SFXTypes id, PolytopiaBackendBase.Common.SkinType skinType, float volume, float pitchMod, float pan)
     {
-        //engine.PlaySfx(Parse.sounds.GetOrDefault("basic"), volume);
+        
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameManager), nameof(GameManager.Update))]
+    private static void GameManager_Update()
+    {
+        if(Input.GetKey(KeyCode.LeftControl))
+        {
+            if(Input.GetKeyDown(KeyCode.P)) 
+            {
+                if (!Instance.engine.loopingById.ContainsKey("music"))
+                {
+                    Instance.engine.PlayLoop("music", Parse.sounds["autotvezet"], 0f, true);
+                }
+                Instance.engine.ResumeLoop("music");
+                Instance.engine.FadeLooped("music", 1f, 0.5f, EaseType.Linear);
+
+                Main.modLogger.LogInfo("resume");
+            }
+            if(Input.GetKeyDown(KeyCode.O)) 
+            {
+                Instance.engine.FadeLooped("music", 0f, 0.5f, EaseType.Linear, () =>
+                {
+                    Instance.engine.PauseLoop("music");
+                });
+                Main.modLogger.LogInfo("pause");
+            }
+        }
     }
 }
 
@@ -63,26 +93,58 @@ public static class PolibAudiomanager
 //Huge shoutout to the oceans for taking a blow in water supply for this one!
 
 
-#region Cached Sound
+public class AudioEngineBehaviour : MonoBehaviour
+{
+    public AudioEngine engine;
+
+    private void Awake()
+    {
+        engine = new AudioEngine();
+    }
+
+    private void Update()
+    {
+        engine.Update(Time.deltaTime);
+    }
+
+    private void OnDestroy()
+    {
+        engine.Dispose();
+    }
+}
+
+#region CachedSound
 
 public class CachedSound
 {
-    public float[] AudioData { get; }
-    public WaveFormat WaveFormat { get; }
+    public float[] AudioData { get; private set; }
+    public WaveFormat WaveFormat { get; private set; }
 
     public CachedSound(string fileName)
     {
         using var reader = new AudioFileReader(fileName);
-        WaveFormat = reader.WaveFormat;
+        LoadFromProvider(reader);
+    }
+
+    public CachedSound(byte[] wavData)
+    {
+        using var ms = new System.IO.MemoryStream(wavData);
+        using var reader = new WaveFileReader(ms);
+        LoadFromProvider(reader.ToSampleProvider());
+    }
+
+    private void LoadFromProvider(ISampleProvider provider)
+    {
+        WaveFormat = provider.WaveFormat;
 
         var wholeFile = new List<float>();
-        var readBuffer = new float[reader.WaveFormat.SampleRate * reader.WaveFormat.Channels];
+        var buffer = new float[WaveFormat.SampleRate * WaveFormat.Channels];
 
-        int samplesRead;
-        while ((samplesRead = reader.Read(readBuffer, 0, readBuffer.Length)) > 0)
+        int read;
+        while ((read = provider.Read(buffer, 0, buffer.Length)) > 0)
         {
-            for (int i = 0; i < samplesRead; i++)
-                wholeFile.Add(readBuffer[i]);
+            for (int i = 0; i < read; i++)
+                wholeFile.Add(buffer[i]);
         }
 
         AudioData = wholeFile.ToArray();
@@ -95,33 +157,47 @@ public class CachedSound
 
 public class CachedSoundSampleProvider : ISampleProvider
 {
-    private readonly CachedSound cachedSound;
+    private readonly CachedSound sound;
     private long position;
 
-    public CachedSoundSampleProvider(CachedSound cachedSound)
+    public CachedSoundSampleProvider(CachedSound sound)
     {
-        this.cachedSound = cachedSound;
+        this.sound = sound;
     }
 
-    public WaveFormat WaveFormat => cachedSound.WaveFormat;
+    public WaveFormat WaveFormat => sound.WaveFormat;
 
     public int Read(float[] buffer, int offset, int count)
     {
-        var availableSamples = cachedSound.AudioData.Length - position;
-        var samplesToCopy = System.Math.Min(availableSamples, count);
+        var available = sound.AudioData.Length - position;
+        var toCopy = System.Math.Min(available, count);
 
-        System.Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
-        position += samplesToCopy;
+        System.Array.Copy(sound.AudioData, position, buffer, offset, toCopy);
+        position += toCopy;
 
-        return (int)samplesToCopy;
+        return (int)toCopy;
     }
 
     public void Reset() => position = 0;
+
+    public bool HasEnded => position >= sound.AudioData.Length;
 }
 
 #endregion
 
-#region SoundInstance (Fully Controllable)
+#region Ease
+
+public enum EaseType
+{
+    Linear,
+    EaseIn,
+    EaseOut,
+    SmoothStep
+}
+
+#endregion
+
+#region SoundInstance
 
 public class SoundInstance
 {
@@ -129,13 +205,24 @@ public class SoundInstance
     private readonly VolumeSampleProvider volumeProvider;
     private readonly MixingSampleProvider mixer;
     private readonly bool loop;
-    private bool stopped;
+
+    public bool IsStopped { get; private set; }
+    public bool IsPaused { get; private set; }
 
     public float Volume
     {
         get => volumeProvider.Volume;
-        set => volumeProvider.Volume = System.Math.Clamp(value, 0f, 1f);
+        private set => volumeProvider.Volume = System.Math.Clamp(value, 0f, 1f);
     }
+
+    // Fade state
+    private bool isFading;
+    private float fadeStartVolume;
+    private float fadeTargetVolume;
+    private float fadeDuration;
+    private float fadeElapsed;
+    private EaseType fadeEase;
+    private System.Action fadeComplete;
 
     public SoundInstance(CachedSound sound, MixingSampleProvider mixer, float volume, bool loop)
     {
@@ -143,9 +230,9 @@ public class SoundInstance
         this.loop = loop;
 
         source = new CachedSoundSampleProvider(sound);
+        var looping = new LoopingSampleProvider(source, loop);
 
-        var loopingProvider = new LoopingSampleProvider(source, loop);
-        volumeProvider = new VolumeSampleProvider(loopingProvider)
+        volumeProvider = new VolumeSampleProvider(looping)
         {
             Volume = volume
         };
@@ -153,29 +240,73 @@ public class SoundInstance
         mixer.AddMixerInput(volumeProvider);
     }
 
-    public void Stop()
+    public void Pause()
     {
-        stopped = true;
-        Volume = 0;
+        IsPaused = true;
     }
 
-    public void Pause() => Volume = 0;
-    public void Resume(float volume = 1f) => Volume = volume;
-
-    public async Task FadeTo(float targetVolume, int milliseconds)
+    public void Resume()
     {
-        float startVolume = Volume;
-        int steps = 20;
-        int delay = milliseconds / steps;
+        IsPaused = false;
+    }
 
-        for (int i = 1; i <= steps; i++)
+    public void StartFade(float targetVolume, float durationSeconds, EaseType ease = EaseType.Linear, System.Action onComplete = null)
+    {
+        if (durationSeconds <= 0f)
         {
-            float t = (float)i / steps;
-            Volume = startVolume + (targetVolume - startVolume) * t;
-            await Task.Delay(delay);
+            Volume = System.Math.Clamp(targetVolume, 0f, 1f);
+            onComplete?.Invoke();
+            return;
         }
 
-        Volume = targetVolume;
+        fadeStartVolume = Volume;
+        fadeTargetVolume = System.Math.Clamp(targetVolume, 0f, 1f);
+        fadeDuration = durationSeconds;
+        fadeElapsed = 0f;
+        fadeEase = ease;
+        fadeComplete = onComplete;
+        isFading = true;
+    }
+
+    public void Update(float deltaTime)
+    {
+        if (IsPaused) return;  // <-- skip fade and volume updates while paused
+
+        if (isFading)
+        {
+            fadeElapsed += deltaTime;
+            float t = System.Math.Clamp(fadeElapsed / fadeDuration, 0f, 1f);
+            t = ApplyEase(t, fadeEase);
+
+            Volume = fadeStartVolume + (fadeTargetVolume - fadeStartVolume) * t;
+
+            if (fadeElapsed >= fadeDuration)
+            {
+                isFading = false;
+                Volume = fadeTargetVolume;
+                fadeComplete?.Invoke();
+            }
+        }
+    }
+
+    public void Stop()
+    {
+        if (IsStopped) return;
+        IsStopped = true;
+        mixer.RemoveMixerInput(volumeProvider);
+    }
+
+    public bool HasFinished => !loop && source.HasEnded;
+
+    private float ApplyEase(float t, EaseType ease)
+    {
+        return ease switch
+        {
+            EaseType.EaseIn => t * t,
+            EaseType.EaseOut => 1f - (1f - t) * (1f - t),
+            EaseType.SmoothStep => t * t * (3f - 2f * t),
+            _ => t
+        };
     }
 
     private class LoopingSampleProvider : ISampleProvider
@@ -193,16 +324,13 @@ public class SoundInstance
 
         public int Read(float[] buffer, int offset, int count)
         {
-            int totalSamplesWritten = 0;
+            int written = 0;
 
-            while (totalSamplesWritten < count)
+            while (written < count)
             {
-                int samplesRead = source.Read(
-                    buffer,
-                    offset + totalSamplesWritten,
-                    count - totalSamplesWritten);
+                int read = source.Read(buffer, offset + written, count - written);
 
-                if (samplesRead == 0)
+                if (read == 0)
                 {
                     if (!loop)
                         break;
@@ -210,21 +338,21 @@ public class SoundInstance
                     source.Reset();
                 }
 
-                totalSamplesWritten += samplesRead;
+                written += read;
             }
 
-            return totalSamplesWritten;
+            return written;
         }
     }
 }
 
 #endregion
 
-#region Audio Engine
+#region AudioEngine
 
 public class AudioEngine : System.IDisposable
 {
-    private readonly IWavePlayer outputDevice;
+    private readonly IWavePlayer output;
     private readonly MixingSampleProvider masterMixer;
     private readonly MixingSampleProvider sfxMixer;
     private readonly MixingSampleProvider musicMixer;
@@ -232,6 +360,11 @@ public class AudioEngine : System.IDisposable
     private readonly VolumeSampleProvider masterVolume;
     private readonly VolumeSampleProvider sfxVolume;
     private readonly VolumeSampleProvider musicVolume;
+
+    private readonly List<SoundInstance> activeSounds = new();
+    public Dictionary<string, SoundInstance> loopingById = new();
+
+    public IReadOnlyList<SoundInstance> ActiveSounds => activeSounds;
 
     public float MasterVolume
     {
@@ -253,7 +386,7 @@ public class AudioEngine : System.IDisposable
 
     public AudioEngine(int sampleRate = 44100, int channels = 2)
     {
-        outputDevice = new WaveOutEvent();
+        output = new WaveOutEvent();
 
         var format = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channels);
 
@@ -269,48 +402,97 @@ public class AudioEngine : System.IDisposable
 
         masterVolume = new VolumeSampleProvider(masterMixer) { Volume = 1f };
 
-        outputDevice.Init(masterVolume);
-        outputDevice.Play();
+        output.Init(masterVolume);
+        output.Play();
     }
 
     public SoundInstance PlaySfx(CachedSound sound, float volume = 1f, bool loop = false)
-        => new SoundInstance(sound, sfxMixer, volume, loop);
+    {
+        var instance = new SoundInstance(sound, sfxMixer, volume, loop);
+        activeSounds.Add(instance);
+        return instance;
+    }
 
     public SoundInstance PlayMusic(CachedSound sound, float volume = 1f, bool loop = true)
-        => new SoundInstance(sound, musicMixer, volume, loop);
+    {
+        var instance = new SoundInstance(sound, musicMixer, volume, loop);
+        activeSounds.Add(instance);
+        return instance;
+    }
 
-    public void Dispose() => outputDevice.Dispose();
+    public SoundInstance PlayLoop(string id, CachedSound sound, float volume = 1f, bool music = true)
+    {
+        StopLoop(id);
+
+        var mixer = music ? musicMixer : sfxMixer;
+        var instance = new SoundInstance(sound, mixer, volume, true);
+
+        loopingById[id] = instance;
+        activeSounds.Add(instance);
+
+        return instance;
+    }
+
+    public void StopLoop(string id)
+    {
+        if (loopingById.TryGetValue(id, out var instance))
+        {
+            instance.Stop();
+            loopingById.Remove(id);
+            activeSounds.Remove(instance);
+        }
+    }
+
+    public void StopAll()
+    {
+        foreach (var s in activeSounds.ToList())
+            s.Stop();
+
+        activeSounds.Clear();
+        loopingById.Clear();
+    }
+
+    public void FadeLooped(string id, float targetVolume, float durationSeconds, EaseType ease, System.Action onComplete = null)
+    {
+        if (loopingById.TryGetValue(id, out var instance))
+        {
+            instance.StartFade(targetVolume, durationSeconds, ease, onComplete);
+        }
+    }
+
+    public void PauseLoop(string id)
+    {
+        if (loopingById.TryGetValue(id, out var instance))
+            instance.Pause();
+    }
+
+    public void ResumeLoop(string id)
+    {
+        if (loopingById.TryGetValue(id, out var instance))
+            instance.Resume();
+    }
+
+    public void Update(float deltaTime)
+    {
+        foreach (var s in activeSounds)
+            s.Update(deltaTime);
+
+        activeSounds.RemoveAll(s =>
+        {
+            if (s.HasFinished)
+            {
+                s.Stop();
+                return true;
+            }
+            return false;
+        });
+    }
+
+    public void Dispose()
+    {
+        StopAll();
+        output.Dispose();
+    }
 }
-
-#endregion
-
-#region Example Usage
-
-/*
-var engine = new AudioEngine();
-
-var sounds = new Dictionary<string, CachedSound>
-{
-    ["click"] = new CachedSound("click.wav"),
-    ["music"] = new CachedSound("music.wav")
-};
-
-var click = engine.PlaySfx(sounds["click"], 0.7f);
-var music = engine.PlayMusic(sounds["music"], 0.5f, true);
-
-// Change volume live
-music.Volume = 0.2f;
-
-// Fade out music over 2 seconds
-await music.FadeTo(0f, 2000);
-
-// Stop music completely
-music.Stop();
-
-// Global controls
-engine.MasterVolume = 0.8f;
-engine.SfxVolume = 1f;
-engine.MusicVolume = 0.6f;
-*/
 
 #endregion

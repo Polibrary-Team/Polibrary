@@ -9,6 +9,7 @@ using NAudio.Wave;
 using pbb = PolytopiaBackendBase.Common;
 using Steamworks.Data;
 using MS.Internal.Xml.XPath;
+using PolyMod;
 
 
 namespace Polibrary.Parsing;
@@ -21,7 +22,6 @@ public static class Parse
         Harmony.CreateAndPatchAll(typeof(Parse));
         LogMan1997 = logger;
     }
-    public static Dictionary<string, CachedSound> sounds = new();
     public static List<PolibImprovementData> polibImprovementDatas = new();
     public static Dictionary<pbb.TribeType, string> leaderNameDict = new Dictionary<pbb.TribeType, string>();
     public class PolibCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
@@ -347,4 +347,16 @@ public static class Parse
             }
         }
     }
+
+    #region Audio
+    public static Dictionary<string, CachedSound> sounds = new();
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Loader), nameof(Loader.LoadAudioFile))]
+    static void LoadAudio(Mod mod, Mod.File file)
+    {
+        sounds[Path.GetFileNameWithoutExtension(file.name)] = new CachedSound(file.bytes);
+        Main.modLogger.LogInfo($"Made {Path.GetFileNameWithoutExtension(file.name)} a CachedSound");
+    }
+    #endregion
 }
