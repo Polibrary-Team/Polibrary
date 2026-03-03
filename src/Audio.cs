@@ -8,7 +8,7 @@ using Il2CppInterop.Runtime.Injection;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using Polibrary.Parsing;
-using Polytopia.Data; // For SettingsUtils
+using Polytopia.Data;
 using UnityEngine;
 
 namespace Polibrary;
@@ -16,23 +16,21 @@ namespace Polibrary;
 public static class PolibAudiomanager
 {
     public static ManualLogSource ModLogger;
-    //public static AudioEngineBehaviour Behaviour;
+    public static AudioEngineBehaviour Behaviour;
     public static void Load(ManualLogSource logger)
     {
         ModLogger = logger;
         Harmony.CreateAndPatchAll(typeof(PolibAudiomanager));
         
-        //ClassInjector.RegisterTypeInIl2Cpp<AudioEngineBehaviour>();
+        ClassInjector.RegisterTypeInIl2Cpp<AudioEngineBehaviour>();
 
-        //var go = new GameObject("PolibAudioEngine");
-        //UnityEngine.Object.DontDestroyOnLoad(go);
-        //Behaviour = go.AddComponent<AudioEngineBehaviour>();
-        
-        ModLogger.LogInfo("Polib Audio Engine Loaded.");
+        var go = new GameObject("PolibAudioEngine");
+        UnityEngine.Object.DontDestroyOnLoad(go);
+        Behaviour = go.AddComponent<AudioEngineBehaviour>();
     }
 
     
-    /*
+    
     /// <summary>
     /// Play a one-shot sound by ID
     /// </summary>
@@ -40,12 +38,8 @@ public static class PolibAudiomanager
     {
         if (Parse.sounds.TryGetValue(id, out var sound))
         {
-            // Calculate effective volume based on Game Settings
             float masterMult = SettingsUtils.Volume; 
             float sfxMult = AudioManager.ShouldPlaySoundEffects() ? 1f : 0f;
-            
-            // Note: We apply the multiplier here or let the Engine handle Master/Group volumes.
-            // letting the engine handle it is cleaner.
             
             Behaviour.engine.PlaySfx(sound, volume, pan);
         }
@@ -54,8 +48,6 @@ public static class PolibAudiomanager
             ModLogger.LogWarning($"Sound ID not found: {id}");
         }
     }
-    
-    // --- Harmony Patches to Sync with Game State ---
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(AudioManager), nameof(AudioManager.VolumeChanged))]
@@ -63,11 +55,10 @@ public static class PolibAudiomanager
     {
         if (Behaviour?.engine == null) return;
 
-        // Sync NAudio volumes with Polytopia Settings
         Behaviour.engine.MasterVolume = SettingsUtils.Volume;
         Behaviour.engine.SfxVolume = AudioManager.ShouldPlaySoundEffects() ? 1f : 0f;
         Behaviour.engine.MusicVolume = AudioManager.ShouldPlayTribeMusic() ? 1f : 0f; // Simplified logic
-    }*/
+    }
 }
 
 
@@ -97,7 +88,7 @@ public static class PolibAudiomanager
 
 
 
-/*
+
 public class AudioEngineBehaviour : MonoBehaviour
 {
     public AudioEngine engine;
@@ -130,18 +121,17 @@ public class CachedSound
     public WaveFormat WaveFormat { get; private set; }
 
     /// <summary>
-    /// Load from a file path (WAV, MP3, AIFF, etc provided by AudioFileReader)
+    /// Load from a file path
     /// </summary>
     public CachedSound(string fileName)
     {
         using var reader = new AudioFileReader(fileName);
-        // Force 44.1kHz Stereo for compatibility
         var resampler = GetResampledProvider(reader); 
         LoadFromProvider(resampler);
     }
 
     /// <summary>
-    /// Load from raw file bytes (MemoryStream). Supports WAV and MP3.
+    /// Load from raw file bytes. Supports WAV and MP3.
     /// </summary>
     public CachedSound(byte[] fileBytes)
     {
@@ -150,12 +140,10 @@ public class CachedSound
 
         try
         {
-            // 1. Try generic Wave (RIFF headers)
             reader = new WaveFileReader(stream);
         }
         catch
         {
-            // 2. If Wave fails, reset and try MP3
             stream.Position = 0;
             try 
             { 
@@ -163,14 +151,12 @@ public class CachedSound
             }
             catch 
             { 
-                // 3. Fallback / Error
                 throw new InvalidDataException("CachedSound: Bytes are not valid WAV or MP3."); 
             }
         }
 
         using (reader)
         {
-            // Convert to sample provider and force 44.1kHz Stereo
             var resampler = GetResampledProvider(reader.ToSampleProvider());
             LoadFromProvider(resampler);
         }
@@ -183,19 +169,15 @@ public class CachedSound
     {
         ISampleProvider output = input;
 
-        // 1. Resample to 44100 if needed
         if (output.WaveFormat.SampleRate != 44100)
         {
             output = new WdlResamplingSampleProvider(output, 44100);
         }
 
-        // 2. Convert to Stereo if needed
         if (output.WaveFormat.Channels == 1)
         {
             output = output.ToStereo();
         }
-        // Note: NAudio doesn't have a built-in "ToStereo" for >2 channels, 
-        // but WdlResampling usually keeps channels intact or we assume source is Mono/Stereo.
 
         return output;
     }
@@ -205,7 +187,6 @@ public class CachedSound
         WaveFormat = provider.WaveFormat;
         var wholeFile = new List<float>();
         
-        // Create a buffer (1 second worth of data at a time)
         var buffer = new float[WaveFormat.SampleRate * WaveFormat.Channels];
         int read;
 
@@ -248,20 +229,16 @@ public class CachedSoundSampleProvider : ISampleProvider
 
 
 public class SoundInstance
-{
-    // NAudio Providers
-    private readonly CachedSoundSampleProvider _source;
+{    private readonly CachedSoundSampleProvider _source;
     private readonly ISampleProvider _loopingWrapper;
     private readonly VolumeSampleProvider _volumeProvider;
     private readonly PanningSampleProvider _panProvider;
     private readonly MixingSampleProvider _mixer;
 
-    // State
     private readonly bool _loop;
     public bool IsStopped { get; private set; }
     public bool IsPaused { get; private set; }
     
-    // Fading State
     private bool _fadeActive;
     private float _fadeDuration;
     private float _fadeElapsed;
@@ -269,7 +246,6 @@ public class SoundInstance
     private float _fadeTargetVolume;
     private EaseType _fadeEaseType;
 
-    // Properties
     public bool HasFinished => !_loop && _source.HasEnded;
 
     /// <summary>
@@ -281,7 +257,7 @@ public class SoundInstance
         set
         {
             _currentVolume = Mathf.Clamp01(value);
-            _fadeActive = false; // Manual change kills fade
+            _fadeActive = false;
             UpdateProviderVolume();
         }
     }
@@ -302,28 +278,28 @@ public class SoundInstance
         _loop = loop;
         _currentVolume = startVolume;
 
-        // 1. Source
+        //Source
         _source = new CachedSoundSampleProvider(sound);
 
-        // 2. Loop Handling
+        //Loop Handling
         if (loop)
             _loopingWrapper = new LoopingSampleProvider(_source);
         else
             _loopingWrapper = _source;
 
-        // 3. Volume Control
+        //Volume Control
         _volumeProvider = new VolumeSampleProvider(_loopingWrapper)
         {
             Volume = startVolume
         };
 
-        // 4. Panning Control
+        //Panning Control
         _panProvider = new PanningSampleProvider(_volumeProvider)
         {
             Pan = Mathf.Clamp(pan, -1f, 1f)
         };
 
-        // 5. Connect to Mixer
+        //Connect to Mixer
         _mixer.AddMixerInput(_panProvider);
     }
 
@@ -344,7 +320,6 @@ public class SoundInstance
         if (IsStopped) return;
         IsStopped = true;
         
-        // Remove from mixer to stop processing and free resources
         _mixer.RemoveMixerInput(_panProvider);
     }
 
@@ -355,20 +330,19 @@ public class SoundInstance
     {
         _fadeStartVolume = _currentVolume;
         _fadeTargetVolume = Mathf.Clamp01(targetVolume);
-        _fadeDuration = Mathf.Max(durationSeconds, 0.001f); // Avoid divide by zero
+        _fadeDuration = Mathf.Max(durationSeconds, 0.001f);
         _fadeEaseType = ease;
         _fadeElapsed = 0f;
         _fadeActive = true;
     }
 
     /// <summary>
-    /// Call this every frame (e.g., from MonoBehaviour.Update)
+    /// Call this every frame
     /// </summary>
     public void Update(float deltaTime)
     {
         if (IsStopped) return;
 
-        // Don't progress fades if paused
         if (IsPaused) return; 
 
         if (_fadeActive)
@@ -376,24 +350,21 @@ public class SoundInstance
             _fadeElapsed += deltaTime;
             float t = Mathf.Clamp01(_fadeElapsed / _fadeDuration);
 
-            // Apply Easing Math
             float easedT = _fadeEaseType switch
             {
                 EaseType.EaseIn => t * t,
                 EaseType.EaseOut => t * (2f - t),
                 EaseType.SmoothStep => t * t * (3f - 2f * t),
-                _ => t // Linear
+                _ => t
             };
 
             _currentVolume = Mathf.Lerp(_fadeStartVolume, _fadeTargetVolume, easedT);
 
-            // Fade Complete
             if (_fadeElapsed >= _fadeDuration)
             {
                 _fadeActive = false;
                 _currentVolume = _fadeTargetVolume;
 
-                // Auto-stop if faded to silence and not looping (standard game behavior)
                 if (Mathf.Approximately(_fadeTargetVolume, 0f) && !_loop)
                 {
                     Stop();
@@ -406,11 +377,9 @@ public class SoundInstance
 
     private void UpdateProviderVolume()
     {
-        // If paused, mute the provider, otherwise use current volume
         _volumeProvider.Volume = IsPaused ? 0f : _currentVolume;
     }
 
-    // --- Internal Loop Helper ---
     private class LoopingSampleProvider : ISampleProvider
     {
         private readonly CachedSoundSampleProvider _source;
@@ -432,7 +401,6 @@ public class SoundInstance
 
                 if (bytesRead == 0)
                 {
-                    // End of source, reset to beginning
                     _source.Reset();
                 }
 
@@ -458,7 +426,6 @@ public class AudioEngine : IDisposable
     private readonly List<SoundInstance> activeSounds = new();
     public Dictionary<string, SoundInstance> loopingById = new();
 
-    // Standard format: 44.1kHz Stereo
     private readonly WaveFormat engineFormat = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
 
     public float MasterVolume { get => masterVolume.Volume; set => masterVolume.Volume = value; }
@@ -467,14 +434,12 @@ public class AudioEngine : IDisposable
 
     public AudioEngine()
     {
-        output = new WaveOutEvent(); // Or WasapiOut if you prefer low latency on Windows
+        output = new WaveOutEvent();
         
-        // Mixers
         masterMixer = new MixingSampleProvider(engineFormat) { ReadFully = true };
         sfxMixer = new MixingSampleProvider(engineFormat) { ReadFully = true };
         musicMixer = new MixingSampleProvider(engineFormat) { ReadFully = true };
 
-        // Groups
         sfxVolume = new VolumeSampleProvider(sfxMixer);
         musicVolume = new VolumeSampleProvider(musicMixer);
         
@@ -548,7 +513,7 @@ public class AudioEngine : IDisposable
 public enum EaseType
 {
     Linear,
-    EaseIn,     // Quadratic In
-    EaseOut,    // Quadratic Out
-    SmoothStep  // Hermite
-}*/
+    EaseIn,
+    EaseOut,
+    SmoothStep
+}
