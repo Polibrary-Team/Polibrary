@@ -9,6 +9,7 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using Polibrary.Parsing;
 using Polytopia.Data;
+using PolytopiaBackendBase.Common;
 using UnityEngine;
 
 namespace Polibrary;
@@ -17,6 +18,7 @@ public static class PolibAudiomanager
 {
     public static ManualLogSource ModLogger;
     public static AudioEngineBehaviour Behaviour;
+    public static MusicData polytopiaMusicData;
     public static void Load(ManualLogSource logger)
     {
         ModLogger = logger;
@@ -49,6 +51,49 @@ public static class PolibAudiomanager
         }
     }
 
+    private static bool TryGetSound(out CachedSound sound, string id, TribeType tribe, SkinType skinType = SkinType.Default)
+    {
+        string style;
+        if (skinType != SkinType.Default) style = EnumCache<SkinType>.GetName(skinType);
+        else style = EnumCache<TribeType>.GetName(tribe);
+
+        Main.modLogger.LogInfo($"style: {style}");
+
+        if (!Parse.sounds.TryGetValue(id + "_" + style, out var value))
+        {
+            sound = null;
+            return false;
+        } 
+
+        sound = value;
+        return true;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(AudioManager), nameof(AudioManager.FadeAudioSource))]
+    private static bool MusicPatch(AudioManager.AudioSourceTypes id, float to, float time = 0.6f, DG.Tweening.Ease easing = DG.Tweening.Ease.Linear, Il2CppSystem.Action onComplete = null)
+    {
+        if (id != AudioManager.AudioSourceTypes.TribeMusic) return true;
+        
+
+        Behaviour.engine.FadeLooped("music", to * Behaviour.engine.MusicVolume, time, EaseType.Linear);
+        return false;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(AudioManager), nameof(AudioManager.GetTribeMusic))]
+    private static void GetMusic(TribeType tribe, AudioClip __result, SkinType skinType = SkinType.Default)
+    {
+        if (!TryGetSound(out var sound, "music", tribe, skinType))
+        {
+            Behaviour.engine.StopLoop("music");
+            return;
+        }
+        
+        __result = null;
+        Behaviour.engine.PlayLoop("music", sound, 0f, true);
+    }
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(AudioManager), nameof(AudioManager.VolumeChanged))]
     private static void OnGameVolumeChanged()
@@ -57,7 +102,7 @@ public static class PolibAudiomanager
 
         Behaviour.engine.MasterVolume = SettingsUtils.Volume;
         Behaviour.engine.SfxVolume = AudioManager.ShouldPlaySoundEffects() ? 1f : 0f;
-        Behaviour.engine.MusicVolume = AudioManager.ShouldPlayTribeMusic() ? 1f : 0f; // Simplified logic
+        Behaviour.engine.MusicVolume = AudioManager.ShouldPlayTribeMusic() ? 1f : 0f;
     }
 }
 
@@ -481,7 +526,7 @@ public class AudioEngine : IDisposable
     
     public void FadeLooped(string id, float target, float time, EaseType ease = EaseType.Linear, Action onComplete = null)
     {
-        if (loopingById.TryGetValue(id, out var instance)) instance.StartFade(target, time);
+        if (loopingById.TryGetValue(id, out var instance)) instance.StartFade(target, time, ease);
     }
 
     public void Update(float deltaTime)
