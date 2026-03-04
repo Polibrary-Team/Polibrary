@@ -247,6 +247,46 @@ public class CachedSound
     }
 }
 
+public class StereoPanProvider : ISampleProvider
+{
+    private readonly ISampleProvider source;
+    private float pan;
+
+    public StereoPanProvider(ISampleProvider source)
+    {
+        if (source.WaveFormat.Channels != 2)
+            throw new System.ArgumentException("StereoPanProvider requires a Stereo input.");
+            
+        this.source = source;
+    }
+
+    public float Pan
+    {
+        get => pan;
+        set => pan = Mathf.Clamp(value, -1f, 1f);
+    }
+
+    public WaveFormat WaveFormat => source.WaveFormat;
+
+    public int Read(float[] buffer, int offset, int count)
+    {
+        int samplesRead = source.Read(buffer, offset, count);
+
+        if (pan == 0.0f) return samplesRead;
+
+        float leftMult = (pan <= 0) ? 1f : (1f - pan);
+        float rightMult = (pan >= 0) ? 1f : (1f + pan);
+
+        for (int i = 0; i < samplesRead; i += 2)
+        {
+            buffer[offset + i] *= leftMult;
+            buffer[offset + i + 1] *= rightMult;
+        }
+
+        return samplesRead;
+    }
+}
+
 public class CachedSoundSampleProvider : ISampleProvider
 {
     private readonly CachedSound sound;
@@ -274,10 +314,12 @@ public class CachedSoundSampleProvider : ISampleProvider
 
 
 public class SoundInstance
-{    private readonly CachedSoundSampleProvider _source;
+{
+
+    private readonly CachedSoundSampleProvider _source;
     private readonly ISampleProvider _loopingWrapper;
     private readonly VolumeSampleProvider _volumeProvider;
-    private readonly PanningSampleProvider _panProvider;
+    private readonly StereoPanProvider _panProvider;
     private readonly MixingSampleProvider _mixer;
 
     private readonly bool _loop;
@@ -290,27 +332,20 @@ public class SoundInstance
     private float _fadeStartVolume;
     private float _fadeTargetVolume;
     private EaseType _fadeEaseType;
-
     public bool HasFinished => !_loop && _source.HasEnded;
 
-    /// <summary>
-    /// Current volume (0.0 to 1.0). Setting this cancels any active fade.
-    /// </summary>
     public float Volume
     {
         get => _currentVolume;
         set
         {
             _currentVolume = Mathf.Clamp01(value);
-            _fadeActive = false;
+            _fadeActive = false; 
             UpdateProviderVolume();
         }
     }
     private float _currentVolume;
 
-    /// <summary>
-    /// Panning (-1.0 Left to 1.0 Right).
-    /// </summary>
     public float Pan
     {
         get => _panProvider.Pan;
@@ -323,28 +358,27 @@ public class SoundInstance
         _loop = loop;
         _currentVolume = startVolume;
 
-        //Source
+
         _source = new CachedSoundSampleProvider(sound);
 
-        //Loop Handling
+
         if (loop)
             _loopingWrapper = new LoopingSampleProvider(_source);
         else
             _loopingWrapper = _source;
 
-        //Volume Control
         _volumeProvider = new VolumeSampleProvider(_loopingWrapper)
         {
             Volume = startVolume
         };
 
-        //Panning Control
-        _panProvider = new PanningSampleProvider(_volumeProvider)
+
+        _panProvider = new StereoPanProvider(_volumeProvider)
         {
             Pan = Mathf.Clamp(pan, -1f, 1f)
         };
 
-        //Connect to Mixer
+
         _mixer.AddMixerInput(_panProvider);
     }
 
@@ -364,13 +398,9 @@ public class SoundInstance
     {
         if (IsStopped) return;
         IsStopped = true;
-        
         _mixer.RemoveMixerInput(_panProvider);
     }
 
-    /// <summary>
-    /// Starts fading the volume over time.
-    /// </summary>
     public void StartFade(float targetVolume, float durationSeconds, EaseType ease = EaseType.Linear)
     {
         _fadeStartVolume = _currentVolume;
@@ -381,13 +411,9 @@ public class SoundInstance
         _fadeActive = true;
     }
 
-    /// <summary>
-    /// Call this every frame
-    /// </summary>
     public void Update(float deltaTime)
     {
         if (IsStopped) return;
-
         if (IsPaused) return; 
 
         if (_fadeActive)
@@ -409,11 +435,7 @@ public class SoundInstance
             {
                 _fadeActive = false;
                 _currentVolume = _fadeTargetVolume;
-
-                if (Mathf.Approximately(_fadeTargetVolume, 0f) && !_loop)
-                {
-                    Stop();
-                }
+                if (Mathf.Approximately(_fadeTargetVolume, 0f) && !_loop) Stop();
             }
 
             UpdateProviderVolume();
@@ -425,6 +447,7 @@ public class SoundInstance
         _volumeProvider.Volume = IsPaused ? 0f : _currentVolume;
     }
 
+    // --- Internal Loop Helper ---
     private class LoopingSampleProvider : ISampleProvider
     {
         private readonly CachedSoundSampleProvider _source;
@@ -439,19 +462,12 @@ public class SoundInstance
         public int Read(float[] buffer, int offset, int count)
         {
             int totalBytesRead = 0;
-
             while (totalBytesRead < count)
             {
                 int bytesRead = _source.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
-
-                if (bytesRead == 0)
-                {
-                    _source.Reset();
-                }
-
+                if (bytesRead == 0) _source.Reset();
                 totalBytesRead += bytesRead;
             }
-
             return totalBytesRead;
         }
     }
