@@ -355,8 +355,10 @@ public static class Parse
     [HarmonyPatch(typeof(Loader), nameof(Loader.LoadAudioFile))]
     static void LoadAudio(Mod mod, Mod.File file)
     {
-        sounds[Path.GetFileNameWithoutExtension(file.name)] = new CachedSound(file.bytes);
-        Main.modLogger.LogInfo($"Made {Path.GetFileNameWithoutExtension(file.name)} a CachedSound");
+        CachedSound sound = new CachedSound(file.bytes);
+        sound.name = Path.GetFileNameWithoutExtension(file.name);
+        sounds[sound.name] = sound;
+        Main.modLogger.LogInfo($"Made {sound.name} a CachedSound");
     }
     #endregion
 }

@@ -51,15 +51,14 @@ public static class PolibAudiomanager
         }
     }
 
-    private static bool TryGetSound(out CachedSound sound, string id, TribeType tribe, SkinType skinType = SkinType.Default)
+    private static bool TryGetSound(out CachedSound sound, string id, TribeType tribe = TribeType.None, SkinType skinType = SkinType.Default)
     {
         string style;
-        if (skinType != SkinType.Default) style = EnumCache<SkinType>.GetName(skinType);
-        else style = EnumCache<TribeType>.GetName(tribe);
+        if (skinType != SkinType.Default) style = "_" + EnumCache<SkinType>.GetName(skinType);
+        else if (tribe != TribeType.None) style = "_" + EnumCache<TribeType>.GetName(tribe);
+        else style = "";
 
-        Main.modLogger.LogInfo($"style: {style}");
-
-        if (!Parse.sounds.TryGetValue(id + "_" + style, out var value))
+        if (!Parse.sounds.TryGetValue(id + style, out var value))
         {
             sound = null;
             return false;
@@ -69,29 +68,48 @@ public static class PolibAudiomanager
         return true;
     }
 
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(AudioManager), nameof(AudioManager.FadeAudioSource))]
-    private static bool MusicPatch(AudioManager.AudioSourceTypes id, float to, float time = 0.6f, DG.Tweening.Ease easing = DG.Tweening.Ease.Linear, Il2CppSystem.Action onComplete = null)
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(AudioManager), nameof(AudioManager.PlaySFX))]
+    private static void SfxPatch(SFXTypes id, SkinType skinType = SkinType.Default, float volume = 1, float pitchMod = 1, float pan = 0)
     {
-        if (id != AudioManager.AudioSourceTypes.TribeMusic) return true;
-        
-
-        Behaviour.engine.FadeLooped("music", to * Behaviour.engine.MusicVolume, time, EaseType.Linear);
-        return false;
+        if (TryGetSound(out var sound, EnumCache<SFXTypes>.GetName(id), TribeType.None, skinType))
+        Behaviour.engine.PlaySfx(sound, volume, pan);
     }
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(AudioManager), nameof(AudioManager.GetTribeMusic))]
-    private static void GetMusic(TribeType tribe, AudioClip __result, SkinType skinType = SkinType.Default)
+    [HarmonyPatch(typeof(AudioManager), nameof(AudioManager.FadeAudioSource))]
+    private static void MusicPatch(AudioManager.AudioSourceTypes id, float to, float time = 0.6f, DG.Tweening.Ease easing = DG.Tweening.Ease.Linear, Il2CppSystem.Action onComplete = null)
     {
-        if (!TryGetSound(out var sound, "music", tribe, skinType))
+        if (id != AudioManager.AudioSourceTypes.TribeMusic) return;
+        Behaviour.engine.FadeLooped("music", to * Behaviour.engine.MusicVolume, time, EaseType.Linear, () =>
+        {
+            if (GameManager.Instance.isLevelLoaded && to == 0f)
+            {
+                Behaviour.engine.SetLoopPause("music", true);
+            }
+        });
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(MusicData), nameof(MusicData.GetMusicAudioClip))]
+    private static void GetMusic(TribeType type, ref AudioClip __result, SkinType skinType = SkinType.Default)
+    {
+        if (!TryGetSound(out var sound, "music", type, skinType))
         {
             Behaviour.engine.StopLoop("music");
-            return;
         }
-        
-        __result = null;
-        Behaviour.engine.PlayLoop("music", sound, 0f, true);
+        else
+        {
+            if (Behaviour.engine.loopingById.TryGetValue("music", out var playingSound) && playingSound.name == sound.name && GameManager.Instance.isLevelLoaded)
+            {
+                Behaviour.engine.SetLoopPause("music", false);
+            }
+            else
+            {
+                Behaviour.engine.PlayLoop("music", sound, 0f, true);
+            }
+            __result = null;
+        }
     }
 
     [HarmonyPostfix]
@@ -162,6 +180,7 @@ public class AudioEngineBehaviour : MonoBehaviour
 
 public class CachedSound
 {
+    public string name;
     public float[] AudioData { get; private set; }
     public WaveFormat WaveFormat { get; private set; }
 
@@ -315,23 +334,23 @@ public class CachedSoundSampleProvider : ISampleProvider
 
 public class SoundInstance
 {
-
+    public string name;
     private readonly CachedSoundSampleProvider _source;
     private readonly ISampleProvider _loopingWrapper;
     private readonly VolumeSampleProvider _volumeProvider;
-    private readonly StereoPanProvider _panProvider;
     private readonly MixingSampleProvider _mixer;
-
+    private readonly StereoPanProvider _panProvider; 
     private readonly bool _loop;
     public bool IsStopped { get; private set; }
     public bool IsPaused { get; private set; }
-    
+
     private bool _fadeActive;
     private float _fadeDuration;
     private float _fadeElapsed;
     private float _fadeStartVolume;
     private float _fadeTargetVolume;
     private EaseType _fadeEaseType;
+    private Action _onFadeComplete; 
     public bool HasFinished => !_loop && _source.HasEnded;
 
     public float Volume
@@ -340,7 +359,14 @@ public class SoundInstance
         set
         {
             _currentVolume = Mathf.Clamp01(value);
-            _fadeActive = false; 
+            
+            
+            if (_fadeActive)
+            {
+                _fadeActive = false;
+                _onFadeComplete = null; 
+            }
+            
             UpdateProviderVolume();
         }
     }
@@ -354,13 +380,12 @@ public class SoundInstance
 
     public SoundInstance(CachedSound sound, MixingSampleProvider mixer, float startVolume, float pan = 0f, bool loop = false)
     {
+        name = sound.name;
         _mixer = mixer;
         _loop = loop;
         _currentVolume = startVolume;
 
-
         _source = new CachedSoundSampleProvider(sound);
-
 
         if (loop)
             _loopingWrapper = new LoopingSampleProvider(_source);
@@ -372,12 +397,10 @@ public class SoundInstance
             Volume = startVolume
         };
 
-
         _panProvider = new StereoPanProvider(_volumeProvider)
         {
             Pan = Mathf.Clamp(pan, -1f, 1f)
         };
-
 
         _mixer.AddMixerInput(_panProvider);
     }
@@ -398,16 +421,22 @@ public class SoundInstance
     {
         if (IsStopped) return;
         IsStopped = true;
+
+        _onFadeComplete = null;
+        
         _mixer.RemoveMixerInput(_panProvider);
     }
 
-    public void StartFade(float targetVolume, float durationSeconds, EaseType ease = EaseType.Linear)
+    public void StartFade(float targetVolume, float durationSeconds, EaseType ease = EaseType.Linear, Action onComplete = null)
     {
         _fadeStartVolume = _currentVolume;
         _fadeTargetVolume = Mathf.Clamp01(targetVolume);
         _fadeDuration = Mathf.Max(durationSeconds, 0.001f);
         _fadeEaseType = ease;
         _fadeElapsed = 0f;
+
+        _onFadeComplete = onComplete;
+        
         _fadeActive = true;
     }
 
@@ -435,7 +464,13 @@ public class SoundInstance
             {
                 _fadeActive = false;
                 _currentVolume = _fadeTargetVolume;
-                if (Mathf.Approximately(_fadeTargetVolume, 0f) && !_loop) Stop();
+                _onFadeComplete?.Invoke();
+                _onFadeComplete = null;
+
+                if (Mathf.Approximately(_fadeTargetVolume, 0f) && !_loop)
+                {
+                    Stop();
+                }
             }
 
             UpdateProviderVolume();
@@ -447,18 +482,11 @@ public class SoundInstance
         _volumeProvider.Volume = IsPaused ? 0f : _currentVolume;
     }
 
-    // --- Internal Loop Helper ---
     private class LoopingSampleProvider : ISampleProvider
     {
         private readonly CachedSoundSampleProvider _source;
-
-        public LoopingSampleProvider(CachedSoundSampleProvider source)
-        {
-            _source = source;
-        }
-
+        public LoopingSampleProvider(CachedSoundSampleProvider source) => _source = source;
         public WaveFormat WaveFormat => _source.WaveFormat;
-
         public int Read(float[] buffer, int offset, int count)
         {
             int totalBytesRead = 0;
@@ -531,6 +559,15 @@ public class AudioEngine : IDisposable
         return instance;
     }
 
+    public void SetLoopPause(string id, bool paused)
+    {
+        if (loopingById.TryGetValue(id, out var instance))
+        {
+            if (paused) instance.Pause();
+            else instance.Resume();
+        }
+    }
+
     public void StopLoop(string id)
     {
         if (loopingById.TryGetValue(id, out var instance))
@@ -542,7 +579,7 @@ public class AudioEngine : IDisposable
     
     public void FadeLooped(string id, float target, float time, EaseType ease = EaseType.Linear, Action onComplete = null)
     {
-        if (loopingById.TryGetValue(id, out var instance)) instance.StartFade(target, time, ease);
+        if (loopingById.TryGetValue(id, out var instance)) instance.StartFade(target, time, ease, onComplete);
     }
 
     public void Update(float deltaTime)
