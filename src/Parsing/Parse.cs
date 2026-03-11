@@ -347,18 +347,4 @@ public static class Parse
             }
         }
     }
-
-    #region Audio
-    public static Dictionary<string, CachedSound> sounds = new();
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(Loader), nameof(Loader.LoadAudioFile))]
-    static void LoadAudio(Mod mod, Mod.File file)
-    {
-        CachedSound sound = new CachedSound(file.bytes);
-        sound.name = Path.GetFileNameWithoutExtension(file.name);
-        sounds[sound.name] = sound;
-        Main.modLogger.LogInfo($"Made {sound.name} a CachedSound");
-    }
-    #endregion
 }

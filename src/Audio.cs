@@ -11,24 +11,38 @@ using Polibrary.Parsing;
 using Polytopia.Data;
 using PolytopiaBackendBase.Common;
 using UnityEngine;
+using PolyMod;
 
 namespace Polibrary;
 
 public static class PolibAudiomanager
 {
-    public static ManualLogSource ModLogger;
+    public static ManualLogSource modLogger;
     public static AudioEngineBehaviour Behaviour;
     public static MusicData polytopiaMusicData;
     public static void Load(ManualLogSource logger)
     {
-        ModLogger = logger;
+        modLogger = logger;
+
         Harmony.CreateAndPatchAll(typeof(PolibAudiomanager));
-        
+
         ClassInjector.RegisterTypeInIl2Cpp<AudioEngineBehaviour>();
 
         var go = new GameObject("PolibAudioEngine");
         UnityEngine.Object.DontDestroyOnLoad(go);
         Behaviour = go.AddComponent<AudioEngineBehaviour>();
+    }
+
+    public static Dictionary<string, CachedSound> sounds = new();
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Loader), nameof(Loader.LoadAudioFile))]
+    static void LoadAudio(Mod mod, Mod.File file)
+    {
+        CachedSound sound = new CachedSound(file.bytes);
+        sound.name = Path.GetFileNameWithoutExtension(file.name);
+        sounds[sound.name] = sound;
+        Main.modLogger.LogInfo($"Made {sound.name} a CachedSound");
     }
 
     
@@ -38,7 +52,7 @@ public static class PolibAudiomanager
     /// </summary>
     public static void PlaySound(string id, float volume = 1f, float pan = 0f)
     {
-        if (Parse.sounds.TryGetValue(id, out var sound))
+        if (sounds.TryGetValue(id, out var sound))
         {
             float masterMult = SettingsUtils.Volume; 
             float sfxMult = AudioManager.ShouldPlaySoundEffects() ? 1f : 0f;
@@ -47,7 +61,7 @@ public static class PolibAudiomanager
         }
         else
         {
-            ModLogger.LogWarning($"Sound ID not found: {id}");
+            modLogger.LogWarning($"Sound ID not found: {id}");
         }
     }
 
@@ -58,7 +72,7 @@ public static class PolibAudiomanager
         else if (tribe != TribeType.None) style = "_" + EnumCache<TribeType>.GetName(tribe);
         else style = "";
 
-        if (!Parse.sounds.TryGetValue(id + style, out var value))
+        if (!sounds.TryGetValue(id + style, out var value))
         {
             sound = null;
             return false;
