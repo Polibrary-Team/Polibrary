@@ -551,7 +551,10 @@ public static class UnitManager
         TileData tile1 = map.GetTile(start);
         if (tile1 == null || tile1.unit == null || !tile1.unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_cantembark"))) return;
 
-        if (map.GetTile(destination).IsWater) __result = null;
+        var tile = map.GetTile(destination);
+        bool isBridge = false;
+        if(tile.improvement != null && tile.improvement.type == ImprovementData.Type.Bridge) isBridge = true;
+        if (tile.IsWater && !isBridge) __result = null;
     }
 
     #endregion
