@@ -20,7 +20,7 @@ public class PolibImprovementData
     public List<UnitData.Type> unitWhitelist = null;
     public List<UnitData.Type> unitBlacklist = null;
 
-    public PolibImprovementData()
+    public PolibImprovementData() //ctor needed because uhh it is needed
     {
         type = null;
     }

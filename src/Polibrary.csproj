@@ -12,7 +12,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="NAudio" Version="2.2.1" />
         <PackageReference Include="PolyMod" Version="1.2.10" />
     </ItemGroup>
 

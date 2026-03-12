@@ -462,7 +462,7 @@ public static class PolibUtils
 
     public static bool IsTileNative(PlayerState player, TileData tile, GameState gameState)
     {
-        return tile.climate == gameState.GameLogicData.GetTribeData(player.tribe).climate;
+        return tile.climate == player.climate;
     }
 
     public static ImprovementData DataFromState(ImprovementState improvement, GameState state)
@@ -508,6 +508,7 @@ public static class PolibUtils
     {
         if (tile == null) return false;
         if (!unit.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_cantembark"))) return false;
+        if (tile.improvement != null && tile.improvement.type == ImprovementData.Type.Bridge) return false;
         return tile.IsWater;
     }
     public static bool IsTileOutOfBounds(TileData tile, UnitState unit)
