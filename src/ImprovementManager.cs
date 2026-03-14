@@ -258,4 +258,48 @@ public static class ImprovementManager
 
 
     #endregion
+
+    #region TrainableUnitsPatch
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CommandUtils), nameof(CommandUtils.GetTrainableUnits))]
+    public static void CanTrain(ref Il2Gen.List<TrainCommand> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable = false)
+    {
+        Il2Gen.List<TrainCommand> list = new Il2Gen.List<TrainCommand>();
+        if (player.Id != gameState.CurrentPlayer)
+        {
+            __result = list;
+            return;
+        }
+        if (tile.owner != player.Id)
+        {
+            __result = list;
+            return;
+        }
+        if (tile.unit != null)
+        {
+            __result = list;
+            return;
+        }
+        if (tile.improvement == null || !PolibData.TryGetValue(Parse.polibImprovementDatas, tile.improvement.type, nameof(PolibImprovementData.canTrain), out bool result) || !result)
+        {
+            __result = list;
+            return;
+        }
+        
+        foreach (UnitData unlockedUnit in gameState.GameLogicData.GetUnlockedUnits(player, gameState, shouldIncludeHidden: false))
+        {
+            if (CommandValidation.HasUnitTerrain(gameState, tile.coordinates, unlockedUnit))
+            {
+                TrainCommand trainCommand = new TrainCommand(player.Id, unlockedUnit.type, tile.coordinates);
+                if (!player.blockTrainUnits && (includeUnavailable || trainCommand.IsValid(gameState)))
+                {
+                    list.Add(trainCommand);
+                }
+            }
+        }
+        __result = list;
+    }
+
+    #endregion
 }

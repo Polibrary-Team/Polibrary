@@ -103,6 +103,7 @@ public static class Parse
         PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "builtOnSpecific", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "unblock", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "infoOverride", polibImprovementDatas, impDataFactory);
+        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, bool, PolibImprovementData>(rootObject, "improvementData", "canTrain", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(rootObject, "improvementData", "unitAbilityWhitelist", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(rootObject, "improvementData", "unitAbilityBlacklist", polibImprovementDatas, impDataFactory);
         PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(rootObject, "improvementData", "unitWhitelist", polibImprovementDatas, impDataFactory);

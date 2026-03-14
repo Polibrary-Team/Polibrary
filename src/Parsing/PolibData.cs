@@ -11,6 +11,7 @@ public class PolibImprovementData
     public string builtOnSpecific = null;
     public string unblock = null;
     public string infoOverride = null;
+    public bool? canTrain = null;
     public int? defenceBoost = null;
     public int? freelanceImprovementDefenceBoost = null;
     public float? aiScore = null;
