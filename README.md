@@ -1,6 +1,6 @@
-# Polibrary 2.1 - A GLD Modding Tool for Polytopia
+# Polibrary 2.1.2 - A GLD Modding Tool for Polytopia
 
-Latest verified version: 2.1
+Latest verified version: 2.1.2
 
 ## Installation
 ### Verified (Recommended)
@@ -9,15 +9,13 @@ Download the **verified** .polymod file from the Polymod discord server, in the 
 ### Unverified
 This is for people who want to experiment with upcoming features before its released, or give us feedback. 
 
+**WARNING: Unverified versions aren't verified (i know, right?), so it has not been checked for MALWARE/VIRUSES!! If you don't know what you're doing or don't trust us (you shouldn't, we're internet strangers), then stick to the verified versions. Don't download random DLL-s unless you checked the code and are 100% sure it doesn't contain anything harmful! Stay safe!**
+
 #### Experimental releases
 These are versions that we release to experiment new features, fix bugs, and gather overall feedback of the mod. To get the latest and greatest experimental release, go to the "Releases" section of github, and find the ones labeled as such: `Polibrary 2.1e1`
 
 #### "DIY" versions
 These are literally just source codes. Extremely unstable, contain a lot of unfinished code, but the most up-to-date. From the repository, download the `mod` folder. You can use it as is, or zip it into a polymod, whatever. 
-
-Distributing the mod's unverified versions as a 3rd party on the Polymod discord server is against Polymod rules and will come with consequences. 
-
-**WARNING: Unverified versions aren't verified (i know, right?), so it has not been checked for MALWARE/VIRUSES!! If you don't know what you're doing or don't trust us (you shouldn't, we're internet strangers), then stick to the verified versions. Don't download random DLL-s unless you checked the code and are 100% sure it doesn't contain anything harmful! Stay safe!**
 
 ## Usage
 To access the features of Polibrary, you have to have it installed alongside your mod and have it as a **required dependency** in your mod's `manifest.json` file. (seek the polymod wiki for further information about manifest files)
