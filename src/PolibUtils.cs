@@ -781,7 +781,9 @@ public static class PolibUtils
 
     #endregion ParseUtils
 
-    public static void RunAction(string name, WorldCoordinates coordinates, byte ownerPlayer)
+    #region pActions
+
+    public static void RunAction(string name, WorldCoordinates coordinates, byte ownerPlayer, Dictionary<string, object> vars)
     {
         if (Parsing.Parse.actions.TryGetValue(name, out pAction refaction))
         {
@@ -789,6 +791,7 @@ public static class PolibUtils
             action.ActionOrigin = coordinates;
             action.playerId = ownerPlayer;
             action.name = name;
+            action.variables = vars;
             action.Execute();
         }
         else
@@ -828,4 +831,5 @@ public static class PolibUtils
         shaker.TriggerShake(duration, amount);
     }
 
+    #endregion pAction
 }

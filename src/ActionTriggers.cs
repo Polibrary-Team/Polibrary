@@ -39,11 +39,13 @@ public class ActionData
     public string name;
     public WorldCoordinates origin;
     public byte owner;
-    public ActionData(string name1, WorldCoordinates origin1, byte owner1)
+    public Dictionary<string, object> variables = new(); 
+    public ActionData(string name1, WorldCoordinates origin1, byte owner1, Dictionary<string, object> vars)
     {
         name = name1;
         origin = origin1;
         owner = owner1;
+        variables = vars;
     }
 }
 
@@ -64,7 +66,10 @@ public static class ActionTriggers
         {
             if (dict.TryGetValue("onBuild", out string name))
             {
-                PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId);
+                PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId, new()
+                {
+                    
+                });
             }
         }
     }
@@ -81,26 +86,19 @@ public static class ActionTriggers
 
         List<ActionData> stack = new List<ActionData>();
 
+        List<WorldCoordinates> trail = PolibUtils.ToSystemList(__instance.Path);
+        trail.RemoveAt(0);
+
         if (Parsing.Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
         {
             if (unitdict.TryGetValue("onMove", out string name))
             {
-                stack.Add(new ActionData(name, __instance.Path[0], __instance.PlayerId));
-            }
-            if (unitdict.TryGetValue("onMove_AtOrigin", out string name1))
-            {
-                stack.Add(new ActionData(name1, __instance.Path[__instance.Path.Count - 1], __instance.PlayerId));
-            }
-            foreach (WorldCoordinates coords in __instance.Path)
-            {
-                if (unitdict.TryGetValue("onMove_Path", out string name2))
+                stack.Add(new ActionData(name, __instance.Path[0], __instance.PlayerId, new()
                 {
-                    stack.Add(new ActionData(name2, coords, __instance.PlayerId));
-                }
-                if (unitdict.TryGetValue("onMove_Trail", out string name3) && coords.X != __instance.Path[0].X && coords.Y != __instance.Path[0].Y)
-                {
-                    stack.Add(new ActionData(name3, coords, __instance.PlayerId));
-                }
+                    {"@pathStart_auto", __instance.Path[__instance.Path.Count - 1]},
+                    {"@path_auto", PolibUtils.ToSystemList(__instance.Path)},
+                    {"@trail_auto", trail}
+                }));
             }
         }
         
@@ -110,22 +108,12 @@ public static class ActionTriggers
             {
                 if (abilityDict.TryGetValue("onMove", out string name))
                 {
-                    stack.Add(new ActionData(name, __instance.Path[0], __instance.PlayerId));
-                }
-                if (abilityDict.TryGetValue("onMove_AtOrigin", out string name1))
-                {
-                    stack.Add(new ActionData(name1, __instance.Path[__instance.Path.Count - 1], __instance.PlayerId));
-                }
-                foreach (WorldCoordinates coords in __instance.Path)
-                {
-                    if (abilityDict.TryGetValue("onMove_Path", out string name2))
+                    stack.Add(new ActionData(name, __instance.Path[0], __instance.PlayerId, new()
                     {
-                        stack.Add(new ActionData(name2, coords, __instance.PlayerId));
-                    }
-                    if (abilityDict.TryGetValue("onMove_Trail", out string name3) && coords.X != __instance.Path[0].X && coords.Y != __instance.Path[0].Y)
-                    {
-                        stack.Add(new ActionData(name3, coords, __instance.PlayerId));
-                    }
+                        {"@pathStart_auto", __instance.Path[__instance.Path.Count - 1]},
+                        {"@path_auto", PolibUtils.ToSystemList(__instance.Path)},
+                        {"@trail_auto", trail}
+                    }));
                 }
             }
         }
@@ -136,22 +124,12 @@ public static class ActionTriggers
             {
                 if (effectDict.TryGetValue("onMove", out string name))
                 {
-                    stack.Add(new ActionData(name, __instance.Path[0], __instance.PlayerId));
-                }
-                if (effectDict.TryGetValue("onMove_AtOrigin", out string name1))
-                {
-                    stack.Add(new ActionData(name1, __instance.Path[__instance.Path.Count - 1], __instance.PlayerId));
-                }
-                foreach (WorldCoordinates coords in __instance.Path)
-                {
-                    if (effectDict.TryGetValue("onMove_Path", out string name2))
+                    stack.Add(new ActionData(name, __instance.Path[0], __instance.PlayerId, new()
                     {
-                        stack.Add(new ActionData(name2, coords, __instance.PlayerId));
-                    }
-                    if (effectDict.TryGetValue("onMove_Trail", out string name3) && coords.X != __instance.Path[0].X && coords.Y != __instance.Path[0].Y)
-                    {
-                        stack.Add(new ActionData(name3, coords, __instance.PlayerId));
-                    }
+                        {"@pathStart_auto", __instance.Path[__instance.Path.Count - 1]},
+                        {"@path_auto", PolibUtils.ToSystemList(__instance.Path)},
+                        {"@trail_auto", trail}
+                    }));
                 }
             }
         }
@@ -164,22 +142,12 @@ public static class ActionTriggers
             {
                 if (tribeAbilitydict.TryGetValue("onMove", out string name))
                 {
-                    stack.Add(new ActionData(name, __instance.Path[0], __instance.PlayerId));
-                }
-                if (tribeAbilitydict.TryGetValue("onMove_AtOrigin", out string name1))
-                {
-                    stack.Add(new ActionData(name1, __instance.Path[__instance.Path.Count - 1], __instance.PlayerId));
-                }
-                foreach (WorldCoordinates coords in __instance.Path)
-                {
-                    if (tribeAbilitydict.TryGetValue("onMove_Path", out string name2))
+                    stack.Add(new ActionData(name, __instance.Path[0], __instance.PlayerId, new()
                     {
-                        stack.Add(new ActionData(name2, coords, __instance.PlayerId));
-                    }
-                    if (tribeAbilitydict.TryGetValue("onMove_Trail", out string name3) && coords.X != __instance.Path[0].X && coords.Y != __instance.Path[0].Y)
-                    {
-                        stack.Add(new ActionData(name3, coords, __instance.PlayerId));
-                    }
+                        {"@pathStart_auto", __instance.Path[__instance.Path.Count - 1]},
+                        {"@path_auto", PolibUtils.ToSystemList(__instance.Path)},
+                        {"@trail_auto", trail}
+                    }));
                 }
             }
         }
@@ -192,7 +160,10 @@ public static class ActionTriggers
             {
                 if (impdict.TryGetValue("onStep", out string name))
                 {
-                    stack.Add(new ActionData(name, unit.coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name, unit.coordinates, __instance.PlayerId, new()
+                    {
+                        {"@unitType_auto", unit.type}
+                    }));
                 }
             }
         }
@@ -203,14 +174,14 @@ public static class ActionTriggers
             {
                 if (impdict1.TryGetValue("onLand", out string name))
                 {
-                    stack.Add(new ActionData(name, unit.coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name, unit.coordinates, __instance.PlayerId, new()));
                 }
             }
         }
 
         foreach (ActionData a in stack)
         {
-            PolibUtils.RunAction(a.name, a.origin, a.owner);
+            PolibUtils.RunAction(a.name, a.origin, a.owner, a.variables);
         }
     }
 
@@ -227,13 +198,13 @@ public static class ActionTriggers
         {
             if (Parsing.Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
             {
-                if (effectDict.TryGetValue("onAttack_AtDefender", out string name3))
+                if (effectDict.TryGetValue("onAttack", out string name3))
                 {
-                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId));
-                }
-                if (effectDict.TryGetValue("onAttack_AtAttacker", out string name2))
-                {
-                    stack.Add(new ActionData(name2, attacker.coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                    {
+                        {"@attacker_auto", attacker.coordinates},
+                        {"@defender_auto", defender.coordinates}
+                    }));
                 }
             }
         }
@@ -242,38 +213,38 @@ public static class ActionTriggers
         {
             if (Parsing.Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
             {
-                if (effectDict.TryGetValue("onAttacked_AtDefender", out string name3))
+                if (effectDict.TryGetValue("onAttacked", out string name3))
                 {
-                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId));
-                }
-                if (effectDict.TryGetValue("onAttacked_AtAttacker", out string name2))
-                {
-                    stack.Add(new ActionData(name2, attacker.coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                    {
+                        {"@attacker_auto", attacker.coordinates},
+                        {"@defender_auto", defender.coordinates}
+                    }));
                 }
             }
         }
 
         if (Parsing.Parse.unitTriggers.TryGetValue(attacker.type, out var unitdict))
         {
-            if (unitdict.TryGetValue("onAttack_AtDefender", out string name1))
+            if (unitdict.TryGetValue("onAttack", out string name1))
             {
-                stack.Add(new ActionData(name1, defender.coordinates, __instance.PlayerId));
-            }
-            if (unitdict.TryGetValue("onAttack_AtAttacker", out string name))
-            {
-                stack.Add(new ActionData(name, attacker.coordinates, __instance.PlayerId));
+                stack.Add(new ActionData(name1, defender.coordinates, __instance.PlayerId, new()
+                {
+                    {"@attacker_auto", attacker.coordinates},
+                    {"@defender_auto", defender.coordinates}
+                }));
             }
         }
 
         if (Parsing.Parse.unitTriggers.TryGetValue(defender.type, out var unitdict1))
         {
-            if (unitdict1.TryGetValue("onAttacked_AtDefender", out string name1))
+            if (unitdict1.TryGetValue("onAttacked", out string name1))
             {
-                stack.Add(new ActionData(name1, defender.coordinates, __instance.PlayerId));
-            }
-            if (unitdict1.TryGetValue("onAttacked_AtAttacker", out string name))
-            {
-                stack.Add(new ActionData(name, attacker.coordinates, __instance.PlayerId));
+                stack.Add(new ActionData(name1, defender.coordinates, __instance.PlayerId, new()
+                {
+                    {"@attacker_auto", attacker.coordinates},
+                    {"@defender_auto", defender.coordinates}
+                }));
             }
         }
 
@@ -281,13 +252,13 @@ public static class ActionTriggers
         {
             if (Parsing.Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
             {
-                if (unitAbilitydict.TryGetValue("onAttack_AtDefender", out string name3))
+                if (unitAbilitydict.TryGetValue("onAttack", out string name3))
                 {
-                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId));
-                }
-                if (unitAbilitydict.TryGetValue("onAttack_AtAttacker", out string name2))
-                {
-                    stack.Add(new ActionData(name2, attacker.coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                    {
+                        {"@attacker_auto", attacker.coordinates},
+                        {"@defender_auto", defender.coordinates}
+                    }));
                 }
             }
         }
@@ -296,13 +267,13 @@ public static class ActionTriggers
         {
             if (Parsing.Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
             {
-                if (unitAbilitydict.TryGetValue("onAttacked_AtDefender", out string name3))
+                if (unitAbilitydict.TryGetValue("onAttacked", out string name3))
                 {
-                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId));
-                }
-                if (unitAbilitydict.TryGetValue("onAttacked_AtAttacker", out string name2))
-                {
-                    stack.Add(new ActionData(name2, attacker.coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                    {
+                        {"@attacker_auto", attacker.coordinates},
+                        {"@defender_auto", defender.coordinates}
+                    }));
                 }
             }
         }
@@ -314,13 +285,13 @@ public static class ActionTriggers
         {
             if (Parsing.Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
             {
-                if (tribeAbilitydict.TryGetValue("onAttack_AtDefender", out string name3))
+                if (tribeAbilitydict.TryGetValue("onAttack", out string name3))
                 {
-                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId));
-                }
-                if (tribeAbilitydict.TryGetValue("onAttack_AtAttacker", out string name2))
-                {
-                    stack.Add(new ActionData(name2, attacker.coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                    {
+                        {"@attacker_auto", attacker.coordinates},
+                        {"@defender_auto", defender.coordinates}
+                    }));
                 }
             }
         }
@@ -331,20 +302,20 @@ public static class ActionTriggers
         {
             if (Parsing.Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
             {
-                if (tribeAbilitydict.TryGetValue("onAttack_AtDefender", out string name3))
+                if (tribeAbilitydict.TryGetValue("onAttacked", out string name3))
                 {
-                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId));
-                }
-                if (tribeAbilitydict.TryGetValue("onAttack_AtAttacker", out string name2))
-                {
-                    stack.Add(new ActionData(name2, attacker.coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                    {
+                        {"@attacker_auto", attacker.coordinates},
+                        {"@defender_auto", defender.coordinates}
+                    }));
                 }
             }
         }
         
         foreach (ActionData a in stack)
         {
-            PolibUtils.RunAction(a.name, a.origin, a.owner);
+            PolibUtils.RunAction(a.name, a.origin, a.owner, a.variables);
         }
     }
 
@@ -365,7 +336,7 @@ public static class ActionTriggers
         {
             if (unitdict.TryGetValue("onKilled", out string name))
             {
-                stack.Add(new ActionData(name, tile.coordinates, unit.owner));
+                stack.Add(new ActionData(name, tile.coordinates, unit.owner, new()));
             }
         }
         
@@ -375,7 +346,7 @@ public static class ActionTriggers
             {
                 if (abilityDict.TryGetValue("onKilled", out string name))
                 {
-                    stack.Add(new ActionData(name, tile.coordinates, unit.owner));
+                    stack.Add(new ActionData(name, tile.coordinates, unit.owner, new()));
                 }
             }
         }
@@ -386,14 +357,14 @@ public static class ActionTriggers
             {
                 if (effectDict.TryGetValue("onKilled", out string name))
                 {
-                    stack.Add(new ActionData(name, tile.coordinates, unit.owner));
+                    stack.Add(new ActionData(name, tile.coordinates, unit.owner, new()));
                 }
             }
         }
 
         foreach (ActionData a in stack)
         {
-            PolibUtils.RunAction(a.name, a.origin, a.owner);
+            PolibUtils.RunAction(a.name, a.origin, a.owner, a.variables);
         }
     }
 
@@ -415,7 +386,7 @@ public static class ActionTriggers
         {
             if (unitdict.TryGetValue("onMoveCommand", out string name))
             {
-                stack.Add(new ActionData(name, unit.coordinates, __instance.PlayerId));
+                stack.Add(new ActionData(name, unit.coordinates, __instance.PlayerId, new()));
             }
         }
 
@@ -425,7 +396,7 @@ public static class ActionTriggers
             {
                 if (unitAbilitydict.TryGetValue("onMoveCommand", out string name))
                 {
-                    stack.Add(new ActionData(name, unit.coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name, unit.coordinates, __instance.PlayerId, new()));
                 }
             }
         }
@@ -436,14 +407,14 @@ public static class ActionTriggers
             {
                 if (effectDict.TryGetValue("onMoveCommand", out string name))
                 {
-                    stack.Add(new ActionData(name, unit.coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name, unit.coordinates, __instance.PlayerId, new()));
                 }
             }
         }
 
         foreach (ActionData a in stack)
         {
-            PolibUtils.RunAction(a.name, a.origin, a.owner);
+            PolibUtils.RunAction(a.name, a.origin, a.owner, a.variables);
         }
     }
 
@@ -464,7 +435,7 @@ public static class ActionTriggers
             {
                 if (impdict.TryGetValue("onExpand", out string name))
                 {
-                    PolibUtils.RunAction(name, tile1.coordinates, __instance.PlayerId);
+                    PolibUtils.RunAction(name, tile1.coordinates, __instance.PlayerId, new());
                 }
             }
         }
@@ -478,7 +449,7 @@ public static class ActionTriggers
         {
             if (rewarddict.TryGetValue("onRewardChosen", out string name))
             {
-                PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId);
+                PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId, new());
             }
         }
     }
@@ -496,7 +467,7 @@ public static class ActionTriggers
         {
             if (unitdict.TryGetValue("onCapture", out string name))
             {
-                stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
+                stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId, new()));
             }
         }
 
@@ -506,7 +477,7 @@ public static class ActionTriggers
             {
                 if (unitAbilitydict.TryGetValue("onCapture", out string name))
                 {
-                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId, new()));
                 }
             }
         }
@@ -517,7 +488,7 @@ public static class ActionTriggers
             {
                 if (effectDict.TryGetValue("onCapture", out string name))
                 {
-                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId, new()));
                 }
             }
         }
@@ -530,14 +501,14 @@ public static class ActionTriggers
             {
                 if (tribeAbilitydict.TryGetValue("onCapture", out string name))
                 {
-                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId, new()));
                 }
             }
         }
 
         foreach (ActionData a in stack)
         {
-            PolibUtils.RunAction(a.name, a.origin, a.owner);
+            PolibUtils.RunAction(a.name, a.origin, a.owner, a.variables);
         }
     }
 
@@ -556,7 +527,7 @@ public static class ActionTriggers
         {
             if (unitdict.TryGetValue("onCapture_Override", out string name))
             {
-                stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
+                stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId, new()));
                 flag = false;
             }
         }
@@ -567,7 +538,7 @@ public static class ActionTriggers
             {
                 if (unitAbilitydict.TryGetValue("onCapture_Override", out string name))
                 {
-                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId, new()));
                     flag = false;
                 }
             }
@@ -579,7 +550,7 @@ public static class ActionTriggers
             {
                 if (effectDict.TryGetValue("onCapture_Override", out string name))
                 {
-                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId, new()));
                     flag = false;
                 }
             }
@@ -593,7 +564,7 @@ public static class ActionTriggers
             {
                 if (tribeAbilitydict.TryGetValue("onCapture_Override", out string name))
                 {
-                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId));
+                    stack.Add(new ActionData(name, __instance.Coordinates, __instance.PlayerId, new()));
                     flag = false;
                 }
             }
@@ -601,7 +572,7 @@ public static class ActionTriggers
 
         foreach (ActionData a in stack)
         {
-            PolibUtils.RunAction(a.name, a.origin, a.owner);
+            PolibUtils.RunAction(a.name, a.origin, a.owner, a.variables);
         }
         
         return flag;

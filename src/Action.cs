@@ -491,7 +491,7 @@ public class pAction
             return;
         }
 
-        PolibUtils.RunAction(name, ActionOrigin, playerId);
+        PolibUtils.RunAction(name, ActionOrigin, playerId, new());
     }
 
     private void CallChildAction(string s)
@@ -518,7 +518,7 @@ public class pAction
             return;
         }
 
-        PolibUtils.RunAction(name, wcoords, playerId);
+        PolibUtils.RunAction(name, wcoords, playerId, new());
     }
 
     private void Return()
