@@ -209,7 +209,7 @@ public class pAction
             case "set": //sets a variable (refer with @)
                 SetVariable(ps[0], ps[1], ps[2]);
                 break;
-            case "setg": //sets a variable (refer with @)
+            case "setg": //sets a global variable (refer with &)
                 SetGlobalVariable(ps[0], ps[1], ps[2]);
                 break;
             case "setd": //sets a disposable variable (refer with #)
