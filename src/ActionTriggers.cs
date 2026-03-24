@@ -200,7 +200,7 @@ public static class ActionTriggers
             {
                 if (effectDict.TryGetValue("onAttack", out string name3))
                 {
-                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                    stack.Add(new ActionData(name3, attacker.coordinates, __instance.PlayerId, new()
                     {
                         {"@attacker_auto", attacker.coordinates},
                         {"@defender_auto", defender.coordinates}
@@ -228,7 +228,7 @@ public static class ActionTriggers
         {
             if (unitdict.TryGetValue("onAttack", out string name1))
             {
-                stack.Add(new ActionData(name1, defender.coordinates, __instance.PlayerId, new()
+                stack.Add(new ActionData(name1, attacker.coordinates, __instance.PlayerId, new()
                 {
                     {"@attacker_auto", attacker.coordinates},
                     {"@defender_auto", defender.coordinates}
@@ -254,7 +254,7 @@ public static class ActionTriggers
             {
                 if (unitAbilitydict.TryGetValue("onAttack", out string name3))
                 {
-                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                    stack.Add(new ActionData(name3, attacker.coordinates, __instance.PlayerId, new()
                     {
                         {"@attacker_auto", attacker.coordinates},
                         {"@defender_auto", defender.coordinates}
@@ -287,7 +287,7 @@ public static class ActionTriggers
             {
                 if (tribeAbilitydict.TryGetValue("onAttack", out string name3))
                 {
-                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                    stack.Add(new ActionData(name3, attacker.coordinates, __instance.PlayerId, new()
                     {
                         {"@attacker_auto", attacker.coordinates},
                         {"@defender_auto", defender.coordinates}
