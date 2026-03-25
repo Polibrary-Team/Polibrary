@@ -1536,7 +1536,7 @@ public class pAction
         }
         else
         {
-            LogError("ParseInt", $"Invalid int format. '{value}' Correct format: 0 . eg. set:var int 5");
+            LogError("ParseInt", $"Invalid int format. '{value}' Correct format: 0 . eg. set:var, int, 5");
             return 0;
         }
     }
@@ -1567,7 +1567,7 @@ public class pAction
         }
         else
         {
-            LogError("ParseWcoords", $"Invalid wcoords format. '{value}' Correct format: 0;0 . eg. set:var wcoords 0;0");
+            LogError("ParseWcoords", $"Invalid wcoords format. '{value}' Correct format: 0;0 . eg. set:var, wcoords, 0;0");
             return default;
         }
     }
@@ -1596,7 +1596,7 @@ public class pAction
             }
             else
             {
-                LogError("ParseWcoordsList", $"Invalid wcoords format. '{value}' Correct format: 0;0 . eg. set:var wcoords 0;0");
+                LogError("ParseWcoordsList", $"Invalid wcoords format. '{value}' Correct format: 0;0 . eg. set:var, area, 0;0");
             }
             i++;
         }
@@ -1615,7 +1615,7 @@ public class pAction
         }
         else
         {
-            LogError("ParseBool", $"Invalid bool format. '{value}' Correct format: true/false . eg. set:var bool false");
+            LogError("ParseBool", $"Invalid bool format. '{value}' Correct format: true/false . eg. set:var, bool, false");
             
             return true;
         }
