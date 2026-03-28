@@ -194,121 +194,126 @@ public static class ActionTriggers
 
         List<ActionData> stack = new List<ActionData>();
 
-        foreach (UnitEffect effect in attacker.effects)
+        if (attacker != null) 
         {
-            if (Parsing.Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            foreach (UnitEffect effect in attacker.effects)
             {
-                if (effectDict.TryGetValue("onAttack", out string name3))
+                if (Parsing.Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
                 {
-                    stack.Add(new ActionData(name3, attacker.coordinates, __instance.PlayerId, new()
+                    if (effectDict.TryGetValue("onAttack", out string name3))
+                    {
+                        stack.Add(new ActionData(name3, attacker.coordinates, __instance.PlayerId, new()
+                        {
+                            {"@attacker_auto", attacker.coordinates},
+                            {"@defender_auto", defender.coordinates}
+                        }));
+                    }
+                }
+            }
+
+            if (Parsing.Parse.unitTriggers.TryGetValue(attacker.type, out var unitdict))
+            {
+                if (unitdict.TryGetValue("onAttack", out string name1))
+                {
+                    stack.Add(new ActionData(name1, attacker.coordinates, __instance.PlayerId, new()
                     {
                         {"@attacker_auto", attacker.coordinates},
                         {"@defender_auto", defender.coordinates}
                     }));
                 }
             }
+
+            foreach (UnitAbility.Type unitAbility in attacker.UnitData.unitAbilities)
+            {
+                if (Parsing.Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
+                {
+                    if (unitAbilitydict.TryGetValue("onAttack", out string name3))
+                    {
+                        stack.Add(new ActionData(name3, attacker.coordinates, __instance.PlayerId, new()
+                        {
+                            {"@attacker_auto", attacker.coordinates},
+                            {"@defender_auto", defender.coordinates}
+                        }));
+                    }
+                }
+            }
+            
+            state.TryGetPlayer(attacker.owner, out var attackPlayer);
+            TribeData atkTribe = state.GameLogicData.GetTribeData(attackPlayer.tribe);
+            foreach (TribeAbility.Type ability in atkTribe.tribeAbilities)
+            {
+                if (Parsing.Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
+                {
+                    if (tribeAbilitydict.TryGetValue("onAttack", out string name3))
+                    {
+                        stack.Add(new ActionData(name3, attacker.coordinates, __instance.PlayerId, new()
+                        {
+                            {"@attacker_auto", attacker.coordinates},
+                            {"@defender_auto", defender.coordinates}
+                        }));
+                    }
+                }
+            }
         }
 
-        foreach (UnitEffect effect in defender.effects)
+        if (defender != null) 
         {
-            if (Parsing.Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
+            foreach (UnitEffect effect in defender.effects)
             {
-                if (effectDict.TryGetValue("onAttacked", out string name3))
+                if (Parsing.Parse.unitEffectTriggers.TryGetValue(effect, out var effectDict))
                 {
-                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                    if (effectDict.TryGetValue("onAttacked", out string name3))
+                    {
+                        stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                        {
+                            {"@attacker_auto", attacker.coordinates},
+                            {"@defender_auto", defender.coordinates}
+                        }));
+                    }
+                }
+            }
+
+            if (Parsing.Parse.unitTriggers.TryGetValue(defender.type, out var unitdict1))
+            {
+                if (unitdict1.TryGetValue("onAttacked", out string name1))
+                {
+                    stack.Add(new ActionData(name1, defender.coordinates, __instance.PlayerId, new()
                     {
                         {"@attacker_auto", attacker.coordinates},
                         {"@defender_auto", defender.coordinates}
                     }));
                 }
             }
-        }
 
-        if (Parsing.Parse.unitTriggers.TryGetValue(attacker.type, out var unitdict))
-        {
-            if (unitdict.TryGetValue("onAttack", out string name1))
+            foreach (UnitAbility.Type unitAbility in defender.UnitData.unitAbilities)
             {
-                stack.Add(new ActionData(name1, attacker.coordinates, __instance.PlayerId, new()
+                if (Parsing.Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
                 {
-                    {"@attacker_auto", attacker.coordinates},
-                    {"@defender_auto", defender.coordinates}
-                }));
-            }
-        }
-
-        if (Parsing.Parse.unitTriggers.TryGetValue(defender.type, out var unitdict1))
-        {
-            if (unitdict1.TryGetValue("onAttacked", out string name1))
-            {
-                stack.Add(new ActionData(name1, defender.coordinates, __instance.PlayerId, new()
-                {
-                    {"@attacker_auto", attacker.coordinates},
-                    {"@defender_auto", defender.coordinates}
-                }));
-            }
-        }
-
-        foreach (UnitAbility.Type unitAbility in attacker.UnitData.unitAbilities)
-        {
-            if (Parsing.Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
-            {
-                if (unitAbilitydict.TryGetValue("onAttack", out string name3))
-                {
-                    stack.Add(new ActionData(name3, attacker.coordinates, __instance.PlayerId, new()
+                    if (unitAbilitydict.TryGetValue("onAttacked", out string name3))
                     {
-                        {"@attacker_auto", attacker.coordinates},
-                        {"@defender_auto", defender.coordinates}
-                    }));
+                        stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                        {
+                            {"@attacker_auto", attacker.coordinates},
+                            {"@defender_auto", defender.coordinates}
+                        }));
+                    }
                 }
             }
-        }
 
-        foreach (UnitAbility.Type unitAbility in defender.UnitData.unitAbilities)
-        {
-            if (Parsing.Parse.unitAbilityTriggers.TryGetValue(unitAbility, out var unitAbilitydict))
+            state.TryGetPlayer(attacker.owner, out var defendPlayer);
+            TribeData defTribe = state.GameLogicData.GetTribeData(defendPlayer.tribe);
+            foreach (TribeAbility.Type ability in defTribe.tribeAbilities)
             {
-                if (unitAbilitydict.TryGetValue("onAttacked", out string name3))
+                if (Parsing.Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
                 {
-                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                    if (tribeAbilitydict.TryGetValue("onAttacked", out string name3))
                     {
-                        {"@attacker_auto", attacker.coordinates},
-                        {"@defender_auto", defender.coordinates}
-                    }));
-                }
-            }
-        }
-
-
-        state.TryGetPlayer(attacker.owner, out var attackPlayer);
-        TribeData atkTribe = state.GameLogicData.GetTribeData(attackPlayer.tribe);
-        foreach (TribeAbility.Type ability in atkTribe.tribeAbilities)
-        {
-            if (Parsing.Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
-            {
-                if (tribeAbilitydict.TryGetValue("onAttack", out string name3))
-                {
-                    stack.Add(new ActionData(name3, attacker.coordinates, __instance.PlayerId, new()
-                    {
-                        {"@attacker_auto", attacker.coordinates},
-                        {"@defender_auto", defender.coordinates}
-                    }));
-                }
-            }
-        }
-
-        state.TryGetPlayer(attacker.owner, out var defendPlayer);
-        TribeData defTribe = state.GameLogicData.GetTribeData(defendPlayer.tribe);
-        foreach (TribeAbility.Type ability in defTribe.tribeAbilities)
-        {
-            if (Parsing.Parse.tribeAbilityTriggers.TryGetValue(ability, out var tribeAbilitydict))
-            {
-                if (tribeAbilitydict.TryGetValue("onAttacked", out string name3))
-                {
-                    stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
-                    {
-                        {"@attacker_auto", attacker.coordinates},
-                        {"@defender_auto", defender.coordinates}
-                    }));
+                        stack.Add(new ActionData(name3, defender.coordinates, __instance.PlayerId, new()
+                        {
+                            {"@attacker_auto", attacker.coordinates},
+                            {"@defender_auto", defender.coordinates}
+                        }));
+                    }
                 }
             }
         }
