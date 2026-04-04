@@ -245,9 +245,9 @@ public static class CityRewardManager
         }
     }
 
-    [HarmonyPrefix] //I HATE THIS I HATE I HATE I HATE FUCK THIS SHIT FUCKING HELL I HATE THIS SO MUCH WHY DOESNT IT WORK WHY WHY WHYX WHY WHY WHY HWY HWY HWYH WHH A FUCK
+    [HarmonyPostfix] //I HATE THIS I HATE I HATE I HATE FUCK THIS SHIT FUCKING HELL I HATE THIS SO MUCH WHY DOESNT IT WORK WHY WHY WHYX WHY WHY WHY HWY HWY HWYH WHH A FUCK
     [HarmonyPatch(typeof(AI), nameof(AI.ChooseCityReward))]
-    public static bool AI_ChooseCityReward(GameState gameState, TileData tile, CityReward[] rewards, ref CityReward __result)
+    public static void AI_ChooseCityReward(GameState gameState, TileData tile, CityReward[] rewards, ref CityReward __result)
     {
         GameLogicData gld = gameState.GameLogicData;
         CityReward[] rewardarray = AIIsFuckingWithMe_GetCityRewardsForLevel(gld.GetImprovementData(tile.improvement.type), tile.improvement.level - 1);
@@ -260,8 +260,6 @@ public static class CityRewardManager
 
 
         __result = rewardarray[num];
-
-        return false;
     }
 
     public static CityReward[] AIIsFuckingWithMe_GetCityRewardsForLevel(ImprovementData data, int level) //c# waterboarding. i'm not gonna elaborate. leave.
