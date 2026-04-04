@@ -444,7 +444,10 @@ public static class UnitManager
     {
         UnitState unitState;
         gameState.TryGetPlayer(__instance.PlayerId, out PlayerState playerState);
-        gameState.TryGetUnit(__instance.UnitId, out unitState);
+        if (!gameState.TryGetUnit(__instance.UnitId, out unitState)) //breaks with consumed
+        {
+            return;
+        }
         TileData tile2 = gameState.Map.GetTile(__instance.Path[0]);
 
         if (tile2 == null || tile2.improvement == null)
@@ -467,7 +470,10 @@ public static class UnitManager
     {
         UnitState unitState;
         gameState.TryGetPlayer(__instance.PlayerId, out PlayerState playerState);
-        gameState.TryGetUnit(__instance.UnitId, out unitState);
+        if (!gameState.TryGetUnit(__instance.UnitId, out unitState)) //breaks with consumed
+        {
+            return;
+        }
         TileData tile2 = gameState.Map.GetTile(__instance.Path[0]);
 
         if (tile2 == null || tile2.improvement == null)
@@ -487,7 +493,7 @@ public static class UnitManager
 
         UnitState unitState;
         gameState.TryGetPlayer(__instance.PlayerId, out PlayerState playerState);
-        if (!gameState.TryGetUnit(__instance.UnitId, out unitState)) //this breaks with consumed btw
+        if (!gameState.TryGetUnit(__instance.UnitId, out unitState)) //breaks with consumed
         {
             return;
         }
