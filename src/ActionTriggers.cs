@@ -80,7 +80,6 @@ public static class ActionTriggers
     {
         if (!gameState.TryGetUnit(__instance.UnitId, out UnitState unit))
         {
-            modLogger.LogInfo("shits fucked");
             return;
         }
 

@@ -487,7 +487,10 @@ public static class UnitManager
 
         UnitState unitState;
         gameState.TryGetPlayer(__instance.PlayerId, out PlayerState playerState);
-        gameState.TryGetUnit(__instance.UnitId, out unitState);
+        if (!gameState.TryGetUnit(__instance.UnitId, out unitState)) //this breaks with consumed btw
+        {
+            return;
+        }
         TileData tile2 = gameState.Map.GetTile(__instance.Path[0]);
 
         if (unitState.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_crush")) && CanDestroyDiNuovo(tile2, gameState))
