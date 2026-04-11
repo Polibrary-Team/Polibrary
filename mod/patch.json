@@ -102,9 +102,12 @@
 			"idx": -1
 		}
 	},
-	"techData": {
-		"polib_pactionbs": {
-			"idx": -1
+	"pCommands": {
+		"polib_commandbase": {
+
+		},
+		"testcommand": {
+
 		}
 	}
 }
