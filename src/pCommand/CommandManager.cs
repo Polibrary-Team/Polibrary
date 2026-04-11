@@ -17,8 +17,10 @@ public static class CommandManager
     /*
     USAGE:
 
+    0. Have a class that inherits from PolibCommandBase, and overrides all the necessary things
     1. register the commandtypes in the patch.json (in pCommands, as seen in the polib patch.json)
     2. postfix GameLogicData.AddGameLogicPlaceholders and call Polibrary.pCommand.CommandManager.RegisterCommand()
+    3. ur done
     */
 
     public static void Load(ManualLogSource logger)
@@ -40,6 +42,7 @@ public static class CommandManager
     public static void RegisterCommand(CommandType commandType, Type type)
     {
         pCommandMapping[commandType] = type;
+        Main.modLogger.LogInfo($"Registered command '{commandType}' as a command");
     }
 
     [HarmonyPrefix]
@@ -59,14 +62,6 @@ public static class CommandManager
                 pCommandMapping[EnumCache<CommandType>.GetType(token.Path.Split('.').Last())] = typeof(PolibCommandBase);
             }
         }
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(CommandUtils), nameof(CommandUtils.GetUnitActions))]
-	public static void GetUnitActions(ref Il2CppSystem.Collections.Generic.List<CommandBase> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable)
-    {
-        TestCommand command = (TestCommand)Il2CppSystem.Activator.CreateInstance(WrapType<TestCommand>());
-        CommandUtils.AddCommand(gameState, __result, command, includeUnavailable);
     }
 
     [HarmonyPrefix]
@@ -94,7 +89,6 @@ public static class CommandManager
     {
         if (pCommandMapping.TryGetValue(__instance.GetCommandType(), out Type commandClass))
         {
-            Main.modLogger.LogInfo("PolibCommandBase.Execute");
             PolibCommandBase command = __instance.Cast<PolibCommandBase>();
             command.ExecuteNew(state);
         }
@@ -106,7 +100,6 @@ public static class CommandManager
     {
         if(pCommandMapping.TryGetValue(__instance.GetCommandType(), out Type commandClass))
         {
-            Main.modLogger.LogInfo("PolibCommandBase.Serialize");
             PolibCommandBase command = __instance.Cast<PolibCommandBase>();
             command.SerializeNew(writer, version);
         }
@@ -118,7 +111,6 @@ public static class CommandManager
     {
         if(pCommandMapping.TryGetValue(__instance.GetCommandType(), out Type commandClass))
         {
-            Main.modLogger.LogInfo("PolibCommandBase.Deserialize");
             PolibCommandBase command = __instance.Cast<PolibCommandBase>();
             command.DeserializeNew(reader, version);
         }
@@ -135,11 +127,19 @@ public static class CommandManager
 
 
     //TESTING
-
+    /*
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
     private static void REGISTER_TEST(GameLogicData __instance, JObject rootObject)
     {
         RegisterCommand("testcommand", typeof(TestCommand));
     }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CommandUtils), nameof(CommandUtils.GetUnitActions))]
+	public static void GetUnitActions(ref Il2CppSystem.Collections.Generic.List<CommandBase> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable)
+    {
+        TestCommand command = (TestCommand)Il2CppSystem.Activator.CreateInstance(WrapType<TestCommand>());
+        CommandUtils.AddCommand(gameState, __result, command, includeUnavailable);
+    }*/
 }

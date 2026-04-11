@@ -88,4 +88,10 @@ public class TestCommand : PolibCommandBase
         base.ExecuteNew(state);
 		Main.modLogger.LogInfo("TestCommand.ExecuteNew");
     }
+
+	public override CommandType GetCommandType()
+	{
+		CommandType type = EnumCache<CommandType>.GetType("testcommand");
+		return type;
+	}
 }
