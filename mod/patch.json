@@ -104,10 +104,10 @@
 	},
 	"pCommands": {
 		"polib_commandbase": {
-
+			"idx": -1
 		},
 		"testcommand": {
-
+			"idx": -1
 		}
 	}
 }
