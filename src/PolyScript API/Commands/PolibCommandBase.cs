@@ -11,7 +11,7 @@ public class PolibCommandBase : CommandBase
 	public PolibCommandBase(byte playerId) 
     : base(playerId)
 	{
-
+		
 	}
 
 	public override bool IsValid(GameState state, out string validationError)
@@ -38,12 +38,12 @@ public class PolibCommandBase : CommandBase
 
 	public virtual void SerializeNew(Il2CppSystem.IO.BinaryWriter writer, int version)
 	{
-        writer.Write(base.PlayerId);
+		//Empty cause its postfixed. Users still have to define this
 	}
 
 	public virtual void DeserializeNew(Il2CppSystem.IO.BinaryReader reader, int version)
 	{
-        base.PlayerId = reader.ReadByte();
+		//Same
 	}
 
 	public override string ToString()

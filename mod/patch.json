@@ -102,7 +102,7 @@
 			"idx": -1
 		}
 	},
-	"pCommands": {
+	"CommandType": {
 		"polib_commandbase": {
 			"idx": -1
 		},
