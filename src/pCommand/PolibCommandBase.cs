@@ -20,9 +20,8 @@ public class PolibCommandBase : CommandBase
 		return true;
 	}
 
-	public virtual CommandType GetCommandTypeNew()
+	public override CommandType GetCommandType()
 	{
-		Main.modLogger.LogInfo("fired");
 		CommandType type = EnumCache<CommandType>.GetType("polib_commandbase");
 		return type;
 	}
@@ -75,8 +74,9 @@ public class TestCommand : PolibCommandBase
     }
 
 	
-	public override CommandType GetCommandTypeNew()
+	public override CommandType GetCommandType()
 	{
+		Main.modLogger.LogInfo("fired");
 		CommandType type = EnumCache<CommandType>.GetType("testcommand");
 		return type;
 	}

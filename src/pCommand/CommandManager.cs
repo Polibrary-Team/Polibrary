@@ -26,7 +26,6 @@ public static class CommandManager
 
     public static void Load(ManualLogSource logger)
     {
-        NativeHooks.Apply();
         Harmony.CreateAndPatchAll(typeof(CommandManager));
         ClassInjector.RegisterTypeInIl2Cpp<PolibCommandBase>();
     }
@@ -34,6 +33,7 @@ public static class CommandManager
     static Dictionary<CommandType, Type> pCommandMapping = new();
     static Dictionary<Type, CommandType> pCommandReverseMapping = new();
 
+    #region Utils
     public static void RegisterCommand<T>(string commandType) where T : class
     {
         if (EnumCache<CommandType>.TryGetType(commandType, out var cType))
@@ -50,6 +50,10 @@ public static class CommandManager
         ClassInjector.RegisterTypeInIl2Cpp<T>();
         Main.modLogger.LogInfo($"Registered command '{commandType}' as a command");
     }
+
+    #endregion
+
+    #region Patches
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
@@ -130,7 +134,7 @@ public static class CommandManager
     }
 
 
-
+    #endregion
 
     //TESTING
     
@@ -143,7 +147,7 @@ public static class CommandManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CommandUtils), nameof(CommandUtils.GetUnitActions))]
-	public static void GetUnitActions(ref Il2CppSystem.Collections.Generic.List<CommandBase> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable)
+	public static void ACTIONSTEST(ref Il2CppSystem.Collections.Generic.List<CommandBase> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable)
     {
         TestCommand command = (TestCommand)Il2CppSystem.Activator.CreateInstance(WrapType<TestCommand>());
         CommandUtils.AddCommand(gameState, __result, command, includeUnavailable);
