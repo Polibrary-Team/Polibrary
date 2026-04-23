@@ -157,8 +157,12 @@ public static class CommandManager
 
 
     #endregion
+}
 
-    //TESTING
+
+    /*
+
+    Here's a quick tutorial on how to use this.
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
@@ -167,11 +171,13 @@ public static class CommandManager
         RegisterCommand<TestCommand>("testcommand");
     }
 
+    Let's add this action to units for example.
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CommandUtils), nameof(CommandUtils.GetUnitActions))]
-	private static void ACTIONSTEST(ref Il2Gen.List<CommandBase> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable)
+	private static void ACTIONS_TEST(ref Il2Gen.List<CommandBase> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable)
     {
         TestCommand command = MakeIl2CppCommand<TestCommand>();
         CommandUtils.AddCommand(gameState, __result, command, includeUnavailable);
     }
-}
+    */

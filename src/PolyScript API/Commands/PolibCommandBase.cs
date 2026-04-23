@@ -56,15 +56,19 @@ public class PolibCommandBase : CommandBase
 	}
 }
 
+/*
+
+Example of this API
 
 public class TestCommand : PolibCommandBase
 {
+	public int ExampleParam; 
 	public TestCommand(IntPtr ptr) : base(ptr) {}
 	public TestCommand() {}
-	public TestCommand(byte playerId) 
+	public TestCommand(byte playerId, int exampleParam) 
     : base(playerId)
 	{
-
+		ExampleParam = exampleParam;
 	}
 
     public override void ExecuteNew(GameState state)
@@ -73,11 +77,30 @@ public class TestCommand : PolibCommandBase
 		Main.modLogger.LogInfo("wow i feel like calling an action here");
     }
 
+	public override void SerializeNew(Il2CppSystem.IO.BinaryWriter writer, int version)
+	{
+		writer.Write(ExampleParam);
+	}
+
+	public override void DeserializeNew(Il2CppSystem.IO.BinaryReader reader, int version)
+	{
+		ExampleParam = reader.ReadInt32();
+	}
 	
 	public override CommandType GetCommandType()
 	{
-		Main.modLogger.LogInfo("fired");
 		CommandType type = EnumCache<CommandType>.GetType("testcommand");
 		return type;
 	}
+
+    public override string ToString()
+    {
+        return string.Format("{0} (PlayerId: {1}, ExampleParam: {2})", new object[]
+		{
+			base.GetType(),
+            base.PlayerId,
+			this.ExampleParam
+		});
+    }
 }
+*/
