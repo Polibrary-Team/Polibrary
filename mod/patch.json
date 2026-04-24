@@ -102,8 +102,8 @@
 			"idx": -1
 		}
 	},
-	"techData": {
-		"polib_pactionbs": {
+	"CommandType": {
+		"polibcommandbase": {
 			"idx": -1
 		}
 	}
