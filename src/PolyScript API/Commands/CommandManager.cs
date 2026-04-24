@@ -81,7 +81,7 @@ public static class CommandManager
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
     private static void GameLogicData_Parse(GameLogicData __instance, JObject rootObject)
     {
-        foreach (JToken jtoken in rootObject.SelectTokens("$.CommandType.*").ToList())
+        foreach (JToken jtoken in rootObject.SelectTokens("$.commandType.*").ToList())
         {
             JObject token = jtoken.TryCast<JObject>();
             if (token != null)
