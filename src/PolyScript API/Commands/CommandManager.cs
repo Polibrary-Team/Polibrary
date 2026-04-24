@@ -90,18 +90,14 @@ public static class CommandManager
                 EnumCache<CommandType>.AddMapping(token.Path.Split('.').Last(), (CommandType)PolyMod.Registry.autoidx);
                 Main.modLogger.LogInfo($"Added command mapping '{token.Path.Split('.').Last()}', id: {PolyMod.Registry.autoidx}");
                 PolyMod.Registry.autoidx++;
-
-                CommandMapping[EnumCache<CommandType>.GetType(token.Path.Split('.').Last())] = typeof(PolibCommandBase);
             }
         }
+        RegisterCommand<PolibCommandBase>("polibcommandbase");
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(GameState), nameof(GameState.GetCommand))]
     private static bool GameState_GetCommand(ref CommandBase  __result, CommandType type) {
-        Main.modLogger.LogInfo("GameState_GetCommand");
-        Main.modLogger.LogInfo(type);
-
         if (CommandMapping.TryGetValue(type, out Type commandClass))
         {
             MethodInfo wrapMethod = typeof(CommandManager)
@@ -145,6 +141,34 @@ public static class CommandManager
         {
             PolibCommandBase command = __instance.Cast<PolibCommandBase>();
             command.DeserializeNew(reader, version);
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CommandBase), nameof(CommandBase.Id), MethodType.Getter)]
+    private static void CommandBase_Id_get(ref CommandBase  __instance, ref string __result)
+    {
+        if (CommandReverseMapping.TryGetValue(__instance.GetType(), out var type))
+        {
+            __result = EnumCache<CommandType>.GetName(__instance.GetCommandType());
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(UIIconData), nameof(UIIconData.GetSprite))]
+    public static void UIIconData_GetSprite(UIIconData __instance, ref Sprite __result, string id)
+    {
+        string id2 = id.Remove(0, 3);
+        if (EnumCache<CommandType>.TryGetType(id2, out var type))
+        {
+            if (CommandMapping.Keys.Contains(type))
+            {
+                Sprite sprite = PolyMod.Registry.GetSprite(id2);
+                if (sprite != null)
+                {
+                    __result = sprite;
+                }
+            }
         }
     }
 

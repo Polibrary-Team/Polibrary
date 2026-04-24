@@ -22,7 +22,7 @@ public class PolibCommandBase : CommandBase
 
 	public override CommandType GetCommandType()
 	{
-		CommandType type = EnumCache<CommandType>.GetType("polib_commandbase");
+		CommandType type = EnumCache<CommandType>.GetType("polibcommandbase");
 		return type;
 	}
 
