@@ -106,5 +106,10 @@
 		"polibcommandbase": {
 			"idx": -1
 		}
+	},
+	"actionType": {
+		"polibactionbase": {
+			"idx": -1
+		}
 	}
 }
