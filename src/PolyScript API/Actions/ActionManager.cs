@@ -97,7 +97,9 @@ public static class ActionManager
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(GameState), nameof(GameState.GetAction))]
-    private static bool GameState_GetAction(ref ActionBase  __result, ActionType type) {
+    private static bool GameState_GetAction(ref ActionBase  __result, ActionType type) 
+    {
+        Main.modLogger.LogInfo($"GetAction for {type}");
         if (ActionMapping.TryGetValue(type, out Type actionClass))
         {
             MethodInfo wrapMethod = typeof(ActionManager)
@@ -126,6 +128,7 @@ public static class ActionManager
     [HarmonyPatch(typeof(ActionBase), nameof(ActionBase.Serialize))]
     private static void ActionBase_Serialize(ref ActionBase  __instance, Il2CppSystem.IO.BinaryWriter writer, int version)
     {
+        Main.modLogger.LogInfo($"Serialize for {__instance.GetType}");
         if (ActionReverseMapping.TryGetValue(__instance.GetType(), out var type))
         {
             PolibActionBase action = __instance.Cast<PolibActionBase>();
@@ -137,6 +140,7 @@ public static class ActionManager
     [HarmonyPatch(typeof(ActionBase), nameof(ActionBase.Deserialize))]
     private static void ActionBase_Deserialize(ref ActionBase  __instance, Il2CppSystem.IO.BinaryReader reader, int version)
     {
+        Main.modLogger.LogInfo($"Deserialize for {__instance.GetType}");
         if (ActionReverseMapping.TryGetValue(__instance.GetType(), out var type))
         {
             PolibActionBase action = __instance.Cast<PolibActionBase>();
