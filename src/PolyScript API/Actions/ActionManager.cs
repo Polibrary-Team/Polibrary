@@ -110,7 +110,7 @@ public static class ActionManager
         }
         return true;
     }
-
+    /*
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ActionBase), nameof(ActionBase.Execute))]
     private static void ActionBase_Execute(ref ActionBase  __instance, GameState state)
@@ -120,7 +120,7 @@ public static class ActionManager
             PolibActionBase action = __instance.Cast<PolibActionBase>();
             action.ExecuteNew(state);
         }
-    }
+    }*/
     
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ActionBase), nameof(ActionBase.Serialize))]
@@ -160,4 +160,12 @@ public static class ActionManager
     {
         //RegisterAction<>("testcommand");
     }
+    /*
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CommandUtils), nameof(CommandUtils.GetUnitActions))]
+	private static void ACTIONS_TEST(ref Il2Gen.List<CommandBase> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable)
+    {
+        PolibCommandBase command = CommandManager.MakeIl2CppCommand<PolibCommandBase>();
+        CommandUtils.AddCommand(gameState, __result, command, includeUnavailable);
+    }*/
 }

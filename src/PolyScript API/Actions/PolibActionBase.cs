@@ -23,11 +23,11 @@ public class PolibActionBase : ActionBase
     {
         return EnumCache<ActionType>.GetType("polibactionbase");
     }
-
-	public virtual void ExecuteNew(GameState state)
+	/*
+	public override void Execute(GameState state)
 	{
-		
-	}
+		Main.modLogger.LogInfo("yay!");
+	}*/
 
 	public virtual void SerializeNew(Il2CppSystem.IO.BinaryWriter writer, int version)
 	{
