@@ -28,8 +28,8 @@ public class PolibCommandBase : CommandBase
 
 	public virtual void ExecuteNew(GameState state)
 	{
-		//PolibActionBase action = ActionManager.MakeIl2CppAction<PolibActionBase>();
-		//state.ActionStack.Add(action);
+		PolibActionBase action = ActionManager.MakeIl2CppAction<PolibActionBase>();
+		state.ActionStack.Add(action);
 	}
 
 	public override bool ShouldAskForConfirmation()

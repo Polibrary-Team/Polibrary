@@ -104,44 +104,6 @@ public static class ActionManager
         }
         return true;
     }
-    /*
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(ActionBase), nameof(ActionBase.Execute))]
-    private static void ActionBase_Execute(ref ActionBase  __instance, GameState state)
-    {
-        if (ActionReverseMapping.TryGetValue(__instance.GetType(), out var type))
-        {
-            PolibActionBase action = __instance.Cast<PolibActionBase>();
-            action.ExecuteNew(state);
-        }
-    }*/
-
-
-    /*
-    [HarmonyPostfix] //FREEZE
-    [HarmonyPatch(typeof(ActionBase), nameof(ActionBase.Serialize))]
-    public static void ActionBase_Serialize(ref ActionBase  __instance, Il2CppSystem.IO.BinaryWriter writer, int version)
-    {
-        if (ActionMapping.Keys.Contains(__instance.GetActionType()))
-        {
-            PolibActionBase action = __instance.Cast<PolibActionBase>();
-            action.SerializeNew(writer, version);
-        }
-    }*/
-    
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(ActionBase), nameof(ActionBase.Deserialize))]
-    private static void ActionBase_Deserialize(ref ActionBase  __instance, Il2CppSystem.IO.BinaryReader reader, int version)
-    {
-        Main.modLogger.LogInfo($"Deserialize for {__instance.GetType}");
-        if (ActionReverseMapping.TryGetValue(__instance.GetType(), out var type))
-        {
-            PolibActionBase action = __instance.Cast<PolibActionBase>();
-            action.DeserializeNew(reader, version);
-        }
-    }
-
-
 
     internal static Il2CppSystem.Type WrapType<T>() where T : class
     {

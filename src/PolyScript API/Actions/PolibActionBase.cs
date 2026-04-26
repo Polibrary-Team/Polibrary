@@ -13,31 +13,31 @@ public class PolibActionBase : ActionBase
 	{
 		
 	}
-	/*
+	
 	public override bool IsValid(GameState state)
     {
         return true;
-    }*/
+    }
 
     public override ActionType GetActionType()
     {
         return EnumCache<ActionType>.GetType("polibactionbase");
     }
-	/*
+    
 	public override void Execute(GameState state)
 	{
 		Main.modLogger.LogInfo("yay!");
-	}*/
-
-	public virtual void SerializeNew(Il2CppSystem.IO.BinaryWriter writer, int version)
-	{
-		//Empty cause its postfixed. Users still have to define this
 	}
 
-	public virtual void DeserializeNew(Il2CppSystem.IO.BinaryReader reader, int version)
-	{
-		//Same
-	}
+    public override void Serialize(Il2CppSystem.IO.BinaryWriter writer, int version)
+    {
+        base.Serialize(writer, version);
+    }
+
+    public override void Deserialize(Il2CppSystem.IO.BinaryReader reader, int version)
+    {
+        base.Deserialize(reader, version);
+    }
 
 	public override string ToString()
 	{
