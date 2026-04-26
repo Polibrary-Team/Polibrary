@@ -13,11 +13,11 @@ public class PolibActionBase : ActionBase
 	{
 		
 	}
-
+	/*
 	public override bool IsValid(GameState state)
     {
         return true;
-    }
+    }*/
 
     public override ActionType GetActionType()
     {

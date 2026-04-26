@@ -15,14 +15,6 @@ namespace Polibrary;
 
 public static class ActionManager
 {
-    /*
-    USAGE:
-
-    0. Have a class that inherits from PolibCommandBase, and overrides all the necessary things
-    1. register the commandtypes in the patch.json (in pCommands, as seen in the polib patch.json)
-    2. postfix GameLogicData.AddGameLogicPlaceholders and call Polibrary.pCommand.CommandManager.RegisterCommand()
-    3. ur done
-    */
 
     public static void Load(ManualLogSource logger)
     {
@@ -123,19 +115,20 @@ public static class ActionManager
             action.ExecuteNew(state);
         }
     }*/
-    
-    [HarmonyPostfix]
+
+
+    /*
+    [HarmonyPostfix] //FREEZE
     [HarmonyPatch(typeof(ActionBase), nameof(ActionBase.Serialize))]
-    private static void ActionBase_Serialize(ref ActionBase  __instance, Il2CppSystem.IO.BinaryWriter writer, int version)
+    public static void ActionBase_Serialize(ref ActionBase  __instance, Il2CppSystem.IO.BinaryWriter writer, int version)
     {
-        Main.modLogger.LogInfo($"Serialize for {__instance.GetType}");
-        if (ActionReverseMapping.TryGetValue(__instance.GetType(), out var type))
+        if (ActionMapping.Keys.Contains(__instance.GetActionType()))
         {
             PolibActionBase action = __instance.Cast<PolibActionBase>();
             action.SerializeNew(writer, version);
         }
-    }
-
+    }*/
+    
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ActionBase), nameof(ActionBase.Deserialize))]
     private static void ActionBase_Deserialize(ref ActionBase  __instance, Il2CppSystem.IO.BinaryReader reader, int version)
@@ -147,6 +140,8 @@ public static class ActionManager
             action.DeserializeNew(reader, version);
         }
     }
+
+
 
     internal static Il2CppSystem.Type WrapType<T>() where T : class
     {
@@ -164,12 +159,12 @@ public static class ActionManager
     {
         //RegisterAction<>("testcommand");
     }
-    /*
+    
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CommandUtils), nameof(CommandUtils.GetUnitActions))]
 	private static void ACTIONS_TEST(ref Il2Gen.List<CommandBase> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable)
     {
         PolibCommandBase command = CommandManager.MakeIl2CppCommand<PolibCommandBase>();
         CommandUtils.AddCommand(gameState, __result, command, includeUnavailable);
-    }*/
+    }
 }
