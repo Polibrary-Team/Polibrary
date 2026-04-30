@@ -252,8 +252,10 @@ public static class ImprovementManager
     {
         if (!gameState.GameLogicData.CanBuild(gameState, tileData, player, improvementData))
             return;
-        if(PolibData.TryGetValue(Parse.polibImprovementDatas, improvementData.type, nameof(PolibImprovementData.aiScore), out float? result))
+        if(PolibData.TryGetValue(Parse.polibImprovementDatas, improvementData.type, nameof(PolibImprovementData.aiScore), out float? result)){
+            //Main.modLogger.LogMessage("AISCORE FOUND for "+improvementData.type+" amount: "+result);
             __result += (float)result;
+        }
     }
 
 

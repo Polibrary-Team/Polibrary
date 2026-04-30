@@ -20,6 +20,10 @@ public static class Parse
     {
         Harmony.CreateAndPatchAll(typeof(Parse));
         LogMan1997 = logger;
+        Loader.AddPatchDataType("improvementData", typeof(ImprovementData.Type));
+        Loader.AddPatchDataType("tribeData", typeof(TribeData));
+        Loader.AddPatchDataType("unitData", typeof(UnitData));
+        Loader.AddTypeHandler(typeof(ImprovementData.Type), HandleImprovements);
     }
     public static List<PolibImprovementData> polibImprovementDatas = new();
     public static Dictionary<pbb.TribeType, string> leaderNameDict = new Dictionary<pbb.TribeType, string>();
@@ -86,28 +90,30 @@ public static class Parse
 
 
     #region Parse
+    static void HandleImprovements(JObject token, bool onCreatedEnumCache)
+    {
+        System.Func<PolibImprovementData> f = () => new PolibImprovementData(); // PolibImprovementData Factory
+        PolibUtils.ParseWithHandler<ImprovementData.Type, float, PolibImprovementData>(token, "aiScore", polibImprovementDatas, f);
+        PolibUtils.ParseWithHandler<ImprovementData.Type, int, PolibImprovementData>(token, "defenceBoost", polibImprovementDatas, f);
+        PolibUtils.ParseWithHandler<ImprovementData.Type, int, PolibImprovementData>(token, "defenceBoost_Neutral", polibImprovementDatas, f);
+        PolibUtils.ParseWithHandler<ImprovementData.Type, string, PolibImprovementData>(token, "builtOnSpecific", polibImprovementDatas, f);
+        PolibUtils.ParseWithHandler<ImprovementData.Type, string, PolibImprovementData>(token,"unblock", polibImprovementDatas, f);
+        PolibUtils.ParseWithHandler<ImprovementData.Type, string, PolibImprovementData>(token, "infoOverride", polibImprovementDatas, f);
+        PolibUtils.ParseWithHandler<ImprovementData.Type, bool, PolibImprovementData>(token,"canTrain", polibImprovementDatas, f);
+        PolibUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(token, "unitAbilityWhitelist", polibImprovementDatas, f);
+        PolibUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(token, "unitAbilityBlacklist", polibImprovementDatas, f);
+        PolibUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitWhitelist", polibImprovementDatas, f);
+        PolibUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitBlacklist", polibImprovementDatas, f);
+    }
+    
     #endregion
     //thanks exploit
     [HarmonyPrefix]
     [HarmonyPriority(Priority.Last)]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
-    private static void GameLogicData_Parse(GameLogicData __instance, JObject rootObject) //in this world, its analfuck, or be analfucked
+    private static void GameLogicData_Parse(GameLogicData __instance, JObject rootObject)
     {
         #region Improvements
-
-        System.Func<PolibImprovementData> impDataFactory = () => new PolibImprovementData();
-
-        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, int, PolibImprovementData>(rootObject, "improvementData", "defenceBoost", polibImprovementDatas, impDataFactory);
-        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, int, PolibImprovementData>(rootObject, "improvementData", "defenceBoost_Neutral", polibImprovementDatas, impDataFactory);
-        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, float, PolibImprovementData>(rootObject, "improvementData", "aiScore", polibImprovementDatas, impDataFactory);
-        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "builtOnSpecific", polibImprovementDatas, impDataFactory);
-        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "unblock", polibImprovementDatas, impDataFactory);
-        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, string, PolibImprovementData>(rootObject, "improvementData", "infoOverride", polibImprovementDatas, impDataFactory);
-        PolibUtils.ParseIntoClassPerEach<ImprovementData.Type, bool, PolibImprovementData>(rootObject, "improvementData", "canTrain", polibImprovementDatas, impDataFactory);
-        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(rootObject, "improvementData", "unitAbilityWhitelist", polibImprovementDatas, impDataFactory);
-        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(rootObject, "improvementData", "unitAbilityBlacklist", polibImprovementDatas, impDataFactory);
-        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(rootObject, "improvementData", "unitWhitelist", polibImprovementDatas, impDataFactory);
-        PolibUtils.ParseIntoClassPerArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(rootObject, "improvementData", "unitBlacklist", polibImprovementDatas, impDataFactory);
 
         foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
         {
@@ -126,10 +132,7 @@ public static class Parse
         }
         #endregion
 
-        PolibUtils.ParsePerEach(rootObject, "tribeData", "leaderName", leaderNameDict);
-        PolibUtils.ParseListPerEach(rootObject, "unitData", "targets", unitDataTargets);
-        PolibUtils.ParseListPerEach(rootObject, "unitAbility", "targets", unitAbilityTargets);
-        PolibUtils.ParseListPerEach(rootObject, "unitEffectData", "targets", unitEffectTargets);
+        
         foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
         {
             JObject token = jtoken.TryCast<JObject>();
@@ -175,7 +178,10 @@ public static class Parse
         #endregion pActions
 
 
-
+        PolibUtils.ParsePerEach(rootObject, "tribeData", "leaderName", leaderNameDict);
+        PolibUtils.ParseListPerEach(rootObject, "unitData", "targets", unitDataTargets);
+        PolibUtils.ParseListPerEach(rootObject, "unitAbility", "targets", unitAbilityTargets);
+        PolibUtils.ParseListPerEach(rootObject, "unitEffectData", "targets", unitEffectTargets);
 
 
         #region Units

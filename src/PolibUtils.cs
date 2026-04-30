@@ -8,6 +8,7 @@ using UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using pbb = PolytopiaBackendBase.Common;
 using Polibrary.Parsing;
+using Scriban;
 
 
 namespace Polibrary;
@@ -539,7 +540,7 @@ public static class PolibUtils
         bool UnitCanBeBlocked = true;
         int idx = PolibData.FindData(Parse.polibImprovementDatas, data.type);
         var ability = Parse.polibImprovementDatas[idx].unblock;
-        if(idx >= 0 && ability != null && unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(ability)))
+        if (idx >= 0 && ability != null && unit.HasAbility(EnumCache<UnitAbility.Type>.GetType(ability)))
             UnitCanBeBlocked = false;
 
         if (data != null && data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_block")) && UnitCanBeBlocked)
@@ -573,7 +574,57 @@ public static class PolibUtils
 
 
     #region ParseUtils
+    public static void ParseWithHandler<targetType, T, PDataType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory) where targetType : struct, System.IConvertible
+    {
+        if (token[fieldName] != null)
+        {
+            T value = token[fieldName].ToObject<T>();
+            if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
+            {
+                int idx = PolibData.FindData<PDataType, targetType>(list, type);
+                if (idx >= 0)
+                {
+                    PolibData.OverrideField<PDataType, T>(list, fieldName, idx, value);
+                    //Main.modLogger.LogInfo($"Added to existing class in list: {type.ToString()} because of value {value} in field {fieldName}");
+                }
+                else
+                {
+                    PDataType newone = factory();
+                    list.Add(newone);
+                    PolibData.OverrideField<PDataType, targetType>(list, "type", list.Count - 1, type);
+                    PolibData.OverrideField<PDataType, T>(list, fieldName, list.Count - 1, value);
+                    //Main.modLogger.LogInfo($"Added a new class to list: {type.ToString()} because of value {value} in field {fieldName}");
+                }
+                token.Remove(fieldName);
 
+            }
+        }
+    }
+
+    public static void ParseWithHandlerIntoArray<PDataType, targetType, listType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory) where targetType : struct, System.IConvertible where listType : struct, System.IConvertible
+    {
+        if (token != null)
+        {
+            if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
+            {
+                int idx = PolibData.FindData(list, type);
+                if (idx == -1)
+                {
+                    PDataType newone = factory();
+                    list.Add(newone);
+                    PolibData.OverrideField(list, "type", list.Count - 1, type);
+                    idx = list.Count - 1;
+                }
+                if (token[fieldName] != null)
+                {
+                    PolibData.OverrideField(list, fieldName, idx, PolibUtils.ParseEnumsToSysList<listType>(token[fieldName]));
+                }
+            }
+        }
+
+    }
+
+/*
     public static void ParseIntoClassPerArray<PDataType, targetType, listType>(JObject rootObject, string categoryName, string fieldName, List<PDataType> list, Func<PDataType> factory) where targetType : struct, System.IConvertible where listType : struct, System.IConvertible
     {
         foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
@@ -584,12 +635,12 @@ public static class PolibUtils
                 if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
                 {
                     int idx = PolibData.FindData(list, type);
-                    if(idx == -1)
+                    if (idx == -1)
                     {
                         PDataType newone = factory();
                         list.Add(newone);
                         PolibData.OverrideField(list, "type", list.Count - 1, type);
-                        idx = list.Count -1;
+                        idx = list.Count - 1;
                     }
                     if (token[fieldName] != null)
                     {
@@ -632,6 +683,7 @@ public static class PolibUtils
             }
         }
     }
+    */
 
     //MAKE SURE TO LEAVE PARSEPEREACH / PARSEENUMPEREACH CUZ IT WILL GO PUBLIC AND SHIT!!!!
     public static void ParsePerEach<targetType, T>(JObject rootObject, string categoryName, string fieldName, Dictionary<targetType, T> dict)
