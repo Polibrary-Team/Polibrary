@@ -115,18 +115,25 @@ public static class ActionManager
 
     #endregion
 
+    
+}
+
+/* 
+    usage
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
     private static void REGISTER_TEST(GameLogicData __instance, JObject rootObject)
     {
         RegisterAction<TestAction>("testaction");
     }
-    
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(CommandUtils), nameof(CommandUtils.GetUnitActions))]
-	private static void ACTIONS_TEST(ref Il2Gen.List<CommandBase> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable)
-    {
-        PolibCommandBase command = CommandManager.MakeIl2CppCommand<PolibCommandBase>();
-        CommandUtils.AddCommand(gameState, __result, command, includeUnavailable);
-    }
-}
+
+    -----------------------------
+    then in your command or idk:
+    -----------------------------
+
+    TestAction action = ActionManager.MakeIl2CppAction<TestAction>();
+    action.ExampleValue = 3;
+    state.ActionStack.Add(action);
+
+*/

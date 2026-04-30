@@ -28,9 +28,7 @@ public class PolibCommandBase : CommandBase
 
 	public virtual void ExecuteNew(GameState state)
 	{
-		TestAction action = ActionManager.MakeIl2CppAction<TestAction>();
-		action.ExampleValue = 3;
-		state.ActionStack.Add(action);
+		
 	}
 
 	public override bool ShouldAskForConfirmation()

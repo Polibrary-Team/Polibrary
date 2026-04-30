@@ -49,6 +49,8 @@ public class PolibActionBase : ActionBase
 	}
 }
 
+
+/* Example: 
 public class TestAction : PolibActionBase
 {
     public int ExampleValue;
@@ -79,13 +81,13 @@ public class TestAction : PolibActionBase
 
     public override void Serialize(Il2CppSystem.IO.BinaryWriter writer, int version)
     {
-        base.Serialize(writer, version);
+        base.Serialize(writer, version); //this line is important btw
         writer.Write(ExampleValue);
     }
 
     public override void Deserialize(Il2CppSystem.IO.BinaryReader reader, int version)
     {
-        base.Deserialize(reader, version);
+        base.Deserialize(reader, version); //leave this line in
         ExampleValue = reader.ReadInt32();
     }
 
@@ -97,4 +99,4 @@ public class TestAction : PolibActionBase
             base.PlayerId
 		});
 	}
-}
+}*/
