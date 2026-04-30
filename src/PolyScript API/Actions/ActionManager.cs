@@ -119,7 +119,7 @@ public static class ActionManager
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
     private static void REGISTER_TEST(GameLogicData __instance, JObject rootObject)
     {
-        //RegisterAction<>("testcommand");
+        RegisterAction<TestAction>("testaction");
     }
     
     [HarmonyPostfix]

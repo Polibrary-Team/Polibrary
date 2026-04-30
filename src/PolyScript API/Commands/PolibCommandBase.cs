@@ -28,7 +28,8 @@ public class PolibCommandBase : CommandBase
 
 	public virtual void ExecuteNew(GameState state)
 	{
-		PolibActionBase action = ActionManager.MakeIl2CppAction<PolibActionBase>();
+		TestAction action = ActionManager.MakeIl2CppAction<TestAction>();
+		action.ExampleValue = 3;
 		state.ActionStack.Add(action);
 	}
 
