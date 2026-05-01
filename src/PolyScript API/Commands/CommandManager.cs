@@ -202,6 +202,7 @@ public static class CommandManager
 	private static void ACTIONS_TEST(ref Il2Gen.List<CommandBase> __result, GameState gameState, PlayerState player, TileData tile, bool includeUnavailable)
     {
         TestCommand command = MakeIl2CppCommand<TestCommand>();
+        command.PlayerId = player.Id;
         CommandUtils.AddCommand(gameState, __result, command, includeUnavailable);
     }
     */

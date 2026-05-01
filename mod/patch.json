@@ -110,9 +110,6 @@
 	"actionType": {
 		"polibactionbase": {
 			"idx": -1
-		},
-		"testaction": {
-			"idx": -1
 		}
 	}
 }

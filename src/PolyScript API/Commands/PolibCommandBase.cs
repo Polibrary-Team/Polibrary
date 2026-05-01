@@ -11,7 +11,7 @@ public class PolibCommandBase : CommandBase
 	public PolibCommandBase(byte playerId) 
     : base(playerId)
 	{
-		
+		base.PlayerId = playerId;
 	}
 
 	public override bool IsValid(GameState state, out string validationError)
@@ -28,7 +28,9 @@ public class PolibCommandBase : CommandBase
 
 	public virtual void ExecuteNew(GameState state)
 	{
-		
+		ActionBase action = ActionManager.MakeIl2CppAction<PolibActionBase>();
+		action.PlayerId = this.PlayerId;
+		GameManager.GameState.ActionStack.Add(action);
 	}
 
 	public override bool ShouldAskForConfirmation()

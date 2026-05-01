@@ -91,7 +91,6 @@ public static class ActionManager
     [HarmonyPatch(typeof(GameState), nameof(GameState.GetAction))]
     private static bool GameState_GetAction(ref ActionBase  __result, ActionType type) 
     {
-        Main.modLogger.LogInfo($"GetAction for {type}");
         if (ActionMapping.TryGetValue(type, out Type actionClass))
         {
             MethodInfo wrapMethod = typeof(ActionManager)
