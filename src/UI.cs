@@ -80,8 +80,49 @@ public static class UI
     [HarmonyPatch(typeof(BuildingUtils), nameof(BuildingUtils.GetInfo))]
     private static void InfoOverride(ref string __result, PolytopiaBackendBase.Common.SkinType skinOfCurrentLocalPlayer, ImprovementData improvementData, ImprovementState improvementState = null, PlayerState owner = null, TileData tileData = null)
     {
-        if(PolibData.TryGetValue(Parse.polibImprovementDatas, improvementData.type, nameof(PolibImprovementData.infoOverride), out string result))
+        if (PolibData.TryGetValue(Parse.polibImprovementDatas, improvementData.type, nameof(PolibImprovementData.infoOverride), out string result))
             __result = Localization.Get(result);
     }
+    #endregion
+
+    #region DiploUI
+    private static bool isInDiploHell = false;
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(PlayerInfoPopup), nameof(PlayerInfoPopup.UpdateDiplomacyActionButtons))]
+    private static void StoreDelegates(PlayerState player, PlayerInfoPopup __instance)
+    {
+        isInDiploHell = true;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(PlayerInfoPopup), nameof(PlayerInfoPopup.UpdateDiplomacyActionButtons))]
+    private static void DiplomacyDehardcoded(PlayerState player, PlayerInfoPopup __instance)
+    {
+        isInDiploHell = false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(PlayerExtensions), nameof(PlayerExtensions.HasTech))]
+    static bool HasTechPrefix(this PlayerState player, TechData.Type tech, ref bool __result)
+    {
+        if (isInDiploHell)
+        {
+            if (tech == TechData.Type.Shields && GameManager.GameState.GameLogicData.IsUnlocked(PlayerAbility.Type.PeaceTreaty, player))
+            {
+                __result = true;
+                return false;
+            }
+
+            if (tech == TechData.Type.Diplomacy && GameManager.GameState.GameLogicData.IsUnlocked(PlayerAbility.Type.Embassy, player))
+            {
+                __result = true;
+                return false;
+            }
+        }
+        
+        return true; 
+    }
+
+
     #endregion
 }

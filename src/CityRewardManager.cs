@@ -212,14 +212,14 @@ public static class CityRewardManager
     {
         //Is it even a city reward?
         //idk fap you tell me
-        Main.modLogger.LogDebug("Reward? " + s);
+        //Main.modLogger.LogDebug("Reward? " + s);
         string[] words = s.Split("_");
-        if (words[1] != "rewards")
+        if (words.Length < 2 || words[1] != "rewards")
         {
             return false;
         }
 
-
+        if(words.Length < 3) return false;
         if (int.TryParse(words[2], out int whatever)) //parse? i hate parse! all my homies hate parse! fuck parse! yeah!
         {
             return true;
