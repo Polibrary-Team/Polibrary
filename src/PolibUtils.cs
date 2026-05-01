@@ -574,7 +574,42 @@ public static class PolibUtils
 
 
     #region ParseUtils
-    public static void ParseWithHandler<targetType, T, PDataType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory) where targetType : struct, System.IConvertible
+
+    public static void ParseToDictWithHandler<targetType, VT, PDataType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory)
+    where targetType : struct, System.IConvertible
+    {
+        if (token[fieldName] != null)
+        {
+            var jt = token[fieldName].TryCast<JObject>();
+            if (jt != null)
+            {
+                Dictionary<string, VT> dict = new Dictionary<string, VT>();
+
+                foreach (JProperty property in jt.Properties().ToList())
+                {
+                    VT value = property.Value.ToObject<VT>();
+                    dict[property.Name] = value;
+                }
+
+                if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
+                {
+                    int idx = PolibData.FindData<PDataType, targetType>(list, type);
+
+                    if (idx == -1)
+                    {
+                        PDataType newone = factory();
+                        list.Add(newone);
+                        PolibData.OverrideField(list, "type", list.Count - 1, type);
+                        idx = list.Count - 1;
+                    }
+                    PolibData.OverrideField(list, fieldName, idx, dict);
+                    Main.modLogger.LogMessage("!!!!!!!! Added dict to "+type.ToString());
+                }
+            }
+        }
+    }
+    public static void ParseWithHandler<targetType, T, PDataType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory)
+    where targetType : struct, System.IConvertible
     {
         if (token[fieldName] != null)
         {
@@ -624,66 +659,66 @@ public static class PolibUtils
 
     }
 
-/*
-    public static void ParseIntoClassPerArray<PDataType, targetType, listType>(JObject rootObject, string categoryName, string fieldName, List<PDataType> list, Func<PDataType> factory) where targetType : struct, System.IConvertible where listType : struct, System.IConvertible
-    {
-        foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
+    /*
+        public static void ParseIntoClassPerArray<PDataType, targetType, listType>(JObject rootObject, string categoryName, string fieldName, List<PDataType> list, Func<PDataType> factory) where targetType : struct, System.IConvertible where listType : struct, System.IConvertible
         {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
+            foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
             {
-                if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
+                JObject token = jtoken.TryCast<JObject>();
+                if (token != null)
                 {
-                    int idx = PolibData.FindData(list, type);
-                    if (idx == -1)
+                    if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
                     {
-                        PDataType newone = factory();
-                        list.Add(newone);
-                        PolibData.OverrideField(list, "type", list.Count - 1, type);
-                        idx = list.Count - 1;
-                    }
-                    if (token[fieldName] != null)
-                    {
-                        PolibData.OverrideField(list, fieldName, idx, PolibUtils.ParseEnumsToSysList<listType>(token[fieldName]));
-                    }
-                }
-            }
-        }
-    }
-
-    public static void ParseIntoClassPerEach<targetType, T, PDataType>(JObject rootObject, string categoryName, string fieldName, List<PDataType> list, Func<PDataType> factory) where targetType : struct, System.IConvertible
-    {
-        foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
-                {
-                    if (token[fieldName] != null)
-                    {
-                        T v = token[fieldName]!.ToObject<T>();
-                        int idx = PolibData.FindData<PDataType, targetType>(list, type);
-                        if (idx >= 0)
-                        {
-                            PolibData.OverrideField<PDataType, T>(list, fieldName, idx, v);
-                            Main.modLogger.LogMessage($"Added to existing class in list: {type.ToString()} because of value {v} in field {fieldName}");
-                        }
-                        else
+                        int idx = PolibData.FindData(list, type);
+                        if (idx == -1)
                         {
                             PDataType newone = factory();
                             list.Add(newone);
-                            PolibData.OverrideField<PDataType, targetType>(list, "type", list.Count - 1, type);
-                            PolibData.OverrideField<PDataType, T>(list, fieldName, list.Count - 1, v);
-                            Main.modLogger.LogMessage($"Added a new class to list: {type.ToString()} because of value {v} in field {fieldName}");
+                            PolibData.OverrideField(list, "type", list.Count - 1, type);
+                            idx = list.Count - 1;
                         }
-                        token.Remove(fieldName);
+                        if (token[fieldName] != null)
+                        {
+                            PolibData.OverrideField(list, fieldName, idx, PolibUtils.ParseEnumsToSysList<listType>(token[fieldName]));
+                        }
                     }
                 }
             }
         }
-    }
-    */
+
+        public static void ParseIntoClassPerEach<targetType, T, PDataType>(JObject rootObject, string categoryName, string fieldName, List<PDataType> list, Func<PDataType> factory) where targetType : struct, System.IConvertible
+        {
+            foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
+            {
+                JObject token = jtoken.TryCast<JObject>();
+                if (token != null)
+                {
+                    if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
+                    {
+                        if (token[fieldName] != null)
+                        {
+                            T v = token[fieldName]!.ToObject<T>();
+                            int idx = PolibData.FindData<PDataType, targetType>(list, type);
+                            if (idx >= 0)
+                            {
+                                PolibData.OverrideField<PDataType, T>(list, fieldName, idx, v);
+                                Main.modLogger.LogMessage($"Added to existing class in list: {type.ToString()} because of value {v} in field {fieldName}");
+                            }
+                            else
+                            {
+                                PDataType newone = factory();
+                                list.Add(newone);
+                                PolibData.OverrideField<PDataType, targetType>(list, "type", list.Count - 1, type);
+                                PolibData.OverrideField<PDataType, T>(list, fieldName, list.Count - 1, v);
+                                Main.modLogger.LogMessage($"Added a new class to list: {type.ToString()} because of value {v} in field {fieldName}");
+                            }
+                            token.Remove(fieldName);
+                        }
+                    }
+                }
+            }
+        }
+        */
 
     //MAKE SURE TO LEAVE PARSEPEREACH / PARSEENUMPEREACH CUZ IT WILL GO PUBLIC AND SHIT!!!!
     public static void ParsePerEach<targetType, T>(JObject rootObject, string categoryName, string fieldName, Dictionary<targetType, T> dict)

@@ -76,7 +76,7 @@ public static class Parse
     public static Dictionary<UnitAbility.Type, PolibUnitAbilityData> unitAbilityDataDict = new Dictionary<UnitAbility.Type, PolibUnitAbilityData>();
     public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] { UnitEffect.Boosted, UnitEffect.Bubble, UnitEffect.Frozen, UnitEffect.Invisible, UnitEffect.Petrified, UnitEffect.Poisoned };
     public static Dictionary<string, pAction> actions = new Dictionary<string, pAction>();
-    public static Dictionary<ImprovementData.Type, Dictionary<string/*trigger*/, string/*action*/>> improvementTriggers = new Dictionary<ImprovementData.Type, Dictionary<string, string>>();
+    //public static Dictionary<ImprovementData.Type, Dictionary<string/*trigger*/, string/*action*/>> improvementTriggers = new Dictionary<ImprovementData.Type, Dictionary<string, string>>();
     public static Dictionary<UnitData.Type, Dictionary<string/*trigger*/, string/*action*/>> unitTriggers = new Dictionary<UnitData.Type, Dictionary<string, string>>();
     public static Dictionary<UnitAbility.Type, Dictionary<string/*trigger*/, string/*action*/>> unitAbilityTriggers = new Dictionary<UnitAbility.Type, Dictionary<string, string>>();
     public static Dictionary<TribeAbility.Type, Dictionary<string/*trigger*/, string/*action*/>> tribeAbilityTriggers = new Dictionary<TribeAbility.Type, Dictionary<string, string>>();
@@ -92,7 +92,7 @@ public static class Parse
     #region Parse
     static void HandleImprovements(JObject token, bool onCreatedEnumCache)
     {
-        System.Func<PolibImprovementData> f = () => new PolibImprovementData(); // PolibImprovementData Factory
+        static PolibImprovementData f() => new(); // PolibImprovementData Factory
         PolibUtils.ParseWithHandler<ImprovementData.Type, float, PolibImprovementData>(token, "aiScore", polibImprovementDatas, f);
         PolibUtils.ParseWithHandler<ImprovementData.Type, int, PolibImprovementData>(token, "defenceBoost", polibImprovementDatas, f);
         PolibUtils.ParseWithHandler<ImprovementData.Type, int, PolibImprovementData>(token, "defenceBoost_Neutral", polibImprovementDatas, f);
@@ -104,6 +104,7 @@ public static class Parse
         PolibUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(token, "unitAbilityBlacklist", polibImprovementDatas, f);
         PolibUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitWhitelist", polibImprovementDatas, f);
         PolibUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitBlacklist", polibImprovementDatas, f);
+        PolibUtils.ParseToDictWithHandler<ImprovementData.Type, string, PolibImprovementData>(token, "triggers", polibImprovementDatas, f);
     }
     
     #endregion
@@ -113,27 +114,8 @@ public static class Parse
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
     private static void GameLogicData_Parse(GameLogicData __instance, JObject rootObject)
     {
-        #region Improvements
-
-        foreach (JToken jtoken in rootObject.SelectTokens("$.improvementData.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<ImprovementData.Type>.TryGetType(token.Path.Split('.').Last(), out var impType))
-                {
-
-                    if (token["triggers"] != null)
-                    {
-                        PolibUtils.ParseToNestedStringDict(token["triggers"], impType, improvementTriggers);
-                    }
-                }
-            }
-        }
-        #endregion
-
-        
-        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
+    
+       foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
         {
             JObject token = jtoken.TryCast<JObject>();
             if (token != null)

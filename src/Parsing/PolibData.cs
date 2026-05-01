@@ -20,6 +20,7 @@ public class PolibImprovementData
     public int? defenceBoost_Neutral = null;
     public List<UnitData.Type> unitWhitelist = null;
     public List<UnitData.Type> unitBlacklist = null;
+    public Dictionary<string/*trigger*/, string/*action*/> triggers = new();
 
     public PolibImprovementData() //ctor needed because uhh it is needed
     {

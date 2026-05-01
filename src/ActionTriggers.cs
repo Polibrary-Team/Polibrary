@@ -62,8 +62,10 @@ public static class ActionTriggers
     [HarmonyPatch(typeof(BuildAction), nameof(BuildAction.ExecuteDefault))]
     private static void BuildTriggers(BuildAction __instance, GameState gameState)
     {
-        if (Parsing.Parse.improvementTriggers.TryGetValue(__instance.Type, out var dict))
+        int idx = Parsing.PolibData.FindData(Parsing.Parse.polibImprovementDatas, __instance.Type);
+        if(idx >= 0) //if (Parsing.Parse.improvementTriggers.TryGetValue(__instance.Type, out var dict))
         {
+            var dict = Parsing.Parse.polibImprovementDatas[idx].triggers;
             if (dict.TryGetValue("onBuild", out string name))
             {
                 PolibUtils.RunAction(name, __instance.Coordinates, __instance.PlayerId, new()
@@ -155,8 +157,10 @@ public static class ActionTriggers
         {
             if (GameManager.GameState.Map.GetTile(coords).improvement == null) continue;
             
-            if (Parsing.Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(coords).improvement.type, out var impdict))
+            int idx = Parsing.PolibData.FindData(Parsing.Parse.polibImprovementDatas, GameManager.GameState.Map.GetTile(coords).improvement.type);
+            if(idx >= 0)
             {
+                var impdict = Parsing.Parse.polibImprovementDatas[idx].triggers;
                 if (impdict.TryGetValue("onStep", out string name))
                 {
                     stack.Add(new ActionData(name, unit.coordinates, __instance.PlayerId, new()
@@ -169,8 +173,12 @@ public static class ActionTriggers
 
         if (GameManager.GameState.Map.GetTile(__instance.Path[0]).improvement != null)
         {
-            if (Parsing.Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(__instance.Path[0]).improvement.type, out var impdict1))
+            //if (Parsing.Parse.improvementTriggers.TryGetValue(GameManager.GameState.Map.GetTile(__instance.Path[0]).improvement.type, out var impdict1))
+            //{
+            int idx = Parsing.PolibData.FindData(Parsing.Parse.polibImprovementDatas, GameManager.GameState.Map.GetTile(__instance.Path[0]).improvement.type);
+            if(idx >= 0)
             {
+                var impdict1 = Parsing.Parse.polibImprovementDatas[idx].triggers;
                 if (impdict1.TryGetValue("onLand", out string name))
                 {
                     stack.Add(new ActionData(name, unit.coordinates, __instance.PlayerId, new()));
@@ -435,8 +443,10 @@ public static class ActionTriggers
         {
             if (tile1.improvement == null) continue;
 
-            if (Parsing.Parse.improvementTriggers.TryGetValue(tile1.improvement.type, out var impdict))
+            int idx = Parsing.PolibData.FindData(Parsing.Parse.polibImprovementDatas, tile1.improvement.type);
+            if(idx >= 0)
             {
+                var impdict = Parsing.Parse.polibImprovementDatas[idx].triggers;
                 if (impdict.TryGetValue("onExpand", out string name))
                 {
                     PolibUtils.RunAction(name, tile1.coordinates, __instance.PlayerId, new());
