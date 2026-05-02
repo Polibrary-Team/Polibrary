@@ -30,9 +30,9 @@ public static class ActionManager
     /// <summary>
     /// Register an action into Polibrary.
     /// </summary>
-    /// <typeparam name="T">Must be a class.</typeparam>
+    /// <typeparam name="T">Must inherit from <see cref="PolibActionBase"/>.</typeparam>
     /// <param name="actionType">The ActionType in the JSON.</param>
-    public static void RegisterAction<T>(string actionType) where T : class
+    public static void RegisterAction<T>(string actionType) where T : PolibActionBase
     {
         if (EnumCache<ActionType>.TryGetType(actionType, out var aType))
         RegisterAction<T>(aType);
@@ -44,9 +44,9 @@ public static class ActionManager
     /// <summary>
     /// Register an action into Polibrary. The string overload is preferred for usage.
     /// </summary>
-    /// <typeparam name="T">Must be a class.</typeparam>
+    /// <typeparam name="T">Must inherit from <see cref="PolibActionBase"/>.</typeparam>
     /// <param name="actionType">The EnumCached ActionType.</param>
-    public static void RegisterAction<T>(ActionType actionType) where T : class
+    public static void RegisterAction<T>(ActionType actionType) where T : PolibActionBase
     {
         ActionMapping[actionType] = typeof(T);
         ActionReverseMapping[typeof(T)] = actionType;

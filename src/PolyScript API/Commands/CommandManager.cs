@@ -38,9 +38,9 @@ public static class CommandManager
     /// <summary>
     /// Register a command into Polibrary.
     /// </summary>
-    /// <typeparam name="T">Must be a class.</typeparam>
+    /// <typeparam name="T">Must inherit from <see cref="PolibCommandBase"/>.</typeparam>
     /// <param name="commandType">The CommandType in the JSON.</param>
-    public static void RegisterCommand<T>(string commandType) where T : class
+    public static void RegisterCommand<T>(string commandType) where T : PolibCommandBase
     {
         if (EnumCache<CommandType>.TryGetType(commandType, out var cType))
         RegisterCommand<T>(cType);
@@ -52,9 +52,9 @@ public static class CommandManager
     /// <summary>
     /// Register a command into Polibrary. The string overload is preferred for usage.
     /// </summary>
-    /// <typeparam name="T">Must be a class.</typeparam>
+    /// <typeparam name="T">Must inherit from <see cref="PolibCommandBase"/>.</typeparam>
     /// <param name="commandType">The EnumCached CommandType.</param>
-    public static void RegisterCommand<T>(CommandType commandType) where T : class
+    public static void RegisterCommand<T>(CommandType commandType) where T : PolibCommandBase
     {
         CommandMapping[commandType] = typeof(T);
         CommandReverseMapping[typeof(T)] = commandType;

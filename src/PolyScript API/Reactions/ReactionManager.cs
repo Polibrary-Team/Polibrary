@@ -31,9 +31,9 @@ public static class PolibReactionManager
     /// <summary>
     /// Assign a reaction to an action.
     /// </summary>
-    /// <typeparam name="T">Must be a class.</typeparam>
+    /// <typeparam name="T">Must inherit from <see cref="PolibReactionBase"/>.</typeparam>
     /// <param name="actionType">The ActionType in the JSON.</param>
-    public static void AssignReaction<T>(string actionType) where T : class
+    public static void AssignReaction<T>(string actionType) where T : PolibReactionBase
     {
         if (EnumCache<ActionType>.TryGetType(actionType, out var aType))
         AssignReaction<T>(aType);
@@ -45,9 +45,9 @@ public static class PolibReactionManager
     /// <summary>
     /// Assign a reaction to an action. The string overload is preferred for usage.
     /// </summary>
-    /// <typeparam name="T">Must be a class.</typeparam>
+    /// <typeparam name="T">Must inherit from <see cref="PolibReactionBase"/>.</typeparam>
     /// <param name="actionType">The EnumCached ActionType.</param>
-    public static void AssignReaction<T>(ActionType actionType) where T : class
+    public static void AssignReaction<T>(ActionType actionType) where T : PolibReactionBase
     {
         ReactionMapping[actionType] = typeof(T);
         ReactionReverseMapping[typeof(T)] = actionType;
