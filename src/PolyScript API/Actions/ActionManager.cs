@@ -13,12 +13,12 @@ using Il2CppInterop.Runtime.Runtime;
 
 namespace Polibrary;
 
-public static class ActionManager
+public static class PolibActionManager
 {
 
     public static void Load(ManualLogSource logger)
     {
-        Harmony.CreateAndPatchAll(typeof(ActionManager));
+        Harmony.CreateAndPatchAll(typeof(PolibActionManager));
         ClassInjector.RegisterTypeInIl2Cpp<PolibActionBase>();
     }
 
@@ -93,7 +93,7 @@ public static class ActionManager
     {
         if (ActionMapping.TryGetValue(type, out Type actionClass))
         {
-            MethodInfo wrapMethod = typeof(ActionManager)
+            MethodInfo wrapMethod = typeof(PolibActionManager)
                 .GetMethod(nameof(WrapType), BindingFlags.Static | BindingFlags.NonPublic)
                 .MakeGenericMethod(actionClass);
 

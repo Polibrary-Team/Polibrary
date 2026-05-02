@@ -28,7 +28,7 @@ public class PolibCommandBase : CommandBase
 
 	public virtual void ExecuteNew(GameState state)
 	{
-		ActionBase action = ActionManager.MakeIl2CppAction<PolibActionBase>();
+		ActionBase action = PolibActionManager.MakeIl2CppAction<PolibActionBase>();
 		action.PlayerId = this.PlayerId;
 		GameManager.GameState.ActionStack.Add(action);
 	}

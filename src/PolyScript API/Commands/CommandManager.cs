@@ -13,7 +13,7 @@ using Il2CppInterop.Runtime.Runtime;
 
 namespace Polibrary;
 
-public static class CommandManager
+public static class PolibCommandManager
 {
     /*
     USAGE:
@@ -26,7 +26,7 @@ public static class CommandManager
 
     public static void Load(ManualLogSource logger)
     {
-        Harmony.CreateAndPatchAll(typeof(CommandManager));
+        Harmony.CreateAndPatchAll(typeof(PolibCommandManager));
         ClassInjector.RegisterTypeInIl2Cpp<PolibCommandBase>();
     }
 
@@ -100,7 +100,7 @@ public static class CommandManager
     private static bool GameState_GetCommand(ref CommandBase  __result, CommandType type) {
         if (CommandMapping.TryGetValue(type, out Type commandClass))
         {
-            MethodInfo wrapMethod = typeof(CommandManager)
+            MethodInfo wrapMethod = typeof(PolibCommandManager)
                 .GetMethod(nameof(WrapType), BindingFlags.Static | BindingFlags.NonPublic)
                 .MakeGenericMethod(commandClass);
 
