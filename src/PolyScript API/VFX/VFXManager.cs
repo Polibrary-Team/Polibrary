@@ -74,7 +74,7 @@ public static class VFXManager
         }
     }
 
-    private static void EnsureCustomPuffRegistered(string id) // i <3 clanker
+    public static void EnsureCustomPuffRegistered(string id) // i <3 clanker
     {
         if (RegisteredPuffs.Contains(id)) return;
 
