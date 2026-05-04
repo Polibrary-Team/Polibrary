@@ -91,7 +91,7 @@ public static class CityRewardManager
             {
                 if (cityRewardData.boostAttackOverSpawn != 0 || cityRewardData.boostDefenceOverSpawn != 0 || cityRewardData.boostMaxHpOverSpawn != 0 || cityRewardData.boostMovementOverSpawn != 0 || cityRewardData.healUnitOverSpawn)
                 {
-                    Main.polibGameState.rewardBoostDict[cityRewardData.unitType] = Main.polibGameState.rewardBoostDict.GetValueOrDefault(cityRewardData.unitType) + 1;
+                    Main.polibGameState.rewardBoostDict[__instance.PlayerId][cityRewardData.unitType]++;
                     
                     int num = 0;
                     MapData map = state.Map;
@@ -105,7 +105,7 @@ public static class CityRewardManager
                     if (num == 0)
                     {
                         ActionUtils.TrainUnitOnOccupiedSpace(state, playerId, cityRewardData.unitType, tile);
-                        Main.polibGameState.rewardBoostDict[cityRewardData.unitType] = 0;
+                        Main.polibGameState.rewardBoostDict[__instance.PlayerId][cityRewardData.unitType] = 0;
                     }
                     if (cityRewardData.healUnitOverSpawn)
                     {

@@ -95,13 +95,16 @@ public static class UnitManager
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetDefence))]
     public static void Defence(this UnitState unit, GameState state, ref int __result)
     {
-        if (Main.polibGameState.rewardBoostDict.TryGetValue(unit.type, out int num))
+        if (Main.polibGameState.rewardBoostDict.TryGetValue(unit.owner, out var dict))
         {
-            foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unit.type))
+            if (dict.TryGetValue(unit.type, out var num))
             {
-                if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unit.type))
                 {
-                    __result += cityRewardData.boostDefenceOverSpawn * num * 10;
+                    if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                    {
+                        __result += cityRewardData.boostDefenceOverSpawn * num;
+                    }
                 }
             }
         }
@@ -126,13 +129,16 @@ public static class UnitManager
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetMovement))]
     public static void Movement(this UnitState unitState, GameState gameState, ref int __result)
     {
-        if (Main.polibGameState.rewardBoostDict.TryGetValue(unitState.type, out int num))
+        if (Main.polibGameState.rewardBoostDict.TryGetValue(unitState.owner, out var dict))
         {
-            foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitState.type))
+            if (dict.TryGetValue(unitState.type, out var num))
             {
-                if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitState.type))
                 {
-                    __result += cityRewardData.boostMovementOverSpawn * num;
+                    if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                    {
+                        __result += cityRewardData.boostMovementOverSpawn * num;
+                    }
                 }
             }
         }
@@ -163,13 +169,16 @@ public static class UnitManager
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetAttack), typeof(UnitState), typeof(GameState))]
     public static void Attack(this UnitState unitState, GameState gameState, ref int __result)
     {
-        if (Main.polibGameState.rewardBoostDict.TryGetValue(unitState.type, out int num))
+        if (Main.polibGameState.rewardBoostDict.TryGetValue(unitState.owner, out var dict))
         {
-            foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitState.type))
+            if (dict.TryGetValue(unitState.type, out var num))
             {
-                if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitState.type))
                 {
-                    __result += cityRewardData.boostAttackOverSpawn * num * 10;
+                    if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                    {
+                        __result += cityRewardData.boostAttackOverSpawn * num;
+                    }
                 }
             }
         }
@@ -214,13 +223,16 @@ public static class UnitManager
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetMaxHealth))]
     public static void GetMaxHealth(this UnitState unitState, GameState gameState, ref int __result) //man voidmongers using modularity will get me SOO much downloads!!
     {
-        if (Main.polibGameState.rewardBoostDict.TryGetValue(unitState.type, out int num))
+        if (Main.polibGameState.rewardBoostDict.TryGetValue(unitState.owner, out var dict))
         {
-            foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitState.type))
+            if (dict.TryGetValue(unitState.type, out var num))
             {
-                if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                foreach (CityReward reward in PolibUtils.GetSpawningRewardsForUnit(unitState.type))
                 {
-                    __result += cityRewardData.boostMaxHpOverSpawn * num;
+                    if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                    {
+                        __result += cityRewardData.boostMaxHpOverSpawn * num;
+                    }
                 }
             }
         }

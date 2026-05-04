@@ -15,7 +15,7 @@ namespace Polibrary;
 public class PolibGameState
 {
     [JsonInclude]
-    public Dictionary<UnitData.Type, int> rewardBoostDict = new Dictionary<UnitData.Type, int>();
+    public Dictionary<byte, Dictionary<UnitData.Type, int>> rewardBoostDict = new();
 
     [JsonInclude]
     public Dictionary<string, object> globalVariables = new Dictionary<string, object>();
