@@ -35,6 +35,7 @@ public static class VFXManager
     }
 
     public static Dictionary<string, Sprite> SpriteMappings = new();
+    public static Dictionary<string, float> SizeMappings = new();
     public static List<string> RegisteredPuffs = new();
 
     [HarmonyPostfix]
@@ -96,10 +97,13 @@ public static class VFXManager
     private static void Puff_StartAnimation(Puff __instance, Transform parentTransform, Vector3 localPosition)
     {
         string idInPool = __instance.gameObject.name;
-        Main.modLogger.LogInfo(idInPool);
         if (SpriteMappings.TryGetValue(idInPool.ToLower(), out var sprite))
         {
             __instance.spriteRenderer.sprite = sprite;
+        }
+        if (SizeMappings.TryGetValue(idInPool.ToLower(), out var size))
+        {
+            __instance.spriteRenderer.size *= size;
         }
     }
 }
