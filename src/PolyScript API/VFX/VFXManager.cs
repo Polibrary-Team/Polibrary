@@ -70,16 +70,16 @@ public static class VFXManager
             Transform parentTransform = tile.transform;
             Vector3 localPosition = tile.VisualCenterObject.localPosition;
 
-            EnsureCustomPuffRegistered(puffId);
+            EnsureCustomPuffRegistered(puffId, "Puff");
             tile.DoPuff(puffId, parentTransform, localPosition);
         }
     }
 
-    public static void EnsureCustomPuffRegistered(string id) // i <3 clanker
+    public static void EnsureCustomPuffRegistered(string id, string originalName) // i <3 clanker
     {
         if (RegisteredPuffs.Contains(id)) return;
 
-        GameObject original = ObjectPool.GetPooledObject("Puff");
+        GameObject original = ObjectPool.GetPooledObject(originalName);
         ObjectPool.ReturnObject(original);
 
         GameObject customPrefab = GameObject.Instantiate(original);
@@ -103,7 +103,19 @@ public static class VFXManager
         }
         if (SizeMappings.TryGetValue(idInPool.ToLower(), out var size))
         {
-            __instance.spriteRenderer.size *= size;
+            Main.modLogger.LogInfo($"size for {idInPool}: {size}");
+            __instance.spriteRenderer.transform.localScale *= size;
+        }
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(Puff), nameof(Puff.AnimComplete))]
+    private static void Puff_EndAnimation(Puff __instance)
+    {
+        string idInPool = __instance.gameObject.name;
+        if (SizeMappings.TryGetValue(idInPool.ToLower(), out var size))
+        {
+            __instance.spriteRenderer.transform.localScale /= size;
         }
     }
 }
