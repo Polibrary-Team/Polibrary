@@ -36,44 +36,8 @@ public static class VFXManager
 
     public static Dictionary<string, Sprite> SpriteMappings = new();
     public static Dictionary<string, float> SizeMappings = new();
+    public static Dictionary<string, Vector2> FadeInOutAnimOverrideMappings = new();
     public static List<string> RegisteredPuffs = new();
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(GameManager), nameof(GameManager.Update))]
-    private static void Debug_Update()
-    {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            GameState state = GameManager.GameState;
-            state.TryGetPlayer(state.CurrentPlayer, out var player);
-            Tile tile = state.Map.GetTile(player.GetCurrentCapitalCoordinates(state)).GetInstance();
-            
-
-
-
-            string puffId = "Puff";
-            Transform parentTransform = tile.transform;
-            Vector3 localPosition = tile.VisualCenterObject.localPosition;
-
-            tile.DoPuff(puffId, parentTransform, localPosition);
-        }
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            GameState state = GameManager.GameState;
-            state.TryGetPlayer(state.CurrentPlayer, out var player);
-            Tile tile = state.Map.GetTile(player.GetCurrentCapitalCoordinates(state)).GetInstance();
-            
-
-
-
-            string puffId = "CustomPuff";
-            Transform parentTransform = tile.transform;
-            Vector3 localPosition = tile.VisualCenterObject.localPosition;
-
-            EnsureCustomPuffRegistered(puffId, "Puff");
-            tile.DoPuff(puffId, parentTransform, localPosition);
-        }
-    }
 
     public static void EnsureCustomPuffRegistered(string id, string originalName) // i <3 clanker
     {
@@ -93,8 +57,8 @@ public static class VFXManager
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(Puff), nameof(Puff.StartAnimation), typeof(Transform), typeof(Vector3) )]
-    private static void Puff_StartAnimation(Puff __instance, Transform parentTransform, Vector3 localPosition)
+    [HarmonyPatch(typeof(Puff), nameof(Puff.StartAnimation), new System.Type[0])]
+    private static bool Puff_StartAnimation(Puff __instance)
     {
         string idInPool = __instance.gameObject.name;
         if (SpriteMappings.TryGetValue(idInPool.ToLower(), out var sprite))
@@ -103,9 +67,25 @@ public static class VFXManager
         }
         if (SizeMappings.TryGetValue(idInPool.ToLower(), out var size))
         {
-            Main.modLogger.LogInfo($"size for {idInPool}: {size}");
             __instance.spriteRenderer.transform.localScale *= size;
         }
+
+        if (!FadeInOutAnimOverrideMappings.TryGetValue(idInPool.ToLower(), out var fadeData)) return true;
+
+        __instance.IsUsed = true;
+        ((Component)__instance).gameObject.SetActive(true);
+        ((Component)__instance).transform.localScale = Vector3.one * __instance.startScale;
+        __instance.spriteRenderer.color = new Color(__instance.spriteRenderer.color.r, __instance.spriteRenderer.color.g, __instance.spriteRenderer.color.b, 0f);
+
+        __instance.puffSequence = DOTween.Sequence();
+
+        TweenSettingsExtensions.Append(__instance.puffSequence, (Tween)(object)TweenSettingsExtensions.SetEase<TweenerCore<Vector3, Vector3, VectorOptions>>(ShortcutExtensions.DOScale(((Component)__instance).transform, __instance.targetScale, 0f), (Ease)27));
+        TweenSettingsExtensions.Append(__instance.puffSequence, (Tween)(object)__instance.spriteRenderer.DOFade(1f, fadeData.x));
+        TweenSettingsExtensions.Append(__instance.puffSequence, (Tween)(object)__instance.spriteRenderer.DOFade(0f, fadeData.y));
+
+        TweenSettingsExtensions.AppendCallback(__instance.puffSequence, (TweenCallback)__instance.AnimComplete);
+
+        return false;
     }
 
     [HarmonyPrefix]
