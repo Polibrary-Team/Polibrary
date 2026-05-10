@@ -824,7 +824,7 @@ public static class PolibUtils
     {
         List<T> list = new List<T>();
 
-        for (int i = 0; i < token.Count - 1; i++)
+        for (int i = 0; i < token.Count; i++)
         {
             list.Add(token[i].ToObject<T>());
         }
