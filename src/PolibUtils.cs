@@ -800,6 +800,7 @@ public static class PolibUtils
     {
         List<T> types = new List<T>();
 
+        if(token.HasValues)
         foreach (string s in token.Values<string>().ToList())
         {
             EnumCache<T>.TryGetType(s, out var type);
