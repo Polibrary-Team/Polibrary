@@ -1,7 +1,7 @@
 {
     "id": "polibrary",
     "name": "Polibrary",
-    "version": "2.1.2",
+    "version": "2.1.3",
     "authors": [
         "Fapingvin", "wasd_", "|| Additional help from: exploit, johnklipi, incomplete_tree"
     ],
@@ -9,11 +9,7 @@
         {
             "id": "polytopia",
             "min": "2.10.0"
-        },
-        {
-            "id": "naudio",
-            "required": false
         }
     ],
-    "description": "Polibrary 2.1.2. General library of tools for modders."
+    "description": "Polibrary 2.1.3. General library of tools for modders."
 }
