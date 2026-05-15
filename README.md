@@ -1,10 +1,10 @@
-# Polibrary 2.1.2 - A GLD Modding Tool for Polytopia
+# Polibrary 2.1.3 - A GLD Modding Tool for Polytopia
 
-Latest verified version: 2.1.2
+Latest version: 2.1.3
 
 ## Installation
 ### Verified (Recommended)
-Download the **verified** .polymod file from the Polymod discord server, in the mods>Polibrary thread's latest pinned message.
+Download the **verified** .polymod file from https://polymod.dev.
 
 ### Unverified
 This is for people who want to experiment with upcoming features before its released, or give us feedback. 
