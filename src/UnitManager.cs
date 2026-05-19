@@ -76,7 +76,7 @@ public static class UnitManager
             {
                 if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
                 {
-                    if (cityRewardData.defenceBoost != -1)
+                    if (cityRewardData.defenceBoost > 0)
                     {
                         defence = (defence < cityRewardData.defenceBoost) ? cityRewardData.defenceBoost : defence;
                         change = true;
