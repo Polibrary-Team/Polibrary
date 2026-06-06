@@ -24,8 +24,10 @@ public static class Parse
         Loader.AddPatchDataType("tribeData", typeof(TribeData));
         Loader.AddPatchDataType("unitData", typeof(UnitData));
         Loader.AddTypeHandler(typeof(ImprovementData.Type), HandleImprovements);
+        Loader.AddTypeHandler(typeof(UnitData.Type), HandleUnits);
     }
     public static List<PolibImprovementData> polibImprovementDatas = new();
+    public static List<PolibUnitData> polibUnitDatas = new();
     public static Dictionary<pbb.TribeType, string> leaderNameDict = new Dictionary<pbb.TribeType, string>();
     public class PolibCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
     {
@@ -90,21 +92,28 @@ public static class Parse
 
 
     #region Parse
+
+    static void HandleUnits(JObject token, bool onCreatedEnumCache)
+    {
+        static PolibUnitData f() => new(); // PolibUnitData Factory
+        ParseUtils.ParseWithHandler<UnitData.Type, bool, PolibUnitData>(token, "hiddenItem", polibUnitDatas, f);
+    }
     static void HandleImprovements(JObject token, bool onCreatedEnumCache)
     {
         static PolibImprovementData f() => new(); // PolibImprovementData Factory
-        PolibUtils.ParseWithHandler<ImprovementData.Type, float, PolibImprovementData>(token, "aiScore", polibImprovementDatas, f);
-        PolibUtils.ParseWithHandler<ImprovementData.Type, int, PolibImprovementData>(token, "defenceBoost", polibImprovementDatas, f);
-        PolibUtils.ParseWithHandler<ImprovementData.Type, int, PolibImprovementData>(token, "defenceBoost_Neutral", polibImprovementDatas, f);
-        PolibUtils.ParseWithHandler<ImprovementData.Type, string, PolibImprovementData>(token, "builtOnSpecific", polibImprovementDatas, f);
-        PolibUtils.ParseWithHandler<ImprovementData.Type, string, PolibImprovementData>(token,"unblock", polibImprovementDatas, f);
-        PolibUtils.ParseWithHandler<ImprovementData.Type, string, PolibImprovementData>(token, "infoOverride", polibImprovementDatas, f);
-        PolibUtils.ParseWithHandler<ImprovementData.Type, bool, PolibImprovementData>(token,"canTrain", polibImprovementDatas, f);
-        PolibUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(token, "unitAbilityWhitelist", polibImprovementDatas, f);
-        PolibUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(token, "unitAbilityBlacklist", polibImprovementDatas, f);
-        PolibUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitWhitelist", polibImprovementDatas, f);
-        PolibUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitBlacklist", polibImprovementDatas, f);
-        PolibUtils.ParseToDictWithHandler<ImprovementData.Type, string, PolibImprovementData>(token, "triggers", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandler<ImprovementData.Type, float, PolibImprovementData>(token, "aiScore", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandler<ImprovementData.Type, int, PolibImprovementData>(token, "defenceBoost", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandler<ImprovementData.Type, int, PolibImprovementData>(token, "defenceBoost_Neutral", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandler<ImprovementData.Type, string, PolibImprovementData>(token, "builtOnSpecific", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandler<ImprovementData.Type, string, PolibImprovementData>(token,"unblock", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandler<ImprovementData.Type, string, PolibImprovementData>(token, "infoOverride", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandler<ImprovementData.Type, bool, PolibImprovementData>(token,"canTrain", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandler<ImprovementData.Type, bool, PolibImprovementData>(token, "hiddenItem", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(token, "unitAbilityWhitelist", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(token, "unitAbilityBlacklist", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitWhitelist", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitBlacklist", polibImprovementDatas, f);
+        ParseUtils.ParseToDictWithHandler<ImprovementData.Type, string, PolibImprovementData>(token, "triggers", polibImprovementDatas, f);
     }
     
     #endregion

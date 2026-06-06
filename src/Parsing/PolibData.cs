@@ -21,11 +21,19 @@ public class PolibImprovementData
     public List<UnitData.Type> unitWhitelist = null;
     public List<UnitData.Type> unitBlacklist = null;
     public Dictionary<string/*trigger*/, string/*action*/> triggers = new();
+    public bool hiddenItem = false;
 
     public PolibImprovementData() //ctor needed because uhh it is needed
     {
         type = null;
     }
+}
+
+public class PolibUnitData
+{
+    public UnitData.Type? type;
+    public bool hiddenItem = false;
+    public PolibUnitData(){type = null;}
 }
 
 public class PolibTribeData
