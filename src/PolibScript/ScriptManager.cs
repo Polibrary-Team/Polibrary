@@ -38,6 +38,16 @@ public static class ScriptManager
     //syntax:
     //method?condition:param,param,param
     //method ? condition: param, param, param
+    //
+    //condition / expression grammar (lowest to highest precedence):
+    //  orExpr   := andExpr ('/' andExpr)*
+    //  andExpr  := notExpr ('&' notExpr)*
+    //  notExpr  := '!' notExpr | compareExpr
+    //  compareExpr := operand (('>=' | '<=' | '!=' | '>' | '<' | '=') operand)?
+    //  operand  := variable | literal (int, bool, string, wcoords, area)
+    //
+    // '&' binds tighter than '/', matching standard boolean algebra (AND before OR).
+    // e.g. "a/b&c" parses as "a OR (b AND c)".
 
     private static readonly char MethodSymbol = ':';
     private static readonly char ConditionSymbol = '?';
@@ -90,10 +100,10 @@ public static class ScriptManager
                 }
 
                 object parsedCondition = ParseParam(conditionString);
-                object condition = (parsedCondition is bool || parsedCondition is Variable) ? parsedCondition : true;
+                object condition = (parsedCondition is bool || parsedCondition is Variable || parsedCondition is Comparison) ? parsedCondition : true;
 
                 MethodCall methodCall = new MethodCall(methodInfo, parameters, condition);
-                
+
                 list.Add(methodCall);
             }
             catch (System.Exception ex)
@@ -119,8 +129,8 @@ public static class ScriptManager
 ⣿⣿⣿⣿⣿⣿⣿⣿⣧⡄⢸⡇⢹⠿⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⣌⣁⣈⣀⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿
 
-        YOURE'S TRULY,
-        [Every Buddy's Favorite Number 1 Rated Salesman1997]"); //yes this is necessary
+YOURE'S TRULY,
+[Every Buddy's Favorite Number 1 Rated Salesman1997]"); //yes this is necessary
                 return null;
             }
         }
@@ -130,6 +140,170 @@ public static class ScriptManager
 
     public static object ParseParam(string param)
     {
+        return ParseOr(param.Trim());
+    }
+
+    // orExpr := andExpr ('/' andExpr)*
+    private static object ParseOr(string expr)
+    {
+        List<string> parts = SplitTopLevel(expr, OrSymbol);
+
+        if (parts.Count == 1)
+        {
+            return ParseAnd(parts[0]);
+        }
+
+        object result = ParseAnd(parts[0]);
+        for (int i = 1; i < parts.Count; i++)
+        {
+            object right = ParseAnd(parts[i]);
+            result = new Comparison(result, BoolOp.Or, right);
+        }
+        return result;
+    }
+
+    // andExpr := notExpr ('&' notExpr)*
+    private static object ParseAnd(string expr)
+    {
+        List<string> parts = SplitTopLevel(expr, AndSymbol);
+
+        if (parts.Count == 1)
+        {
+            return ParseNot(parts[0]);
+        }
+
+        object result = ParseNot(parts[0]);
+        for (int i = 1; i < parts.Count; i++)
+        {
+            object right = ParseNot(parts[i]);
+            result = new Comparison(result, BoolOp.And, right);
+        }
+        return result;
+    }
+
+    // notExpr := '!' notExpr | compareExpr
+    private static object ParseNot(string expr)
+    {
+        string trimmed = expr.Trim();
+
+        if (trimmed.Length > 0 && trimmed[0] == NotSymbol)
+        {
+            object inner = ParseNot(trimmed.Substring(1));
+            return new Comparison(inner, BoolOp.Not, null);
+        }
+
+        return ParseCompare(trimmed);
+    }
+
+    // compareExpr := operand (compareOp operand)?
+    private static object ParseCompare(string expr)
+    {
+        // Check two-character operators first so '>=' isn't mistaken for '>' + '='.
+        foreach (var op in new[]
+        {
+            (NotEqualSymbol, BoolOp.NotEqual),
+            (GreaterEqualSymbol, BoolOp.GreaterEqual),
+            (LesserEqualSymbol, BoolOp.LesserEqual),
+        })
+        {
+            int idx = FindTopLevel(expr, op.Item1);
+            if (idx >= 0)
+            {
+                object left = ParseOperand(expr.Substring(0, idx).Trim());
+                object right = ParseOperand(expr.Substring(idx + op.Item1.Length).Trim());
+                return new Comparison(left, op.Item2, right);
+            }
+        }
+
+        foreach (var op in new[]
+        {
+            (GreaterSymbol, BoolOp.Greater),
+            (LesserSymbol, BoolOp.Lesser),
+            (EqualSymbol, BoolOp.Equal),
+        })
+        {
+            int idx = FindTopLevel(expr, op.Item1);
+            if (idx >= 0)
+            {
+                object left = ParseOperand(expr.Substring(0, idx).Trim());
+                object right = ParseOperand(expr.Substring(idx + 1).Trim());
+                return new Comparison(left, op.Item2, right);
+            }
+        }
+
+        // No comparison operator found - it's a plain operand.
+        return ParseOperand(expr);
+    }
+
+    // Finds index of a single-char operator at the top level (not inside quotes).
+    // Skips matches that are actually part of a wider 2-char operator (handled separately).
+    private static int FindTopLevel(string expr, char target)
+    {
+        bool inString = false;
+        for (int i = 0; i < expr.Length; i++)
+        {
+            char c = expr[i];
+            if (c == StringSymbol) inString = !inString;
+            if (inString) continue;
+
+            if (c == target)
+            {
+                // Avoid splitting on '=' or '>'/'<' that are actually part of '!=' / '>=' / '<='
+                if (target == EqualSymbol && i > 0 && (expr[i - 1] == NotSymbol || expr[i - 1] == GreaterSymbol || expr[i - 1] == LesserSymbol))
+                    continue;
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static int FindTopLevel(string expr, string target)
+    {
+        bool inString = false;
+        for (int i = 0; i <= expr.Length - target.Length; i++)
+        {
+            char c = expr[i];
+            if (c == StringSymbol) inString = !inString;
+            if (inString) continue;
+
+            if (expr.Substring(i, target.Length) == target)
+                return i;
+        }
+        return -1;
+    }
+
+    // Splits on a top-level boolean operator character, ignoring occurrences inside quoted strings.
+    private static List<string> SplitTopLevel(string expr, char separator)
+    {
+        List<string> result = new();
+        bool inString = false;
+        int start = 0;
+
+        for (int i = 0; i < expr.Length; i++)
+        {
+            char c = expr[i];
+
+            if (c == StringSymbol) inString = !inString;
+
+            if (!inString && c == separator)
+            {
+                result.Add(expr.Substring(start, i - start));
+                start = i + 1;
+            }
+        }
+
+        result.Add(expr.Substring(start));
+        return result;
+    }
+
+    // operand := variable | literal
+    private static object ParseOperand(string param)
+    {
+        if (string.IsNullOrEmpty(param))
+        {
+            return param;
+        }
+
         if (param[0] == VariableSymbol)
         {
             return new Variable(param.Trim('@'));
@@ -174,6 +348,36 @@ public static class ScriptManager
         }
 
         return param;
+    }
+}
+
+public enum BoolOp
+{
+    Greater,
+    Lesser,
+    GreaterEqual,
+    LesserEqual,
+    Equal,
+    NotEqual,
+    Not,
+    And,
+    Or
+}
+
+// Represents a comparison or boolean combination, to be evaluated at runtime
+// once Variable values are resolved (e.g. Left/Right may be Variable instances
+// whose .Value hasn't been populated yet at parse time).
+public struct Comparison
+{
+    public object Left;
+    public BoolOp Op;
+    public object Right; // null when Op == BoolOp.Not (unary)
+
+    public Comparison(object left, BoolOp op, object right)
+    {
+        Left = left;
+        Op = op;
+        Right = right;
     }
 }
 
