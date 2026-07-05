@@ -108,8 +108,7 @@ public static class ScriptManager
             }
             catch (System.Exception ex)
             {
-                Main.modLogger.LogError($"WOAH [Mr./Mrs./O. 1000thCustomer], WAS THAT A [Big Fat F#&@up On Your End]?? I'M SO PROUD OF YOU, MY HEART(s) IS [Hyperlink Allowed]: '{line}'");
-                Main.modLogger.LogError($"ALSO I [Found And Definitely Not Stole] THIS FOR YOU: {ex}");
+                Main.modLogger.LogError($"WOAH [Mr./Mrs./O. 1000thCustomer], WAS THAT A [Big Fat F#&@up On Your End]?? \n'{line}' \n{ex}");
                 Main.modLogger.LogInfo(
 @"⣿⣿⣿⣿⣿⣿⡟⠛⠃⠀⠀⠀⠀⠀⠀⠘⠛⠛⠛⠛⠛⠃⠀⠀
 ⣿⣿⣿⣿⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉
@@ -129,7 +128,7 @@ public static class ScriptManager
 ⣿⣿⣿⣿⣿⣿⣿⣿⣧⡄⢸⡇⢹⠿⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⣌⣁⣈⣀⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿
 
-YOURE'S TRULY,
+YO'URE'S TRULY,
 [Every Buddy's Favorite Number 1 Rated Salesman1997]"); //yes this is necessary
                 return null;
             }
@@ -381,7 +380,7 @@ public struct Comparison
     }
 }
 
-public struct Variable
+public class Variable
 {
     public string Name;
     public object Value;
