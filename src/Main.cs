@@ -25,7 +25,6 @@ public static class Main
         PolyMod.Loader.AddPatchDataType("tileEffectData", typeof(TileData.EffectType));
         ClassInjector.RegisterTypeInIl2Cpp<CameraShake>();
         Directory.CreateDirectory(PolibSave.DATA_PATH);
-        PolibActionManager.RegisterAction<PolibAction>("polibaction");
 
 
         var myPostfix = new HarmonyMethod(typeof(Main).GetMethod(nameof(Main.MethodThing))); //a brief thanks to our sponsor, chatGPT!
@@ -83,6 +82,13 @@ public static class Main
             waitList.Remove(__instance.Pointer);
             action.Execute();
         }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
+    public static void LateLoad()
+    {
+        PolibActionManager.RegisterAction<PolibAction>("polibaction");
     }
 }
     // Good for quick reference getting:

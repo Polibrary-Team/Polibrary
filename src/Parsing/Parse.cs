@@ -9,6 +9,7 @@ using pbb = PolytopiaBackendBase.Common;
 using Steamworks.Data;
 using MS.Internal.Xml.XPath;
 using PolyMod;
+using System.Reflection;
 
 
 namespace Polibrary.Parsing;
@@ -121,8 +122,18 @@ public static class Parse
     [HarmonyPrefix]
     [HarmonyPriority(Priority.Last)]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
-    private static void GameLogicData_Parse(GameLogicData __instance, JObject rootObject)
+    private static void GameLogicData_Parse(object[] __args, MethodBase __originalMethod, GameLogicData __instance/*, JObject rootObject*/)
     {
+        JObject rootObject;
+        try
+        {
+            rootObject = (JObject)__args[0];
+        }
+        catch (Exception ex)
+        {
+            Main.modLogger.LogError($"Update Fuckup: Params got changed? in: {__originalMethod.Name} \n{ex}");
+            return;
+        }
     
        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
         {
