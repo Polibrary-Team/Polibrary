@@ -36,7 +36,7 @@ public class PolibAction : PolibActionBase
                 if (parameter is Variable)
                 {
                     Variable v = (Variable)parameter;
-                    v = FindFirstVariableByName(v.Name);
+                    v = ScriptManager.FindFirstVariableByName(v.Name, Variables);
 
                     if (v == null)
                     {
@@ -51,18 +51,6 @@ public class PolibAction : PolibActionBase
             call.MethodInfo.Invoke(this, parameters.ToArray());
         }
 	}
-
-    private Variable FindFirstVariableByName(string name)
-    {
-        foreach (Variable v in Variables)
-        {
-            if (v.Name == name)
-            {
-                return v;
-            }
-        }
-        return null;
-    }
 
     public override void Serialize(Il2CppSystem.IO.BinaryWriter writer, int version)
     {

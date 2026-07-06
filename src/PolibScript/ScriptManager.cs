@@ -137,6 +137,18 @@ YO'URE'S TRULY,
         return list;
     }
 
+    public static Variable FindFirstVariableByName(string name, List<Variable> variables)
+    {
+        foreach (Variable v in variables)
+        {
+            if (v.Name == name)
+            {
+                return v;
+            }
+        }
+        return null;
+    }
+
     public static object ParseParam(string param)
     {
         return ParseOr(param.Trim());
