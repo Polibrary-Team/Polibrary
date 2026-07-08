@@ -95,6 +95,7 @@ public static class UnitManager
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetDefence))]
     public static void Defence(this UnitState unit, GameState state, ref int __result)
     {
+        
         if (Main.polibGameState.rewardBoostDict.TryGetValue(unit.owner, out var dict))
         {
             if (dict.TryGetValue(unit.type, out var num))
