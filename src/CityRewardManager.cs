@@ -89,39 +89,7 @@ public static class CityRewardManager
             }
             if (cityRewardData.unitType != UnitData.Type.None)
             {
-                if (cityRewardData.boostAttackOverSpawn != 0 || cityRewardData.boostDefenceOverSpawn != 0 || cityRewardData.boostMaxHpOverSpawn != 0 || cityRewardData.boostMovementOverSpawn != 0 || cityRewardData.healUnitOverSpawn)
-                {
-                    Main.polibGameState.rewardBoostDict[__instance.PlayerId][cityRewardData.unitType]++;
-                    
-                    int num = 0;
-                    MapData map = state.Map;
-                    foreach (TileData tile1 in map.tiles)
-                    {
-                        if (tile1.unit != null && tile1.unit.type == cityRewardData.unitType)
-                        {
-                            num++;
-                        }
-                    }
-                    if (num == 0)
-                    {
-                        ActionUtils.TrainUnitOnOccupiedSpace(state, playerId, cityRewardData.unitType, tile);
-                        Main.polibGameState.rewardBoostDict[__instance.PlayerId][cityRewardData.unitType] = 0;
-                    }
-                    if (cityRewardData.healUnitOverSpawn)
-                    {
-                        foreach (TileData tile1 in map.tiles)
-                        {
-                            if (tile1.unit != null && tile1.unit.type == cityRewardData.unitType)
-                            {
-                                PolibUtils.HealUnit(state, tile1.unit, tile1.unit.GetMaxHealth(state) - tile1.unit.health);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    ActionUtils.TrainUnitOnOccupiedSpace(state, playerId, cityRewardData.unitType, tile);
-                }
+                ActionUtils.TrainUnitOnOccupiedSpace(state, playerId, cityRewardData.unitType, tile);
             }
             tile.improvement.AddReward(reward);
             return false;

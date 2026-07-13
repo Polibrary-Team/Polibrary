@@ -9,7 +9,7 @@ namespace Polibrary;
 
 public static class Main
 {
-    public static PolibGameState polibGameState;
+    //public static PolibGameState polibGameState;
     public static Dictionary<IntPtr, pAction> waitList = new Dictionary<IntPtr, pAction>();
     public static ManualLogSource modLogger;
     public static void Load(ManualLogSource logger)
@@ -24,7 +24,7 @@ public static class Main
         PolyMod.Loader.AddPatchDataType("unitEffectData", typeof(UnitEffect)); //casual fapingvin carry... ...again
         PolyMod.Loader.AddPatchDataType("tileEffectData", typeof(TileData.EffectType));
         ClassInjector.RegisterTypeInIl2Cpp<CameraShake>();
-        Directory.CreateDirectory(PolibSave.DATA_PATH);
+        //Directory.CreateDirectory(PolibSave.DATA_PATH);
 
 
         var myPostfix = new HarmonyMethod(typeof(Main).GetMethod(nameof(Main.MethodThing))); //a brief thanks to our sponsor, chatGPT!

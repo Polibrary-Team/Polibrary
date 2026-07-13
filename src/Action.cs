@@ -409,7 +409,7 @@ public class pAction
     private void SetGlobalVariable(string varName, string obj, string value)
     {
         SwitchType(obj, value, out var valueObj);
-        Main.polibGameState.globalVariables['&' + varName] = valueObj;
+        //Main.polibGameState.globalVariables['&' + varName] = valueObj;
     }
 
     private void SetDisposableVariable(string varName, string obj, string value)
@@ -437,7 +437,7 @@ public class pAction
             return;
         }
 
-        Main.polibGameState.globalVariables.Remove(variable);
+        //Main.polibGameState.globalVariables.Remove(variable);
     }
 
 
@@ -1511,14 +1511,14 @@ public class pAction
         }
         if (s[0] == '&')
         {
-            if (Main.polibGameState.globalVariables.TryGetValue(s, out var value))
+            /*if (Main.polibGameState.globalVariables.TryGetValue(s, out var value))
             {
                 obj = (T)value;
                 if (obj != null)
                 {
                     return true;
                 }
-            }
+            }*/
         }
         obj = default;
         return false;
