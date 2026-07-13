@@ -4,6 +4,7 @@ using Il2CppSystem;
 using Polytopia.Data;
 using Unity.Collections;
 using Il2CppSystem.Linq;
+using System.Reflection;
 
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using Polibrary.Parsing;
@@ -26,8 +27,23 @@ public static class UnitManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetDefenceBonus))]
-    public static void DefBonus(this UnitState unit, GameState gameState, ref int __result)
+    public static void DefBonus(object[] __args, MethodBase __originalMethod, ref int __result)
     {
+        UnitState unit;
+        GameState gameState;
+
+        try
+        {
+            unit = (UnitState)__args[0];
+            gameState = (GameState)__args[1];
+        }
+        catch (System.Exception ex)
+        {
+            Main.modLogger.LogError($"Update Fuckup: Params got changed? in: {__originalMethod.Name} \n{ex}");
+            return;
+        }
+        
+        
         int defence = 10;
         bool change = false;
         TileData tile = gameState.Map.GetTile(unit.coordinates);
@@ -71,8 +87,22 @@ public static class UnitManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetDefence))]
-    public static void Defence(this UnitState unit, GameState state, ref int __result)
+    public static void Defence(object[] __args, MethodBase __originalMethod, ref int __result)
     {   
+        UnitState unit;
+        GameState gameState;
+
+        try
+        {
+            unit = (UnitState)__args[0];
+            gameState = (GameState)__args[1];
+        }
+        catch (System.Exception ex)
+        {
+            Main.modLogger.LogError($"Update Fuckup: Params got changed? in: {__originalMethod.Name} \n{ex}");
+            return;
+        }
+
         foreach (UnitEffect effect in unit.effects)
         {
             if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
@@ -91,8 +121,22 @@ public static class UnitManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetMovement))]
-    public static void Movement(this UnitState unitState, GameState gameState, ref int __result)
+    public static void Movement(object[] __args, MethodBase __originalMethod, ref int __result)
     {
+        UnitState unitState;
+        GameState gameState;
+
+        try
+        {
+            unitState = (UnitState)__args[0];
+            gameState = (GameState)__args[1];
+        }
+        catch (System.Exception ex)
+        {
+            Main.modLogger.LogError($"Update Fuckup: Params got changed? in: {__originalMethod.Name} \n{ex}");
+            return;
+        }
+
         foreach (UnitEffect effect in unitState.effects)
         {
             if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
@@ -118,8 +162,22 @@ public static class UnitManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetAttack), typeof(UnitState), typeof(GameState))]
-    public static void Attack(this UnitState unitState, GameState gameState, ref int __result)
+    public static void Attack(object[] __args, MethodBase __originalMethod, ref int __result)
     {   
+        UnitState unitState;
+        GameState gameState;
+
+        try
+        {
+            unitState = (UnitState)__args[0];
+            gameState = (GameState)__args[1];
+        }
+        catch (System.Exception ex)
+        {
+            Main.modLogger.LogError($"Update Fuckup: Params got changed? in: {__originalMethod.Name} \n{ex}");
+            return;
+        }
+
         foreach (UnitEffect effect in unitState.effects)
         {
             if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
