@@ -8,6 +8,7 @@ using UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using pbb = PolytopiaBackendBase.Common;
 using Polibrary.Parsing;
+using Polibrary.PolyScript;
 using Scriban;
 
 

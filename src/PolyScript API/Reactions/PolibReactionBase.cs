@@ -2,7 +2,7 @@ using Polytopia.Data;
 using PolytopiaBackendBase.Common;
 using UnityEngine.ResourceManagement.Util;
 
-namespace Polibrary;
+namespace Polibrary.PolyScript;
 public class PolibReactionBase : ReactionBase
 {
     public virtual ActionBase actionProperty {get; set;}

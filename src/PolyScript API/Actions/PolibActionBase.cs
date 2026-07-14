@@ -2,7 +2,7 @@ using Polytopia.Data;
 using PolytopiaBackendBase.Common;
 using UnityEngine.ResourceManagement.Util;
 
-namespace Polibrary;
+namespace Polibrary.PolyScript;
 public class PolibActionBase : ActionBase
 {
 	public PolibActionBase(IntPtr ptr) : base(ptr) {}

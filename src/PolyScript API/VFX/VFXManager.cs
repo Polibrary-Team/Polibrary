@@ -11,7 +11,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Il2CppMicrosoft.Win32;
 
 
-namespace Polibrary;
+namespace Polibrary.PolyScript;
 
 public static class VFXManager
 {

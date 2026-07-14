@@ -11,7 +11,7 @@ using System.Reflection;
 using UnityEngine;
 using Il2CppInterop.Runtime.Runtime;
 
-namespace Polibrary;
+namespace Polibrary.PolyScript;
 
 public static class PolibCommandManager
 {

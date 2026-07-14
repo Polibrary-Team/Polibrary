@@ -12,7 +12,7 @@ using Il2CppInterop.Runtime.Runtime;
 
 using Il2Gen = Il2CppSystem.Collections.Generic;
 
-namespace Polibrary;
+namespace Polibrary.PolyScript;
 
 public static class PolibReactionManager
 {

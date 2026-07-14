@@ -1,4 +1,7 @@
 using UnityEngine;
+
+namespace Polibrary.PolyScript;
+
 public class CameraShake : MonoBehaviour
 {
     public CameraShake(IntPtr ptr) : base(ptr) { }
