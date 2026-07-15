@@ -39,7 +39,7 @@ public static class UnitManager
         }
         catch (System.Exception ex)
         {
-            Main.modLogger.LogError($"Update Fuckup: Params got changed? in: {__originalMethod.Name} \n{ex}");
+            Main.modLogger.LogError($"Update Error: Parameters got changed? in: {__originalMethod.Name} \n{ex}"); //made the logging sfw - got nothing better to do
             return;
         }
         
@@ -99,7 +99,7 @@ public static class UnitManager
         }
         catch (System.Exception ex)
         {
-            Main.modLogger.LogError($"Update Fuckup: Params got changed? in: {__originalMethod.Name} \n{ex}");
+            Main.modLogger.LogError($"Update Error: Parameters got changed? in: {__originalMethod.Name} \n{ex}");
             return;
         }
 
@@ -133,7 +133,7 @@ public static class UnitManager
         }
         catch (System.Exception ex)
         {
-            Main.modLogger.LogError($"Update Fuckup: Params got changed? in: {__originalMethod.Name} \n{ex}");
+            Main.modLogger.LogError($"Update Error: Parameters got changed? in: {__originalMethod.Name} \n{ex}");
             return;
         }
 
@@ -174,7 +174,7 @@ public static class UnitManager
         }
         catch (System.Exception ex)
         {
-            Main.modLogger.LogError($"Update Fuckup: Params got changed? in: {__originalMethod.Name} \n{ex}");
+            Main.modLogger.LogError($"Update Error: Parameters got changed? in: {__originalMethod.Name} \n{ex}");
             return;
         }
 

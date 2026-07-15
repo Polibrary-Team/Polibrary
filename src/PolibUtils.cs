@@ -266,41 +266,6 @@ public static class PolibUtils
         tile.Heal(amount);
     }
 
-    #endregion
-
-    public static List<TechData> polibGetUnlockableTech(PlayerState player) //Broken in beta so that's why I made this btw (fapingvin)
-    {
-        var gld = GameManager.GameState.GameLogicData;
-        if (player.tribe == pbb.TribeType.None)
-        {
-            return null;
-        }
-        TribeData tribe;
-        if (GameManager.GameState.GameLogicData.TryGetData(player.tribe, out tribe))
-        {
-            List<TechData> list = new List<TechData>();
-            for (int i = 0; i < player.availableTech.Count; i++)
-            {
-                TechData @override;
-                if (gld.TryGetData(player.availableTech[i], out @override))
-                {
-                    @override = gld.GetOverride(@override, tribe);
-                    foreach (TechData techData in @override.techUnlocks)
-                    {
-                        TechData override2 = gld.GetOverride(techData, tribe);
-                        if (!player.HasTech(override2.type) && !list.Contains(override2))
-                        {
-                            list.Add(override2);
-                        }
-                    }
-                }
-            }
-            return list;
-        }
-        return null;
-    }
-
-
     public static Parsing.Parse.PolibUnitEffectData SetVanillaUnitEffectDefaults(UnitEffect effect)
     {
         Parsing.Parse.PolibUnitEffectData effectData = new Parsing.Parse.PolibUnitEffectData();
@@ -347,6 +312,45 @@ public static class PolibUtils
         }
         return effectData;
     }
+
+    #endregion
+
+    #region TechUtils
+
+    public static List<TechData> polibGetUnlockableTech(PlayerState player) //Broken in beta so that's why I made this btw (fapingvin)
+    {
+        var gld = GameManager.GameState.GameLogicData;
+        if (player.tribe == pbb.TribeType.None)
+        {
+            return null;
+        }
+        TribeData tribe;
+        if (GameManager.GameState.GameLogicData.TryGetData(player.tribe, out tribe))
+        {
+            List<TechData> list = new List<TechData>();
+            for (int i = 0; i < player.availableTech.Count; i++)
+            {
+                TechData @override;
+                if (gld.TryGetData(player.availableTech[i], out @override))
+                {
+                    @override = gld.GetOverride(@override, tribe);
+                    foreach (TechData techData in @override.techUnlocks)
+                    {
+                        TechData override2 = gld.GetOverride(techData, tribe);
+                        if (!player.HasTech(override2.type) && !list.Contains(override2))
+                        {
+                            list.Add(override2);
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+        return null;
+    }
+
+
+    
     [HarmonyPrefix]
     [HarmonyPatch(typeof(AI), nameof(AI.CheckForTechNeeds))]
     public static bool Logshit(AI __instance, GameState gameState, PlayerState player, Il2Gen.List<TileData> playerEmpire, Il2Gen.Dictionary<TechData.Type, int> neededTech)
@@ -398,6 +402,7 @@ public static class PolibUtils
         }
         return false;
     }
+    #endregion
 
     #region Imp Utils
 
@@ -442,7 +447,7 @@ public static class PolibUtils
 
     #endregion
 
-    #region Unit Utils
+    #region MovementUtils
 
     // Movement Filters: Return TRUE if tile is invalid
     public static bool IsTileWaterForHydrophobics(TileData tile, UnitState unit)
@@ -514,68 +519,6 @@ public static class PolibUtils
 
 
     #region ParseUtils
-
-
-    /*
-        public static void ParseIntoClassPerArray<PDataType, targetType, listType>(JObject rootObject, string categoryName, string fieldName, List<PDataType> list, Func<PDataType> factory) where targetType : struct, System.IConvertible where listType : struct, System.IConvertible
-        {
-            foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
-            {
-                JObject token = jtoken.TryCast<JObject>();
-                if (token != null)
-                {
-                    if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
-                    {
-                        int idx = PolibData.FindData(list, type);
-                        if (idx == -1)
-                        {
-                            PDataType newone = factory();
-                            list.Add(newone);
-                            PolibData.OverrideField(list, "type", list.Count - 1, type);
-                            idx = list.Count - 1;
-                        }
-                        if (token[fieldName] != null)
-                        {
-                            PolibData.OverrideField(list, fieldName, idx, PolibUtils.ParseEnumsToSysList<listType>(token[fieldName]));
-                        }
-                    }
-                }
-            }
-        }
-
-        public static void ParseIntoClassPerEach<targetType, T, PDataType>(JObject rootObject, string categoryName, string fieldName, List<PDataType> list, Func<PDataType> factory) where targetType : struct, System.IConvertible
-        {
-            foreach (JToken jtoken in rootObject.SelectTokens($"$.{categoryName}.*").ToList())
-            {
-                JObject token = jtoken.TryCast<JObject>();
-                if (token != null)
-                {
-                    if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
-                    {
-                        if (token[fieldName] != null)
-                        {
-                            T v = token[fieldName]!.ToObject<T>();
-                            int idx = PolibData.FindData<PDataType, targetType>(list, type);
-                            if (idx >= 0)
-                            {
-                                PolibData.OverrideField<PDataType, T>(list, fieldName, idx, v);
-                                Main.modLogger.LogMessage($"Added to existing class in list: {type.ToString()} because of value {v} in field {fieldName}");
-                            }
-                            else
-                            {
-                                PDataType newone = factory();
-                                list.Add(newone);
-                                PolibData.OverrideField<PDataType, targetType>(list, "type", list.Count - 1, type);
-                                PolibData.OverrideField<PDataType, T>(list, fieldName, list.Count - 1, v);
-                                Main.modLogger.LogMessage($"Added a new class to list: {type.ToString()} because of value {v} in field {fieldName}");
-                            }
-                            token.Remove(fieldName);
-                        }
-                    }
-                }
-            }
-        }
-        */
 
     //MAKE SURE TO LEAVE PARSEPEREACH / PARSEENUMPEREACH CUZ IT WILL GO PUBLIC AND SHIT!!!!
     public static void ParsePerEach<targetType, T>(JObject rootObject, string categoryName, string fieldName, Dictionary<targetType, T> dict)

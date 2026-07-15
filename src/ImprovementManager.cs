@@ -13,12 +13,9 @@ namespace Polibrary;
 
 public static class ImprovementManager
 {
-    private static ManualLogSource GabrielLogOfHell;
     public static void Load(ManualLogSource logger)
     {
-        GabrielLogOfHell = logger;
         Harmony.CreateAndPatchAll(typeof(ImprovementManager));
-
     }
 
     #region Can build imp?

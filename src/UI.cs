@@ -1,34 +1,9 @@
-using System.ComponentModel;
-using System.Globalization;
-using System.Runtime.CompilerServices;
 using BepInEx.Logging;
-using EnumsNET;
 using HarmonyLib;
-using Il2CppInterop.Runtime;
-using Il2CppInterop.Runtime.Injection;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem;
-using Il2CppSystem.Linq.Expressions.Interpreter;
-using JetBrains.Annotations;
 using Polytopia.Data;
-using PolytopiaBackendBase.Auth;
-using PolytopiaBackendBase.Game;
-using SevenZip.Compression.LZMA;
-using Unity.Collections;
-using Unity.Jobs;
-using Unity.Mathematics;
-using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEngine.UIElements.UIR;
-using System.Reflection;
-using UnityEngine.EventSystems;
-using Newtonsoft.Json.Linq;
-using Il2CppSystem.Linq;
 
-using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using Polibrary.Parsing;
-using UnityEngine.Playables;
 
 namespace Polibrary;
 
@@ -80,6 +55,7 @@ public static class UI
     }
 
     /// Ability to override entire ability text with custom
+    /// klipi mentioned wanting to have a similar thing in polymod when that happens delete this ig
     [HarmonyPostfix]
     [HarmonyPatch(typeof(BuildingUtils), nameof(BuildingUtils.GetInfo))]
     private static void InfoOverride(ref string __result, PolytopiaBackendBase.Common.SkinType skinOfCurrentLocalPlayer, ImprovementData improvementData, ImprovementState improvementState = null, PlayerState owner = null, TileData tileData = null)
@@ -94,21 +70,21 @@ public static class UI
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(PlayerInfoPopup), nameof(PlayerInfoPopup.UpdateDiplomacyActionButtons))]
-    private static void StoreDelegates(PlayerState player, PlayerInfoPopup __instance)
+    private static void PlayerInfoPopup_Prefix(PlayerState player, PlayerInfoPopup __instance)
     {
         isInDiploHell = true;
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerInfoPopup), nameof(PlayerInfoPopup.UpdateDiplomacyActionButtons))]
-    private static void DiplomacyDehardcoded(PlayerState player, PlayerInfoPopup __instance)
+    private static void PlayerInfoPopup_Postfix(PlayerState player, PlayerInfoPopup __instance)
     {
         isInDiploHell = false;
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(PlayerExtensions), nameof(PlayerExtensions.HasTech))]
-    static bool HasTechPrefix(this PlayerState player, TechData.Type tech, ref bool __result)
+    static bool HasTechPrefix_DiplomacyDehardcoded(this PlayerState player, TechData.Type tech, ref bool __result)
     {
         if (isInDiploHell)
         {
