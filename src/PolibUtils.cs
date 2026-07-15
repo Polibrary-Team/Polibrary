@@ -351,114 +351,53 @@ public static class PolibUtils
     [HarmonyPatch(typeof(AI), nameof(AI.CheckForTechNeeds))]
     public static bool Logshit(AI __instance, GameState gameState, PlayerState player, Il2Gen.List<TileData> playerEmpire, Il2Gen.Dictionary<TechData.Type, int> neededTech)
     {
-        int num = 0;
-        int num2 = 0;
+        int FieldForestCount = 0;
+        int CityCount = 0;
         for (int i = 0; i < gameState.Map.Tiles.Length; i++)
         {
             TileData tileData = gameState.Map.Tiles[i];
-            bool explored = tileData.GetExplored(player.Id);
-            if (explored)
+            if(tileData == null || tileData.coordinates == WorldCoordinates.NULL_COORDINATES) continue;
+            if (tileData.GetExplored(player.Id))
             {
-                bool flag = tileData.owner == player.Id;
-                if (flag)
+                if (tileData.owner == player.Id)
                 {
-                    bool flag2 = tileData.HasImprovement(ImprovementData.Type.City) && !tileData.IsConnected;
-                    if (flag2)
-                    {
-                        num2++;
-                    }
-                    bool flag3 = tileData.terrain == Polytopia.Data.TerrainData.Type.Field || tileData.terrain == Polytopia.Data.TerrainData.Type.Forest;
-                    if (flag3)
-                    {
-                        num++;
-                    }
+                    if (tileData.HasImprovement(ImprovementData.Type.City) && !tileData.IsConnected)
+                        CityCount++;
+                    if (tileData.terrain == Polytopia.Data.TerrainData.Type.Field || tileData.terrain == Polytopia.Data.TerrainData.Type.Forest)
+                        FieldForestCount++;
                 }
-                bool flag4 = !tileData.CanBeAccessedByPlayer(gameState, player);
-                if (flag4)
+                if (!tileData.CanBeAccessedByPlayer(gameState, player))
                 {
                     TechData techThatUnlocks = gameState.GameLogicData.GetTechThatUnlocks(tileData.terrain);
-                    bool flag5 = techThatUnlocks != null;
-                    if (flag5)
-                    {
+                    if (techThatUnlocks != null)
                         AI.AddTechNeed(neededTech, techThatUnlocks!.type, 1);
-                    }
                     else
-                    {
-                        utilGuy?.LogInfo("HOTCHI MAMA, KRIS, [Slow Down] THERE! I JUST SAVED YOUR [$2.99] LIFE FROM A [Null Crash1997]!! ALSO, WHO IS [Lougg Kaard]??");
-                    }
+                        Main.modLogger.LogMessage("Error in PolibUtils/Logshit/1");
                 }
-                bool flag6 = tileData.resource != null && gameState.GameLogicData.IsResourceVisibleToPlayer(tileData.resource.type, player, gameState);
-                if (flag6)
+                if (tileData.resource != null && gameState.GameLogicData.IsResourceVisibleToPlayer(tileData.resource.type, player, gameState))
                 {
                     Il2Gen.List<ImprovementData> improvementForResource = gameState.GameLogicData.GetImprovementForResource(tileData.resource!.type);
+                    if(improvementForResource != null && improvementForResource.Count > 0)
                     for (int j = 0; j < improvementForResource.Count; j++)
                     {
                         ImprovementData improvementData = improvementForResource[j];
-                        bool flag7 = improvementData != null && improvementData.HasAbility(ImprovementAbility.Type.Freelance) && !gameState.GameLogicData.IsUnlocked(improvementData.type, player);
-                        if (flag7)
+                        if (improvementData != null && improvementData.HasAbility(ImprovementAbility.Type.Freelance) && !gameState.GameLogicData.IsUnlocked(improvementData.type, player))
                         {
                             TribeData tribeData = gameState.GameLogicData.GetTribeData(player.tribe);
+                            if(tribeData == null) continue;
                             TechData techThatUnlocks2 = gameState.GameLogicData.GetTechThatUnlocks(improvementData, tribeData);
-                            AI.AddTechNeed(neededTech, techThatUnlocks2.type, 5);
+                            if(techThatUnlocks2 != null) AI.AddTechNeed(neededTech, techThatUnlocks2.type, 5);
                         }
                     }
                 }
             }
         }
-        bool flag8 = num > 0;
-        if (flag8)
+        if (FieldForestCount > 0)
         {
-            int num3 = num * (1 + num2);
-            AI.AddTechNeed(neededTech, TechData.Type.Roads, num3);
+            AI.AddTechNeed(neededTech, TechData.Type.Roads, FieldForestCount * (1 + CityCount));
         }
         return false;
     }
-
-    #region Unnecessary stuff
-    /*
-    public static bool IsResourceVisibleToPlayer2ElectricBoogaloo(GameLogicData gld, ResourceData.Type resourceType, PlayerState player)
-    {
-        return gld.GetUnlockedImprovements(player).ContainsImprovementRequiredForResource(resourceType) || gld.GetUnlockableImprovements(player, GameManager.GameState).ContainsImprovementRequiredForResource(resourceType);
-    }
-
-    public static Il2Gen.List<ImprovementData> polibGetUnlockableImprovements(GameLogicData gld, PlayerState player)
-    {
-        var unlockedTech = gld.GetUnlockedTech(player);
-        TribeData tribe;
-        if (unlockedTech != null && gld.TryGetData(player.tribe, out tribe))
-        {
-            Il2Gen.List<ImprovementData> list = new Il2Gen.List<ImprovementData>();
-            for (int i = 0; i < unlockedTech.Count; i++)
-            {
-                for (int j = 0; j < unlockedTech[i].improvementUnlocks.Count; j++)
-                {
-                    ImprovementData @override = gld.GetOverride(unlockedTech[i].improvementUnlocks[j], tribe);
-                    if (!@override.hidden)
-                    {
-                        list.Add(@override);
-                    }
-                }
-            }
-            if (player.tasks != null && player.tasks.Count > 0)
-            {
-                for (int k = 0; k < player.tasks.Count; k++)
-                {
-                    TaskData taskData;
-                    if (player.tasks[k].IsCompleted && gld.TryGetData(player.tasks[k].GetTaskType(), out taskData) && taskData.improvementUnlocks != null && taskData.improvementUnlocks.Count != 0)
-                    {
-                        foreach (var unlock in taskData.improvementUnlocks)
-                        {
-                            list.Add(unlock);
-                        }
-                    }
-                }
-            }
-            return list;
-        }
-        return null;
-    }*/
-
-    #endregion Unnecessary stuff
 
     #region Imp Utils
 
