@@ -1,6 +1,6 @@
-# Polibrary 2.1.3 - A GLD Modding Tool for Polytopia
+# Polibrary 2.1.4 - A GLD Modding Tool for Polytopia
 
-Latest version: 2.1.3
+Latest version: 2.1.4
 
 ## Installation
 ### Verified (Recommended)
