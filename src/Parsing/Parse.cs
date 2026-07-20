@@ -301,11 +301,6 @@ public static class Parse
 
         #endregion City Rewards
 
-        foreach (UnitEffect effect in vanillaUnitEffects)
-        {
-            unitEffectDataDict[effect] = PolibUtils.SetVanillaUnitEffectDefaults(effect);
-        }
-
         foreach (JToken jtoken in rootObject.SelectTokens("$.unitEffectData.*").ToList())
         {
             JObject token = jtoken.TryCast<JObject>();
