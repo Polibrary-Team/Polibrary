@@ -45,11 +45,6 @@ public static class Parse
         public string persistence { get; set; } = "none";
         public int order { get; set; } = 0;
         public bool hidden { get; set; } = false;
-        public int boostAttackOverSpawn { get; set; }
-        public int boostDefenceOverSpawn { get; set; }
-        public int boostMaxHpOverSpawn { get; set; }
-        public int boostMovementOverSpawn { get; set; }
-        public bool healUnitOverSpawn { get; set; } = false;
     }
     public class CityRewardOverrideClass
     {
@@ -68,16 +63,7 @@ public static class Parse
     public static Dictionary<pbb.TribeType, List<CityRewardOverrideClass>> cityRewardOverrideDict = new Dictionary<pbb.TribeType, List<CityRewardOverrideClass>>();
     public static List<CityReward> rewardList = PolibUtils.MakeSystemList<CityReward>(CityRewardData.cityRewards);
     public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new Dictionary<UnitEffect, PolibUnitEffectData>();
-    public class PolibUnitAbilityData
-    {
-        public int visionRadius { get; set; }
-        public bool allowsFly { get; set; }
-        public UnitEffect effect { get; set; }
-        public string effectApplication { get; set; }
-        public string effectApplicationActionTarget { get; set; }
-    }
-    public static Dictionary<UnitAbility.Type, PolibUnitAbilityData> unitAbilityDataDict = new Dictionary<UnitAbility.Type, PolibUnitAbilityData>();
-    public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] { UnitEffect.Boosted, UnitEffect.Bubble, UnitEffect.Frozen, UnitEffect.Invisible, UnitEffect.Petrified, UnitEffect.Poisoned };
+    public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] { UnitEffect.Boosted, UnitEffect.Bubble, UnitEffect.Frozen, UnitEffect.Invisible, UnitEffect.Petrified, UnitEffect.Poisoned, UnitEffect.Charmed, UnitEffect.Swift, UnitEffect.DoubleReady };
     public static Dictionary<string, pAction> actions = new Dictionary<string, pAction>();
     //public static Dictionary<ImprovementData.Type, Dictionary<string/*trigger*/, string/*action*/>> improvementTriggers = new Dictionary<ImprovementData.Type, Dictionary<string, string>>();
     public static Dictionary<UnitData.Type, Dictionary<string/*trigger*/, string/*action*/>> unitTriggers = new Dictionary<UnitData.Type, Dictionary<string, string>>();
@@ -181,9 +167,6 @@ public static class Parse
 
 
         PolibUtils.ParsePerEach(rootObject, "tribeData", "leaderName", leaderNameDict);
-        PolibUtils.ParseListPerEach(rootObject, "unitData", "targets", unitDataTargets);
-        PolibUtils.ParseListPerEach(rootObject, "unitAbility", "targets", unitAbilityTargets);
-        PolibUtils.ParseListPerEach(rootObject, "unitEffectData", "targets", unitEffectTargets);
 
 
         #region Units
@@ -280,11 +263,6 @@ public static class Parse
                     cityRewardData.persistence = PolibUtils.ParseToken<string>(token, "persistence");
                     cityRewardData.order = PolibUtils.ParseToken<int>(token, "order");
                     cityRewardData.hidden = PolibUtils.ParseToken<bool>(token, "hidden");
-                    cityRewardData.boostAttackOverSpawn = PolibUtils.ParseToken<int>(token, "boostAttackOverSpawn");
-                    cityRewardData.boostDefenceOverSpawn = PolibUtils.ParseToken<int>(token, "boostDefenceOverSpawn");
-                    cityRewardData.boostMaxHpOverSpawn = PolibUtils.ParseToken<int>(token, "boostMaxHpOverSpawn");
-                    cityRewardData.boostMovementOverSpawn = PolibUtils.ParseToken<int>(token, "boostMovementOverSpawn");
-                    cityRewardData.healUnitOverSpawn = PolibUtils.ParseToken<bool>(token, "healUnitOverSpawn");
                     if (!rewardList.Contains(cityReward))
                     {
                         rewardList.Add(cityReward);
