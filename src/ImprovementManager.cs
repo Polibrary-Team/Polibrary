@@ -5,6 +5,7 @@ using Polytopia.Data;
 using Il2Gen = Il2CppSystem.Collections.Generic;
 using pbb = PolytopiaBackendBase.Common;
 using Polibrary.Parsing;
+using PolytopiaBackendBase;
 
 
 namespace Polibrary;
@@ -298,6 +299,16 @@ public static class ImprovementManager
             }
         }
         __result = list;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ActionUtils), nameof(ActionUtils.TrainUnit))]
+    private static void Patchy(ref UnitState __result, GameState gameState, PlayerState playerState, TileData tile, UnitData unitData)
+    {
+        if (tile.improvement.type != ImprovementData.Type.City && tile.rulingCityCoordinates != WorldCoordinates.NULL_COORDINATES)
+        {
+            __result.home = tile.rulingCityCoordinates;
+        }
     }
 
     #endregion
