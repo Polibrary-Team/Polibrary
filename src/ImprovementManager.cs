@@ -305,6 +305,11 @@ public static class ImprovementManager
     [HarmonyPatch(typeof(ActionUtils), nameof(ActionUtils.TrainUnit))]
     private static void Patchy(ref UnitState __result, GameState gameState, PlayerState playerState, TileData tile, UnitData unitData)
     {
+        if (playerState == null || tile == null || tile.improvement == null || unitData == null)
+        {
+            return;
+        }
+
         if (tile.improvement.type != ImprovementData.Type.City && tile.rulingCityCoordinates != WorldCoordinates.NULL_COORDINATES)
         {
             __result.home = tile.rulingCityCoordinates;
