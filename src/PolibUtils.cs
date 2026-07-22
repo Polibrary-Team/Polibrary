@@ -26,16 +26,16 @@ public static class PolibUtils
     }
 
     #region Sys2Cpp Stuff
-    public static Il2CppSystem.Collections.Generic.List<T> ToIl2CppList<T>(System.Collections.Generic.List<T> sysList)
+    public static Il2Gen.List<T> ToIl2List<T>(this List<T> sysList)
     {
-        var il2cppList = new Il2CppSystem.Collections.Generic.List<T>();
+        var il2cppList = new Il2Gen.List<T>();
         for (int i = 0; i < sysList.Count; i++)
         {
             il2cppList.Add(sysList[i]);
         }
         return il2cppList;
     }
-    public static List<T> ToSystemList<T>(Il2Gen.List<T> il2cppList)
+    public static List<T> ToSysList<T>(this Il2Gen.List<T> il2cppList)
     {
         var sysList = new List<T>(il2cppList.Count);
         for (int i = 0; i < il2cppList.Count; i++)
@@ -44,7 +44,7 @@ public static class PolibUtils
         }
         return sysList;
     }
-    public static T[] ArrayFromListIl2Cpp<T>(Il2Gen.List<T> il2cppList)
+    public static T[] ToSysArray<T>(this Il2Gen.List<T> il2cppList)
     {
         T[] array = new T[il2cppList.Count];
         for (int i = 0; i < il2cppList.Count; i++)
@@ -53,7 +53,7 @@ public static class PolibUtils
         }
         return array;
     }
-    public static T[] ArrayFromListSystem<T>(List<T> sysList)
+    public static T[] ToSysArray<T>(this List<T> sysList)
     {
         T[] array = new T[sysList.Count];
         for (int i = 0; i < sysList.Count; i++)
@@ -62,13 +62,9 @@ public static class PolibUtils
         }
         return array;
     }
-    public static T[] MakeSystemArray<T>(T value)
+    public static T[] MakeSysArray<T>(T value)
     {
         return new T[] { value };
-    }
-    public static List<T> MakeSystemList<T>(T[] array)
-    {
-        return new List<T>(array);
     }
     #endregion
 
@@ -99,7 +95,7 @@ public static class PolibUtils
     }
     public static int GetRewardCountForPlayer(byte playerId, CityReward targetReward)
     {
-        return GetRewardCountForPlayer(playerId, MakeSystemArray(targetReward));
+        return GetRewardCountForPlayer(playerId, MakeSysArray(targetReward));
     }
     public static CityReward[] GetSpawningRewardsForUnit(UnitData.Type unit)
     {
@@ -114,7 +110,7 @@ public static class PolibUtils
                 }
             }
         }
-        return ArrayFromListSystem(list);
+        return list.ToSysArray();
     }
     public static Parsing.Parse.PolibCityRewardData GetRewardData(CityReward reward)
     {
@@ -703,20 +699,6 @@ public static class PolibUtils
         {
             utilGuy.LogInfo($"pAction not found: '{name}'. Check spelling");
         }
-    }
-
-    public static void ShakeCamera(float duration, float amount)
-    {
-        var mainCam = Camera.main;
-        if (mainCam == null) return;
-
-        var shaker = mainCam.GetComponent<CameraShake>();
-        if (shaker == null)
-        {
-            shaker = mainCam.gameObject.AddComponent<CameraShake>();
-        }
-
-        shaker.TriggerShake(duration, amount);
     }
 
     #endregion pAction

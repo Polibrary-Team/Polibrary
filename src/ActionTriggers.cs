@@ -87,7 +87,7 @@ public static class ActionTriggers
 
         List<ActionData> stack = new List<ActionData>();
 
-        List<WorldCoordinates> trail = PolibUtils.ToSystemList(__instance.Path);
+        List<WorldCoordinates> trail = __instance.Path.ToSysList();
         trail.RemoveAt(0);
 
         if (Parsing.Parse.unitTriggers.TryGetValue(unit.type, out var unitdict))
@@ -97,7 +97,7 @@ public static class ActionTriggers
                 stack.Add(new ActionData(name, __instance.Path[0], __instance.PlayerId, new()
                 {
                     {"@pathStart_auto", __instance.Path[__instance.Path.Count - 1]},
-                    {"@path_auto", PolibUtils.ToSystemList(__instance.Path)},
+                    {"@path_auto", __instance.Path.ToSysList()},
                     {"@trail_auto", trail}
                 }));
             }
@@ -112,7 +112,7 @@ public static class ActionTriggers
                     stack.Add(new ActionData(name, __instance.Path[0], __instance.PlayerId, new()
                     {
                         {"@pathStart_auto", __instance.Path[__instance.Path.Count - 1]},
-                        {"@path_auto", PolibUtils.ToSystemList(__instance.Path)},
+                        {"@path_auto", __instance.Path.ToSysList()},
                         {"@trail_auto", trail}
                     }));
                 }
@@ -128,7 +128,7 @@ public static class ActionTriggers
                     stack.Add(new ActionData(name, __instance.Path[0], __instance.PlayerId, new()
                     {
                         {"@pathStart_auto", __instance.Path[__instance.Path.Count - 1]},
-                        {"@path_auto", PolibUtils.ToSystemList(__instance.Path)},
+                        {"@path_auto", __instance.Path.ToSysList()},
                         {"@trail_auto", trail}
                     }));
                 }
@@ -146,7 +146,7 @@ public static class ActionTriggers
                     stack.Add(new ActionData(name, __instance.Path[0], __instance.PlayerId, new()
                     {
                         {"@pathStart_auto", __instance.Path[__instance.Path.Count - 1]},
-                        {"@path_auto", PolibUtils.ToSystemList(__instance.Path)},
+                        {"@path_auto", __instance.Path.ToSysList()},
                         {"@trail_auto", trail}
                     }));
                 }

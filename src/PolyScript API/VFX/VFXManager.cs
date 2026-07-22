@@ -98,6 +98,20 @@ public static class VFXManager
             __instance.spriteRenderer.transform.localScale /= size;
         }
     }
+
+    public static void ShakeCamera(float duration, float amount)
+    {
+        var mainCam = Camera.main;
+        if (mainCam == null) return;
+
+        var shaker = mainCam.GetComponent<CameraShake>();
+        if (shaker == null)
+        {
+            shaker = mainCam.gameObject.AddComponent<CameraShake>();
+        }
+
+        shaker.TriggerShake(duration, amount);
+    }
 }
 
     

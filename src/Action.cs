@@ -32,6 +32,7 @@ using LibCpp2IL.Elf;
 using PolytopiaBackendBase.Common;
 using UnityEngine.Rendering;
 using UnityEngine.SocialPlatforms.Impl;
+using Polibrary.PolyScript;
 
 
 namespace Polibrary;
@@ -1278,7 +1279,7 @@ public class pAction
         float duration = ParseInt(sduration);
         float amount = ParseInt(samount);
 
-        PolibUtils.ShakeCamera(duration / 10, amount);
+        VFXManager.ShakeCamera(duration / 10, amount);
     }
     #endregion
 

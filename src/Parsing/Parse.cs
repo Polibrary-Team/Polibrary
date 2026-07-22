@@ -61,7 +61,7 @@ public static class Parse
     }
     public static Dictionary<CityReward, PolibCityRewardData> cityRewardDict = new Dictionary<CityReward, PolibCityRewardData>();
     public static Dictionary<pbb.TribeType, List<CityRewardOverrideClass>> cityRewardOverrideDict = new Dictionary<pbb.TribeType, List<CityRewardOverrideClass>>();
-    public static List<CityReward> rewardList = PolibUtils.MakeSystemList<CityReward>(CityRewardData.cityRewards);
+    public static List<CityReward> rewardList = CityRewardData.cityRewards.ToList();
     public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new Dictionary<UnitEffect, PolibUnitEffectData>();
     public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] { UnitEffect.Boosted, UnitEffect.Bubble, UnitEffect.Frozen, UnitEffect.Invisible, UnitEffect.Petrified, UnitEffect.Poisoned, UnitEffect.Charmed, UnitEffect.Swift, UnitEffect.DoubleReady };
     public static Dictionary<string, pAction> actions = new Dictionary<string, pAction>();

@@ -155,12 +155,12 @@ public static class CityRewardManager
             }
         }
 
-        List<CityReward> orderedlist = PolibUtils.ToSystemList(list);
+        List<CityReward> orderedlist = PolibUtils.ToSysList(list);
         System.Comparison<CityReward> comparison = (a, b) => Parsing.Parse.cityRewardDict[a].order.CompareTo(Parsing.Parse.cityRewardDict[b].order);
 
         orderedlist.Sort(comparison);
 
-        Il2CppStructArray<CityReward> array = PolibUtils.ArrayFromListIl2Cpp(PolibUtils.ToIl2CppList(orderedlist));
+        Il2CppStructArray<CityReward> array = orderedlist.ToIl2List().ToSysArray();
 
         if (array != null || array.Length != 0)
         {
@@ -281,12 +281,12 @@ public static class CityRewardManager
                 }
             }
         }
-        List<CityReward> orderedlist = PolibUtils.ToSystemList(list);
+        List<CityReward> orderedlist = PolibUtils.ToSysList(list);
         System.Comparison<CityReward> comparison = (a, b) => Parsing.Parse.cityRewardDict[a].order.CompareTo(Parsing.Parse.cityRewardDict[b].order);
 
         orderedlist.Sort(comparison);
 
-        Il2CppStructArray<CityReward> array = PolibUtils.ArrayFromListIl2Cpp(PolibUtils.ToIl2CppList(orderedlist));
+        Il2CppStructArray<CityReward> array = orderedlist.ToIl2List().ToSysArray();
 
         if (array != null || array.Length != 0)
         {
