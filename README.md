@@ -33,7 +33,7 @@ To access the features of Polibrary, you have to have it installed alongside you
 **Please make sure your users know that your mod requires Polibrary, otherwise the mod will not work properly on their end!**
 
 # Documentation
-Proper documentation can be found in the wiki. If you have questions feel free to ask them on Polibrary's post in the mods thread. If its urgent ping either @fapingvin or @wasdeilonn_, or both.
+Proper documentation can be found in the wiki. If you have questions feel free to ask them on Polibrary's post in the mods thread. If its urgent ping either @fapingvin or @wasd_polymod, or both.
 
 We add documentation on features whenever we feel we won't change it too much, so documented features are _usually_ final.
 
