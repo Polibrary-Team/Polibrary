@@ -22,6 +22,7 @@ public class PolibImprovementData
     public List<UnitData.Type> unitBlacklist = null;
     public Dictionary<string/*trigger*/, string/*action*/> triggers = new();
     public bool hiddenItem = false;
+    public List<TechData.Type> obsoleteBy = null;
 
     public PolibImprovementData() //ctor needed because uhh it is needed
     {
@@ -33,6 +34,7 @@ public class PolibUnitData
 {
     public UnitData.Type? type;
     public bool hiddenItem = false;
+    public List<TechData.Type> obsoleteBy = null;
     public PolibUnitData(){type = null;}
 }
 

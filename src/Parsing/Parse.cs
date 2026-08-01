@@ -84,6 +84,7 @@ public static class Parse
     {
         static PolibUnitData f() => new(); // PolibUnitData Factory
         ParseUtils.ParseWithHandler<UnitData.Type, bool, PolibUnitData>(token, "hiddenItem", polibUnitDatas, f);
+        ParseUtils.ParseWithHandlerIntoArray<PolibUnitData, UnitData.Type, TechData.Type>(token, "obsoleteBy", polibUnitDatas, f);
     }
     static void HandleImprovements(JObject token, bool onCreatedEnumCache)
     {
@@ -100,6 +101,7 @@ public static class Parse
         ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(token, "unitAbilityBlacklist", polibImprovementDatas, f);
         ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitWhitelist", polibImprovementDatas, f);
         ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitBlacklist", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, TechData.Type>(token, "obsoleteBy", polibImprovementDatas, f);
         ParseUtils.ParseToDictWithHandler<ImprovementData.Type, string, PolibImprovementData>(token, "triggers", polibImprovementDatas, f);
     }
     
