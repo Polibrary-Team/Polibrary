@@ -419,11 +419,13 @@ public static class PolibUtils
 
     public static ImprovementData DataFromType(GameState gameState, ImprovementData.Type type)
     {
+        if(gameState == null || gameState.GameLogicData == null) return null;
         return gameState.GameLogicData.GetImprovementData(type);
     }
 
     public static ImprovementData DataFromType(ImprovementData.Type type)
     {
+        if(GameManager.GameState == null) return null;
         return DataFromType(GameManager.GameState, type);
     }
 
