@@ -107,7 +107,7 @@ public static class UI
 
     #endregion
 
-    #region TechUI
+    #region HiddenItem
 
     /// HIDDENITEM - with prefixpostfix
     /// 
@@ -236,6 +236,51 @@ public static class UI
         }
     }
 
+
+    #endregion
+
+    #region Obsoletion
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.CanBuild))]
+    private static void ObsoleteImprovement(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
+    {
+        bool success = PolibData.TryGetValue(Parse.polibImprovementDatas, improvement.type, nameof(PolibImprovementData.obsoleteBy), out List<TechData.Type> obsoletionTechs);
+        if(success && obsoletionTechs != null)
+        {
+            foreach(var techThatObsoletes in obsoletionTechs)
+            {
+                if(playerState.HasTech(techThatObsoletes)) {__result = false; return;}
+            }
+        }
+    }
+
+    /*
+    doesn't work
+    
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CommandUtils), nameof(CommandUtils.GetTrainableUnits))]
+    private static void ObsoleteUnit(GameState gameState, PlayerState player, TileData tile, bool includeUnavailable, ref Il2Gen.List<TrainCommand> __result)
+    {
+        Il2Gen.List<TrainCommand> recreation = new();
+        foreach(var command in __result)
+        {
+            bool success = PolibData.TryGetValue(Parse.polibUnitDatas, command.Type, nameof(PolibImprovementData.obsoleteBy), out List<TechData.Type> obsoletionTechs);
+            if(success && obsoletionTechs != null)
+            {
+                foreach(var techThatObsoletes in obsoletionTechs)
+                {
+                    if (player.HasTech(techThatObsoletes))
+                    {
+                        Main.modLogger.LogMessage("Found one");
+                    }
+                    else recreation.Add(command);
+                }
+            }
+            else recreation.Add(command);
+        }
+        __result = recreation;
+    }*/
 
     #endregion
 }
