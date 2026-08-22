@@ -26,7 +26,7 @@ public static class Main
         ClassInjector.RegisterTypeInIl2Cpp<CameraShake>();
         //Directory.CreateDirectory(PolibSave.DATA_PATH);
 
-
+        /*
         var myPostfix = new HarmonyMethod(typeof(Main).GetMethod(nameof(Main.MethodThing))); //a brief thanks to our sponsor, chatGPT!
 
         HashSet<string> targetActions = new HashSet<string> 
@@ -72,10 +72,10 @@ public static class Main
                 }
             }
         }
-        modLogger.LogInfo($"Dynamically patched {count} Action types!");
+        modLogger.LogInfo($"Dynamically patched {count} Action types!");*/
     }
 
-    public static void MethodThing(ActionBase __instance)
+    /*public static void MethodThing(ActionBase __instance)
     {
         if (waitList.TryGetValue(__instance.Pointer, out var action))
         {
@@ -89,7 +89,7 @@ public static class Main
     public static void LateLoad()
     {
         PolibActionManager.RegisterAction<PolibAction>("polibaction");
-    }
+    }*/
 }
     // Good for quick reference getting:
     /*using System.ComponentModel;

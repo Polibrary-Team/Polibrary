@@ -54,7 +54,7 @@ public static class ActionTriggers
     public static ManualLogSource modLogger;
     public static void Load(ManualLogSource logger)
     {
-        Harmony.CreateAndPatchAll(typeof(ActionTriggers));
+        //Harmony.CreateAndPatchAll(typeof(ActionTriggers));
         modLogger = logger;
     }
 
