@@ -103,11 +103,6 @@ public static class CityRewardManager
     [HarmonyPatch(typeof(ImprovementDataExtensions), nameof(ImprovementDataExtensions.GetCityRewardsForLevel))] //this is the polyscript equivalent of the pear of anguish (idk what the name is yk that iron shit that they shove up your ass and then they extend it and it opens and it mighty fucks up you arsehole)
     public static bool ImprovementDataExtentions_GetCityRewardsForLevel(ref Il2CppStructArray<CityReward> __result, ImprovementData data, int level)
     {
-        if (GameManager.Client.GameState.Settings.GameType == GameType.Competitive || GameManager.Client.GameState.Settings.GameType == GameType.Multiplayer)
-        {
-            return true;
-        }
-
         Il2Gen.List<CityReward> list = new Il2Gen.List<CityReward>();
         GameState state = GameManager.GameState;
 
