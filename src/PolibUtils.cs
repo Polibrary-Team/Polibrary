@@ -668,7 +668,7 @@ public static class PolibUtils
     #endregion ParseUtils
 
     #region pActions
-
+/*
     public static void RunAction(string name, WorldCoordinates coordinates, byte ownerPlayer, Dictionary<string, object> vars)
     {
         if (Parsing.Parse.actions.TryGetValue(name, out pAction refaction))
@@ -701,7 +701,7 @@ public static class PolibUtils
         {
             utilGuy.LogInfo($"pAction not found: '{name}'. Check spelling");
         }
-    }
+    }*/
 
     #endregion pAction
 }

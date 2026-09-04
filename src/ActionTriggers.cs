@@ -33,7 +33,7 @@ using UnityEngine.Rendering.RenderGraphModule.NativeRenderPassCompiler;
 
 
 namespace Polibrary;
-
+/*
 public class ActionData
 {
     public string name;
@@ -591,4 +591,4 @@ public static class ActionTriggers
         
         return flag;
     }
-}
+}*/

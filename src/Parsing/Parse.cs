@@ -64,7 +64,7 @@ public static class Parse
     public static List<CityReward> rewardList = CityRewardData.cityRewards.ToList();
     public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new Dictionary<UnitEffect, PolibUnitEffectData>();
     public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] { UnitEffect.Boosted, UnitEffect.Bubble, UnitEffect.Frozen, UnitEffect.Invisible, UnitEffect.Petrified, UnitEffect.Poisoned, UnitEffect.Charmed, UnitEffect.Swift, UnitEffect.DoubleReady };
-    public static Dictionary<string, pAction> actions = new Dictionary<string, pAction>();
+    //public static Dictionary<string, pAction> actions = new Dictionary<string, pAction>();
     //public static Dictionary<ImprovementData.Type, Dictionary<string/*trigger*/, string/*action*/>> improvementTriggers = new Dictionary<ImprovementData.Type, Dictionary<string, string>>();
     public static Dictionary<UnitData.Type, Dictionary<string/*trigger*/, string/*action*/>> unitTriggers = new Dictionary<UnitData.Type, Dictionary<string, string>>();
     public static Dictionary<UnitAbility.Type, Dictionary<string/*trigger*/, string/*action*/>> unitAbilityTriggers = new Dictionary<UnitAbility.Type, Dictionary<string, string>>();
@@ -153,7 +153,7 @@ public static class Parse
 
         #region pActions
 
-        foreach (JToken jtoken in rootObject.SelectTokens("$.pActions.*").ToList())
+        /*foreach (JToken jtoken in rootObject.SelectTokens("$.pActions.*").ToList())
         {
             JArray token = jtoken.TryCast<JArray>();
             if (token != null)
@@ -163,7 +163,7 @@ public static class Parse
                 action.lines = token.Values<string>().ToArray();
                 actions[name] = action;
             }
-        }
+        }*/
 
         #endregion pActions
 

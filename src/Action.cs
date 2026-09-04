@@ -37,7 +37,7 @@ using Polibrary.PolyScript;
 
 namespace Polibrary;
 
-
+/*
 public class pAction
 {
     private static ManualLogSource modLogger;
@@ -1512,14 +1512,14 @@ public class pAction
         }
         if (s[0] == '&')
         {
-            /*if (Main.polibGameState.globalVariables.TryGetValue(s, out var value))
+            if (Main.polibGameState.globalVariables.TryGetValue(s, out var value))
             {
                 obj = (T)value;
                 if (obj != null)
                 {
                     return true;
                 }
-            }*/
+            }
         }
         obj = default;
         return false;
@@ -1741,4 +1741,4 @@ public class pAction
         }
     }
     #endregion
-}
+}*/
