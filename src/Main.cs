@@ -10,7 +10,6 @@ namespace Polibrary;
 public static class Main
 {
     //public static PolibGameState polibGameState;
-    //public static Dictionary<IntPtr, pAction> waitList = new Dictionary<IntPtr, pAction>();
     public static ManualLogSource modLogger;
     public static void Load(ManualLogSource logger)
     {
@@ -25,71 +24,7 @@ public static class Main
         PolyMod.Loader.AddPatchDataType("tileEffectData", typeof(TileData.EffectType));
         ClassInjector.RegisterTypeInIl2Cpp<CameraShake>();
         //Directory.CreateDirectory(PolibSave.DATA_PATH);
-
-        /*
-        var myPostfix = new HarmonyMethod(typeof(Main).GetMethod(nameof(Main.MethodThing))); //a brief thanks to our sponsor, chatGPT!
-
-        HashSet<string> targetActions = new HashSet<string> 
-        {
-            "IncreaseCurrencyAction",
-            "BuildAction",
-            "DestroyImprovementAction",
-            "TrainAction",
-            "AttackAction",
-            "ConvertAction",
-            "ExploreAction",
-            "PromoteAction",
-            "UpgradeAction",
-            "RevealAction",
-            "KillUnitAction",
-            "RecoverAction",
-            "ResearchAction",
-            "RuleAreaAction",
-            "CityRewardAction",
-            "IncreaseScoreAction",
-            "DecreaseScoreAction"
-        };
-
-        var actionTypes = typeof(ActionBase).Assembly.GetTypes()
-            .Where(t => t.IsSubclassOf(typeof(ActionBase)) && !t.IsAbstract);
-
-        int count = 0;
-        foreach (var actionType in actionTypes)
-        {
-            if (!targetActions.Contains(actionType.Name)) continue;
-
-            var executeMethod = actionType.GetMethod("Execute", new Type[] { typeof(GameState) });
-            if (executeMethod != null)
-            {
-                try 
-                {
-                    harmony.Patch(executeMethod, postfix: myPostfix);
-                    count++;
-                }
-                catch (Exception e)
-                {
-                    modLogger.LogWarning($"Failed {actionType.Name}: {e.Message}");
-                }
-            }
-        }
-        modLogger.LogInfo($"Dynamically patched {count} Action types!");*/
     }
-
-    /*public static void MethodThing(ActionBase __instance)
-    {
-        if (waitList.TryGetValue(__instance.Pointer, out var action))
-        {
-            waitList.Remove(__instance.Pointer);
-            action.Execute();
-        }
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
-    public static void LateLoad()
-    {
-        PolibActionManager.RegisterAction<PolibAction>("polibaction");
-    }*/
 }
     // Good for quick reference getting:
     /*using System.ComponentModel;

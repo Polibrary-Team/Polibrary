@@ -1,5 +1,6 @@
 using BepInEx.Logging;
 using HarmonyLib;
+using Polibrary.PolyScript;
 using Polytopia.Data;
 
 
@@ -29,8 +30,7 @@ public static class TribeManager
         }
     }
     #endregion
-
-    /* NOTE TO SELF: ASK MIDJIATE
+    /* would need PreActionGameState
     [HarmonyPrefix] //fix for custom tribe spread and alienclimate waits so it works like polaris
     [HarmonyPatch(typeof(ClimateChangeAction), nameof(ClimateChangeAction.Execute))]
     private static bool ClimateChangeActionFix(ClimateChangeAction __instance, GameState gameState)
@@ -42,11 +42,13 @@ public static class TribeManager
     [HarmonyPatch(typeof(ClimateChangeReaction), nameof(ClimateChangeReaction.Execute))]
     private static bool ClimateChangeReactionFix(ClimateChangeReaction __instance, Il2CppSystem.Action onComplete)
     {
-        if  (__instance.action.Climate == GameManager.GameState.Map.GetTile(__instance.action.Coordinates).climate)
+        if  (__instance.action.Climate == PolibActionManager.PreActionGameState.Map.GetTile(__instance.action.Coordinates).climate)
         {
-            GameManager.DelayCall(1, onComplete);
+            Main.modLogger.LogInfo("did");
+            onComplete.Invoke();
             return false;
         }
+        Main.modLogger.LogInfo("didnt");
         return true;
     }*/
 }

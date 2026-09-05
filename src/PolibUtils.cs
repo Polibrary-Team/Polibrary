@@ -666,42 +666,4 @@ public static class PolibUtils
     }
 
     #endregion ParseUtils
-
-    #region pActions
-/*
-    public static void RunAction(string name, WorldCoordinates coordinates, byte ownerPlayer, Dictionary<string, object> vars)
-    {
-        if (Parsing.Parse.actions.TryGetValue(name, out pAction refaction))
-        {
-            pAction action = new pAction(refaction);
-            action.ActionOrigin = coordinates;
-            action.playerId = ownerPlayer;
-            action.name = name;
-            action.variables = vars;
-            action.Execute();
-        }
-        else
-        {
-            utilGuy.LogInfo($"pAction not found: '{name}'. Check spelling");
-        }
-    }
-
-    public static void RunChildAction(string name, WorldCoordinates coordinates, byte ownerPlayer, Dictionary<string, object> variables)
-    {
-        if (Parsing.Parse.actions.TryGetValue(name, out pAction refaction))
-        {
-            pAction action = new pAction(refaction);
-            action.ActionOrigin = coordinates;
-            action.playerId = ownerPlayer;
-            action.name = name;
-            action.variables = variables;
-            action.Execute();
-        }
-        else
-        {
-            utilGuy.LogInfo($"pAction not found: '{name}'. Check spelling");
-        }
-    }*/
-
-    #endregion pAction
 }
