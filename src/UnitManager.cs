@@ -343,10 +343,10 @@ public static class UnitManager
     // This needs a rewrite so that the command itself isn't valid or the likes
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(ConvertAction), nameof(ConvertAction.ExecuteDefault))]
-    public static bool Loyal(ConvertAction __instance, GameState gameState)
+    [HarmonyPatch(typeof(ConvertAction), nameof(ConvertAction.Execute))]
+    public static bool Loyal(ConvertAction __instance, GameState state)
     {
-        TileData tile2 = gameState.Map.GetTile(__instance.Target);
+        TileData tile2 = state.Map.GetTile(__instance.Target);
         UnitState unit2 = tile2.unit;
 
         if (unit2.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_loyal")))
@@ -401,23 +401,23 @@ public static class UnitManager
     #endregion
 
     #region Scary
-    [HarmonyPostfix] //i genuinely cant remember if this was me or not -wasd_
-    [HarmonyPatch(typeof(AttackCommand), nameof(AttackCommand.ExecuteDefault))]
-    public static void InciteFear(AttackCommand __instance, GameState gameState)
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(AttackCommand), nameof(AttackCommand.Execute))]
+    public static void InciteFear(AttackCommand __instance, GameState state)
     {
         UnitState aggressor;
-        gameState.TryGetUnit(__instance.UnitId, out aggressor);
-        TileData tile = gameState.Map.GetTile(__instance.Target);
+        state.TryGetUnit(__instance.UnitId, out aggressor);
+        TileData tile = state.Map.GetTile(__instance.Target);
         if (tile.unit == null) //Flee!
         {
             return;
         }
         UnitState unit = tile.unit;
         PlayerState playerState;
-        gameState.TryGetPlayer(__instance.PlayerId, out playerState);
+        state.TryGetPlayer(__instance.PlayerId, out playerState);
         PlayerState defender;
-        gameState.TryGetPlayer(unit.owner, out defender);
-        BattleResults battleResults = BattleHelpers.GetBattleResults(gameState, aggressor, unit);
+        state.TryGetPlayer(unit.owner, out defender);
+        BattleResults battleResults = BattleHelpers.GetBattleResults(state, aggressor, unit);
 
         if (battleResults.attackDamage < unit.health && aggressor.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_scary")))
         {
@@ -429,69 +429,69 @@ public static class UnitManager
     #region MOVEMENTS
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(MoveAction), nameof(MoveAction.ExecuteDefault))]
-    public static void HealAll(MoveAction __instance, GameState gameState)
+    [HarmonyPatch(typeof(MoveAction), nameof(MoveAction.Execute))]
+    public static void HealAll(MoveAction __instance, GameState state)
     {
         UnitState unitState;
-        gameState.TryGetPlayer(__instance.PlayerId, out PlayerState playerState);
-        if (!gameState.TryGetUnit(__instance.UnitId, out unitState)) //breaks with consumed
+        state.TryGetPlayer(__instance.PlayerId, out PlayerState playerState);
+        if (!state.TryGetUnit(__instance.UnitId, out unitState)) //breaks with consumed
         {
             return;
         }
-        TileData tile2 = gameState.Map.GetTile(__instance.Path[0]);
+        TileData tile2 = state.Map.GetTile(__instance.Path[0]);
 
         if (tile2 == null || tile2.improvement == null)
         {
             return;
         }
-        else if (PolibUtils.DataFromState(tile2.improvement, gameState).HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_healall")))
+        else if (PolibUtils.DataFromState(tile2.improvement, state).HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_healall")))
         {
-            PolibUtils.HealUnit(gameState, unitState, 40);
+            PolibUtils.HealUnit(state, unitState, 40);
         }
-        else if (PolibUtils.DataFromState(tile2.improvement, gameState).HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_healfriendly")) && tile2.owner == unitState.owner)
+        else if (PolibUtils.DataFromState(tile2.improvement, state).HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_healfriendly")) && tile2.owner == unitState.owner)
         {
-            PolibUtils.HealUnit(gameState, unitState, 40);
+            PolibUtils.HealUnit(state, unitState, 40);
         }
     }
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(MoveAction), nameof(MoveAction.ExecuteDefault))]
-    public static void CleanseImp(MoveAction __instance, GameState gameState)
+    [HarmonyPatch(typeof(MoveAction), nameof(MoveAction.Execute))]
+    public static void CleanseImp(MoveAction __instance, GameState state)
     {
         UnitState unitState;
-        gameState.TryGetPlayer(__instance.PlayerId, out PlayerState playerState);
-        if (!gameState.TryGetUnit(__instance.UnitId, out unitState)) //breaks with consumed
+        state.TryGetPlayer(__instance.PlayerId, out PlayerState playerState);
+        if (!state.TryGetUnit(__instance.UnitId, out unitState)) //breaks with consumed
         {
             return;
         }
-        TileData tile2 = gameState.Map.GetTile(__instance.Path[0]);
+        TileData tile2 = state.Map.GetTile(__instance.Path[0]);
 
         if (tile2 == null || tile2.improvement == null)
         {
             return;
         }
-        else if (PolibUtils.DataFromState(tile2.improvement, gameState).HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_cleanse")))
+        else if (PolibUtils.DataFromState(tile2.improvement, state).HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_cleanse")))
         {
             PolibUtils.CleanseUnit(unitState);
         }
     }
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(MoveAction), nameof(MoveAction.ExecuteDefault))]
-    public static void Crush(MoveAction __instance, GameState gameState)
+    [HarmonyPatch(typeof(MoveAction), nameof(MoveAction.Execute))]
+    public static void Crush(MoveAction __instance, GameState state)
     {
 
         UnitState unitState;
-        gameState.TryGetPlayer(__instance.PlayerId, out PlayerState playerState);
-        if (!gameState.TryGetUnit(__instance.UnitId, out unitState)) //breaks with consumed
+        state.TryGetPlayer(__instance.PlayerId, out PlayerState playerState);
+        if (!state.TryGetUnit(__instance.UnitId, out unitState)) //breaks with consumed
         {
             return;
         }
-        TileData tile2 = gameState.Map.GetTile(__instance.Path[0]);
+        TileData tile2 = state.Map.GetTile(__instance.Path[0]);
 
-        if (unitState.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_crush")) && CanDestroyDiNuovo(tile2, gameState))
+        if (unitState.HasAbility(EnumCache<UnitAbility.Type>.GetType("polib_crush")) && CanDestroyDiNuovo(tile2, state))
         {
-            gameState.ActionStack.Add(new DestroyImprovementAction(tile2.owner, tile2.coordinates));
+            state.ActionStack.Add(new DestroyImprovementAction(tile2.owner, tile2.coordinates));
         }
     }
 

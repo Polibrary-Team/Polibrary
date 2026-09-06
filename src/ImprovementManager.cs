@@ -178,12 +178,12 @@ public static class ImprovementManager
     #region OnBuild Actions
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(BuildAction), nameof(BuildAction.ExecuteDefault))]
-    private static void BuildActionnaire(BuildAction __instance, GameState gameState)
+    [HarmonyPatch(typeof(BuildAction), nameof(BuildAction.Execute))]
+    private static void BuildActionnaire(BuildAction __instance, GameState state)
     {
         var data = PolibUtils.DataFromType(__instance.Type);
-        TileData tile = gameState.Map.GetTile(__instance.Coordinates);
-        gameState.TryGetPlayer(__instance.PlayerId, out PlayerState player);
+        TileData tile = state.Map.GetTile(__instance.Coordinates);
+        state.TryGetPlayer(__instance.PlayerId, out PlayerState player);
 
         if (tile == null)
         {
@@ -198,7 +198,7 @@ public static class ImprovementManager
         {
             if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_healonce")))
             {
-                PolibUtils.HealUnit(gameState, tile.unit, 40);
+                PolibUtils.HealUnit(state, tile.unit, 40);
             }
 
             if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_cleanseonce")))
@@ -213,7 +213,7 @@ public static class ImprovementManager
 
             if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_killunit")))
             {
-                gameState.ActionStack.Add(new KillUnitAction(tile.unit.owner, tile.coordinates));
+                state.ActionStack.Add(new KillUnitAction(tile.unit.owner, tile.coordinates));
             }
         }
 
@@ -223,17 +223,17 @@ public static class ImprovementManager
             var unlockableTech = PolibUtils.polibGetUnlockableTech(player);
             if (unlockableTech != null && unlockableTech.Count != 0)
             {
-                var tech = unlockableTech[gameState.RandomHash.Range(0, unlockableTech.Count, tile.coordinates.X, tile.coordinates.Y)];
-                gameState.ActionStack.Add(new ResearchAction(player.Id, tech.type, 0));
+                var tech = unlockableTech[state.RandomHash.Range(0, unlockableTech.Count, tile.coordinates.X, tile.coordinates.Y)];
+                state.ActionStack.Add(new ResearchAction(player.Id, tech.type, 0));
             }
         }
         if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_reveal")))
         {
-            foreach (var tile2 in gameState.Map.GetArea(tile.coordinates, 2, true, true))
+            foreach (var tile2 in state.Map.GetArea(tile.coordinates, 2, true, true))
             {
                 if (tile2 != null && tile2.coordinates != WorldCoordinates.NULL_COORDINATES)
                 {
-                    gameState.ActionStack.Add(new ExploreAction(player.Id, tile2.coordinates));
+                    state.ActionStack.Add(new ExploreAction(player.Id, tile2.coordinates));
                 }
             }
         }
