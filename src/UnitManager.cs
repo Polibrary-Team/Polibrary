@@ -223,6 +223,8 @@ public static class UnitManager
             if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
             {
                 if (Parsing.Parse.vanillaUnitEffects.Contains(effect)) continue;
+
+                if (effectData.color == null) continue;
                 
                 foreach (SkinVisualsReference.VisualPart visualPart in __instance.skinVisuals.visualParts)
                 {
@@ -234,7 +236,7 @@ public static class UnitManager
                             {
                                 var materialBlock = new UnityEngine.MaterialPropertyBlock();
                                 visualPart.renderer.spriteRenderer.GetPropertyBlock(materialBlock);
-                                materialBlock.SetColor("_OverlayColor", effectData.color);
+                                materialBlock.SetColor("_OverlayColor", (UnityEngine.Color)effectData.color);
                                 materialBlock.SetFloat("_OverlayStrength", 0.5f);
                                 visualPart.renderer.spriteRenderer.SetPropertyBlock(materialBlock);
                             }

@@ -20,8 +20,8 @@ public static class Main
         logger.LogMessage("Polibrary.dll loaded.");
         modLogger.LogMessage("Version 2.1.4");
         PolyMod.Loader.AddPatchDataType("cityRewardData", typeof(CityReward)); //casual fapingvin carry
-        PolyMod.Loader.AddPatchDataType("unitEffectData", typeof(UnitEffect)); //casual fapingvin carry... ...again
-        PolyMod.Loader.AddPatchDataType("tileEffectData", typeof(TileData.EffectType));
+        PolyMod.Loader.AddPatchDataType("unitEffect", typeof(UnitEffect)); //casual fapingvin carry... ...again
+        PolyMod.Loader.AddPatchDataType("tileEffect", typeof(TileData.EffectType));
         ClassInjector.RegisterTypeInIl2Cpp<CameraShake>();
         //Directory.CreateDirectory(PolibSave.DATA_PATH);
     }

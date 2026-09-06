@@ -55,7 +55,7 @@ public static class Parse
     {
         public Dictionary<string, int> additives = new Dictionary<string, int>();
         public Dictionary<string, double> multiplicatives = new Dictionary<string, double>();
-        public UnityEngine.Color color { get; set; }
+        public UnityEngine.Color? color = null;
         public List<string> removal { get; set; }
         public bool freezing { get; set; }
     }
@@ -64,13 +64,6 @@ public static class Parse
     public static List<CityReward> rewardList = CityRewardData.cityRewards.ToList();
     public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new Dictionary<UnitEffect, PolibUnitEffectData>();
     public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] { UnitEffect.Boosted, UnitEffect.Bubble, UnitEffect.Frozen, UnitEffect.Invisible, UnitEffect.Petrified, UnitEffect.Poisoned, UnitEffect.Charmed, UnitEffect.Swift, UnitEffect.DoubleReady };
-    //public static Dictionary<string, pAction> actions = new Dictionary<string, pAction>();
-    //public static Dictionary<ImprovementData.Type, Dictionary<string/*trigger*/, string/*action*/>> improvementTriggers = new Dictionary<ImprovementData.Type, Dictionary<string, string>>();
-    public static Dictionary<UnitData.Type, Dictionary<string/*trigger*/, string/*action*/>> unitTriggers = new Dictionary<UnitData.Type, Dictionary<string, string>>();
-    public static Dictionary<UnitAbility.Type, Dictionary<string/*trigger*/, string/*action*/>> unitAbilityTriggers = new Dictionary<UnitAbility.Type, Dictionary<string, string>>();
-    public static Dictionary<TribeAbility.Type, Dictionary<string/*trigger*/, string/*action*/>> tribeAbilityTriggers = new Dictionary<TribeAbility.Type, Dictionary<string, string>>();
-    public static Dictionary<UnitEffect, Dictionary<string/*trigger*/, string/*action*/>> unitEffectTriggers = new Dictionary<UnitEffect, Dictionary<string, string>>();
-    public static Dictionary<CityReward, Dictionary<string/*trigger*/, string/*action*/>> rewardTriggers = new Dictionary<CityReward, Dictionary<string, string>>();
     public static Dictionary<UnitData.Type, List<string>> unitDataTargets = new Dictionary<UnitData.Type, List<string>>();
     public static Dictionary<UnitAbility.Type, List<string>> unitAbilityTargets = new Dictionary<UnitAbility.Type, List<string>>();
     public static Dictionary<UnitEffect, List<string>> unitEffectTargets = new Dictionary<UnitEffect, List<string>>();
@@ -171,63 +164,6 @@ public static class Parse
         PolibUtils.ParsePerEach(rootObject, "tribeData", "leaderName", leaderNameDict);
 
 
-        #region Units
-
-        foreach (JToken jtoken in rootObject.SelectTokens("$.unitData.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<UnitData.Type>.TryGetType(token.Path.Split('.').Last(), out var unitType))
-                {
-                    if (token["triggers"] != null)
-                    {
-                        PolibUtils.ParseToNestedStringDict(token["triggers"], unitType, unitTriggers);
-                    }
-                }
-            }
-        }
-
-        #endregion Units
-
-        #region Unit Ablities
-
-        foreach (JToken jtoken in rootObject.SelectTokens("$.unitAbility.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<UnitAbility.Type>.TryGetType(token.Path.Split('.').Last(), out var abilityType))
-                {
-                    if (token["triggers"] != null)
-                    {
-                        PolibUtils.ParseToNestedStringDict(token["triggers"], abilityType, unitAbilityTriggers);
-                    }
-                }
-            }
-        }
-
-        #endregion Unit Abilities
-
-        #region Tribe Ablities
-
-        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeAbility.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<TribeAbility.Type>.TryGetType(token.Path.Split('.').Last(), out var abilityType))
-                {
-                    if (token["triggers"] != null)
-                    {
-                        PolibUtils.ParseToNestedStringDict(token["triggers"], abilityType, tribeAbilityTriggers);
-                    }
-                }
-            }
-        }
-
-        #endregion Tribe Abilities
-
         #region City Rewards
 
         foreach (CityReward reward in CityRewardData.cityRewards) //default for vanilla cityRewards
@@ -270,18 +206,13 @@ public static class Parse
                         rewardList.Add(cityReward);
                     }
                     cityRewardDict[cityReward] = cityRewardData;
-
-                    if (token["triggers"] != null)
-                    {
-                        PolibUtils.ParseToNestedStringDict(token["triggers"], cityReward, rewardTriggers);
-                    }
                 }
             }
         }
 
         #endregion City Rewards
 
-        foreach (JToken jtoken in rootObject.SelectTokens("$.unitEffectData.*").ToList())
+        foreach (JToken jtoken in rootObject.SelectTokens("$.unitEffect.*").ToList())
         {
             JObject token = jtoken.TryCast<JObject>();
             if (token != null)
@@ -318,11 +249,6 @@ public static class Parse
 
                         unitEffectData.color = new UnityEngine.Color(r, g, b, a);
                         token.Remove("color");
-                    }
-
-                    if (token["triggers"] != null)
-                    {
-                        PolibUtils.ParseToNestedStringDict(token["triggers"], unitEffect, unitEffectTriggers);
                     }
 
                     unitEffectDataDict[unitEffect] = unitEffectData;
