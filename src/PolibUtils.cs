@@ -216,50 +216,9 @@ public static class PolibUtils
 
     #region UnitUtils
 
-    // is this just a more convoluted way of doing unit.addeffect? //no clue, was this me?
-    /*private static void ApplyEffect(GameState gameState, WorldCoordinates Origin, WorldCoordinates Target, UnitEffect effect)
-    {
-        TileData tile = gameState.Map.GetTile(Origin);
-        TileData tile2 = gameState.Map.GetTile(Target);
-        UnitState unit = tile.unit;
-        UnitState unit2 = tile2.unit;
-        if (unit2 == null)
-        {
-            return;
-        }
-        unit2.AddEffect(effect);
-        if (unit2.passengerUnit != null)
-        {
-            unit2.passengerUnit.AddEffect(effect);
-        }
-    }*/
-
     public static void CleanseUnit(UnitState unit)
     {
         unit.effects = new Il2Gen.List<UnitEffect>();
-    }
-
-    public static void HealUnit(GameState gameState, UnitState unit, int amount)
-    {
-        var maxhp = unit.GetMaxHealth(gameState);
-        var currhp = unit.health;
-        if (currhp >= maxhp)
-        {
-            return;
-        }
-        var diff = maxhp - currhp;
-        if (diff < amount)
-        {
-            amount = diff;
-        }
-        if (unit.HasEffect(UnitEffect.Poisoned))
-        {
-            amount = 0;
-            unit.RemoveEffect(UnitEffect.Poisoned);
-        }
-        unit.health += (ushort)amount;
-        Tile tile = MapRenderer.Current.GetTileInstance(unit.coordinates);
-        tile.Heal(amount);
     }
 
     public static Parsing.Parse.PolibUnitEffectData SetVanillaUnitEffectDefaults(UnitEffect effect)
