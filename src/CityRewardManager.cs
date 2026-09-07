@@ -90,7 +90,7 @@ public static class CityRewardManager
         {
             tribeType = playerState.tribe;
         }
-        else { nubert!.LogInfo($"STUFF IS SERIOUSLY GNOMED"); } //fappy what?
+        else return true;
 
         foreach (CityReward reward in Parsing.Parse.rewardList)
         {
@@ -138,11 +138,6 @@ public static class CityRewardManager
         if (array != null || array.Length != 0)
         {
             __result = array;
-            //nubert!.LogInfo(array.Length);
-            foreach (CityReward reward in array)
-            {
-                //nubert!.LogInfo(reward);
-            }
             return false;
         }
         else { return true; }
