@@ -198,7 +198,7 @@ public static class ImprovementManager
         {
             if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_healonce")))
             {
-                PolibUtils.HealUnit(gameState, tile.unit, 40);
+                gameState.ActionStack.Add(new HealAction(__instance.PlayerId, tile.unit.coordinates, 40));
             }
 
             if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_cleanseonce")))
