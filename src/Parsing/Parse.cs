@@ -144,23 +144,6 @@ public static class Parse
             }
         }
 
-        #region pActions
-
-        /*foreach (JToken jtoken in rootObject.SelectTokens("$.pActions.*").ToList())
-        {
-            JArray token = jtoken.TryCast<JArray>();
-            if (token != null)
-            {
-                string name = token.Path.Split('.').Last();
-                pAction action = new pAction();
-                action.lines = token.Values<string>().ToArray();
-                actions[name] = action;
-            }
-        }*/
-
-        #endregion pActions
-
-
         PolibUtils.ParsePerEach(rootObject, "tribeData", "leaderName", leaderNameDict);
 
 
@@ -172,7 +155,7 @@ public static class Parse
         }
 
 
-        foreach (JToken jtoken in rootObject.SelectTokens("$.cityRewardData.*").ToList())
+        foreach (JToken jtoken in rootObject.SelectTokens("$.cityReward.*").ToList())
         {
             JObject token = jtoken.TryCast<JObject>();
             if (token != null)
