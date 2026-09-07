@@ -446,11 +446,11 @@ public static class UnitManager
         }
         else if (PolibUtils.DataFromState(tile2.improvement, state).HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_healall")))
         {
-            PolibUtils.HealUnit(state, unitState, 40);
+            state.ActionStack.Add(new HealAction(__instance.PlayerId, unitState.coordinates, 40));
         }
         else if (PolibUtils.DataFromState(tile2.improvement, state).HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_healfriendly")) && tile2.owner == unitState.owner)
         {
-            PolibUtils.HealUnit(state, unitState, 40);
+            state.ActionStack.Add(new HealAction(__instance.PlayerId, unitState.coordinates, 40));
         }
     }
 
