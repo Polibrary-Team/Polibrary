@@ -77,6 +77,11 @@ public static class Parse
         public ResourceData.Type og { get; set; }
         public ResourceData.Type neu { get; set; }
     }
+    public class TerrainOverride
+    {
+        public Polytopia.Data.TerrainData.Type og { get; set; }
+        public Polytopia.Data.TerrainData.Type neu { get; set; }
+    }
     public class PolibUnitEffectData //So I haveth a Laser Pointre...
     {
         public Dictionary<string, int> additives = new Dictionary<string, int>();
@@ -89,6 +94,7 @@ public static class Parse
     public static Dictionary<pbb.TribeType, List<CityRewardOverride>> cityRewardOverrideDict = new();
     public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new();
     public static Dictionary<TribeType, List<ResourceOverride>> resourceOverrides = new();
+    public static Dictionary<TribeType, List<TerrainOverride>> terrainOverrides = new();
 
 
 
@@ -182,6 +188,24 @@ public static class Parse
                         }
                     }
                     resourceOverrides[tribeType] = resourceOverrideList;
+
+                    List<TerrainOverride> terrainOverrideList = new List<TerrainOverride>();
+                    foreach (JToken terrainToken in token.SelectTokens("$.terrainOverrides.*").ToList())
+                    {
+                        if (EnumCache<Polytopia.Data.TerrainData.Type>.TryGetType(terrainToken.Path.Split('.').Last(), out var terrain))
+                        {
+                            if (EnumCache<Polytopia.Data.TerrainData.Type>.TryGetType(terrainToken!.ToObject<string>(), out var overterrain))
+                            {
+                                TerrainOverride overrideClass = new TerrainOverride
+                                {
+                                    og = terrain,
+                                    neu = overterrain
+                                };
+                                terrainOverrideList.Add(overrideClass);
+                            }
+                        }
+                    }
+                    terrainOverrides[tribeType] = terrainOverrideList;
                 }
             }
         }

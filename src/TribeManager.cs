@@ -27,7 +27,7 @@ public static class TribeManager
     }
     #endregion
     
-    #region Resource Overrides
+    #region Climate Overrides
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MapGenerator), nameof(MapGenerator.AddResources))]
@@ -45,6 +45,26 @@ public static class TribeManager
                         {
                             type = o.neu  
                         };
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(MapGenerator), nameof(MapGenerator.MakeOcean))]
+    public static void OverrideTerrainPass(MapData map, GameState gameState, bool shouldConvertShallows = true)
+    {
+        foreach (TileData tile in map.tiles)
+        {
+            if (Parse.terrainOverrides.TryGetValue(tile.climate, out var overlist))
+            {
+                foreach (Parse.TerrainOverride o in overlist)
+                {
+                    if (tile.terrain == o.og)
+                    {
+                        tile.terrain = o.neu;
                         break;
                     }
                 }
