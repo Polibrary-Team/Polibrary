@@ -13,12 +13,25 @@ public static class Main
     public static ManualLogSource modLogger;
     public static void Load(ManualLogSource logger)
     {
-        Harmony harmony = new Harmony("com.polibraryteam.polibrary"); //???
-        harmony.PatchAll();
         Harmony.CreateAndPatchAll(typeof(Main));
+        Harmony.CreateAndPatchAll(typeof(VFXManager));
+        Harmony.CreateAndPatchAll(typeof(CityRewardManager));
+        Harmony.CreateAndPatchAll(typeof(ImprovementManager));
+        Harmony.CreateAndPatchAll(typeof(PolibUtils));
+        Harmony.CreateAndPatchAll(typeof(TribeManager));
+        Harmony.CreateAndPatchAll(typeof(UI));
+        Harmony.CreateAndPatchAll(typeof(UnitManager));
+
+        Harmony.CreateAndPatchAll(typeof(PolibReactionManager));
+        ClassInjector.RegisterTypeInIl2Cpp<PolibActionBase>();
+        Harmony.CreateAndPatchAll(typeof(PolibCommandManager));
+        ClassInjector.RegisterTypeInIl2Cpp<PolibCommandBase>();
+        Harmony.CreateAndPatchAll(typeof(PolibActionManager));
+        ClassInjector.RegisterTypeInIl2Cpp<PolibActionBase>();
+
         modLogger = logger;
         logger.LogMessage("Polibrary.dll loaded.");
-        modLogger.LogMessage("Version 2.1.4");
+        modLogger.LogMessage("Version 2.1.5");
         PolyMod.Loader.AddPatchDataType("cityReward", typeof(CityReward)); //casual fapingvin carry
         PolyMod.Loader.AddPatchDataType("unitEffect", typeof(UnitEffect)); //casual fapingvin carry... ...again
         PolyMod.Loader.AddPatchDataType("tileEffect", typeof(TileData.EffectType));

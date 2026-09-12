@@ -12,14 +12,6 @@ namespace Polibrary;
 
 public static class CityRewardManager
 {
-    private static ManualLogSource nubert;
-    public static void Load(ManualLogSource logger)
-    {
-        nubert = logger;
-        Harmony.CreateAndPatchAll(typeof(CityRewardManager));
-    }
-
-
     [HarmonyPrefix] // DO NOT DELETE!!!!!!!!!!!!! Somehow this is required.
     [HarmonyPatch(typeof(RewardPopup), nameof(RewardPopup.SetRewards))] //HA ITS KLIPIS FAULT GUYS POLIB IS STABLE I SWEAR!!!! //no its not
     public static bool PopupFix(RewardPopup __instance, PlayerState playerState, Il2CppStructArray<CityReward> rewards, bool isReplay = false)
@@ -211,7 +203,7 @@ public static class CityRewardManager
         {
             tribeType = playerState.tribe;
         }
-        else { nubert!.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED"); }
+        else { Main.modLogger.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED"); }
 
         foreach (CityReward reward in Parsing.Parse.rewardList)
         {
@@ -261,7 +253,7 @@ public static class CityRewardManager
             return array;
 
         }
-        else { nubert!.LogInfo($"KRIS WTF HAPPENED?? AI [GetCityRewardsForLevel] COULDN'T FUCKING FIND A DAMN [CityReward[]]!!"); return new CityReward[2]; }
+        else { Main.modLogger.LogInfo($"KRIS WTF HAPPENED?? AI [GetCityRewardsForLevel] COULDN'T FUCKING FIND A DAMN [CityReward[]]!!"); return new CityReward[2]; }
 
     }
 }

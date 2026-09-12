@@ -14,17 +14,6 @@ namespace Polibrary;
 
 public static class UnitManager
 {
-    private static ManualLogSource jeremy;
-    public static void Load(ManualLogSource logger)
-    {
-        // rest in peace steve, you had a good run, 2025-2025
-
-        jeremy = logger; // f you jeremy
-        //yeah jeremy go fuck yourself
-
-        Harmony.CreateAndPatchAll(typeof(UnitManager));
-    }
-
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetDefenceBonus))]
     public static void DefBonus(object[] __args, MethodBase __originalMethod, ref int __result)

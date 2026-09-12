@@ -15,11 +15,6 @@ namespace Polibrary.PolyScript;
 
 public static class VFXManager
 {
-    public static void Load(ManualLogSource logger)
-    {
-        Harmony.CreateAndPatchAll(typeof(VFXManager));
-    }
-
     [HarmonyPostfix]
     [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
     private static void Register(Newtonsoft.Json.Linq.JObject rootObject)

@@ -24,12 +24,6 @@ public static class PolibCommandManager
     3. ur done
     */
 
-    public static void Load(ManualLogSource logger)
-    {
-        Harmony.CreateAndPatchAll(typeof(PolibCommandManager));
-        ClassInjector.RegisterTypeInIl2Cpp<PolibCommandBase>();
-    }
-
     static Dictionary<CommandType, Type> CommandMapping = new();
     static Dictionary<Type, CommandType> CommandReverseMapping = new();
 

@@ -8,11 +8,6 @@ namespace Polibrary;
 
 public static class TribeManager
 {
-    public static void Load(ManualLogSource logger)
-    {
-        Harmony.CreateAndPatchAll(typeof(TribeManager));
-    }
-
     #region AI Leader Name
     // Simpler than it seems, and it seems very simple (Fapingvin, 2025)
     [HarmonyPrefix] //na azt jól megmondtad

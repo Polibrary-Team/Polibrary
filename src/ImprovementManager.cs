@@ -11,14 +11,10 @@ using PolytopiaBackendBase;
 namespace Polibrary;
 
 // imp = improvement
+// no, you have to be shitting me! no WAY!!
 
 public static class ImprovementManager
 {
-    public static void Load(ManualLogSource logger)
-    {
-        Harmony.CreateAndPatchAll(typeof(ImprovementManager));
-    }
-
     #region Can build imp?
 
     // check for every single prebuilt ability once to reduce number of patches, loops and LoC

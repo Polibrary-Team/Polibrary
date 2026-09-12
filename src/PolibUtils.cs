@@ -16,15 +16,6 @@ namespace Polibrary;
 
 public static class PolibUtils
 {
-    private static ManualLogSource utilGuy;
-    public static void Load(ManualLogSource logger)
-    {
-        Harmony.CreateAndPatchAll(typeof(PolibUtils));
-        utilGuy = logger;
-        //utilGuy.LogInfo("I ran out of ideas");
-        // btw we can just use Main.modLogger everywhere
-    }
-
     #region Sys2Cpp Stuff
     public static Il2Gen.List<T> ToIl2List<T>(this List<T> sysList)
     {
@@ -572,7 +563,7 @@ public static class PolibUtils
         JArray jArray = token.TryCast<JArray>();
         if (jArray == null)
         {
-            utilGuy.LogWarning($"couldnt parse {token.GetName()}, not a jArray");
+            Main.modLogger.LogWarning($"couldnt parse {token.GetName()}, not a jArray");
             return new List<T>();
         }
         return ParseJArray<T>(jArray);

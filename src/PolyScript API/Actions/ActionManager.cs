@@ -15,12 +15,6 @@ namespace Polibrary.PolyScript;
 
 public static class PolibActionManager
 {
-    public static void Load(ManualLogSource logger)
-    {
-        Harmony.CreateAndPatchAll(typeof(PolibActionManager));
-        ClassInjector.RegisterTypeInIl2Cpp<PolibActionBase>();
-    }
-
     static Dictionary<ActionType, Type> ActionMapping = new();
     static Dictionary<Type, ActionType> ActionReverseMapping = new();
 

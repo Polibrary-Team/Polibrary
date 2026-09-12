@@ -9,13 +9,6 @@ namespace Polibrary;
 
 public static class UI
 {
-    public static ManualLogSource modLogger;
-    public static void Load(ManualLogSource logger)
-    {
-        Harmony.CreateAndPatchAll(typeof(UI));
-        modLogger = logger;
-    }
-
     #region BuildingUI
 
     
