@@ -1,7 +1,6 @@
 using BepInEx.Logging;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
-using Polytopia.Data;
 using Polibrary.PolyScript;
 
 
