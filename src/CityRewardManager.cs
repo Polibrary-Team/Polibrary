@@ -93,7 +93,7 @@ public static class CityRewardManager
                     if (Parsing.Parse.cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
                     {
                         int num2 = 0;
-                        foreach (Parsing.Parse.CityRewardOverrideClass overrideClass in cityRewardOverrideClasses)
+                        foreach (Parsing.Parse.CityRewardOverride overrideClass in cityRewardOverrideClasses)
                         {
                             if (overrideClass != null)
                             {
@@ -214,7 +214,7 @@ public static class CityRewardManager
                     if (Parsing.Parse.cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
                     {
                         int num2 = 0;
-                        foreach (Parsing.Parse.CityRewardOverrideClass overrideClass in cityRewardOverrideClasses)
+                        foreach (Parsing.Parse.CityRewardOverride overrideClass in cityRewardOverrideClasses)
                         {
                             if (overrideClass != null)
                             {

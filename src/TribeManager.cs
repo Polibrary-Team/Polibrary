@@ -1,5 +1,6 @@
 using BepInEx.Logging;
 using HarmonyLib;
+using Polibrary.Parsing;
 using Polibrary.PolyScript;
 using Polytopia.Data;
 
@@ -24,6 +25,33 @@ public static class TribeManager
             }
         }
     }
+    #endregion
+    
+    #region Resource Overrides
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(MapGenerator), nameof(MapGenerator.AddResources))]
+    public static void OverrideResourcesPass(MapData map, GameState gameState, float richness = 1)
+    {
+        foreach (TileData tile in map.tiles)
+        {
+            if (Parse.resourceOverrides.TryGetValue(tile.climate, out var overlist))
+            {
+                foreach (Parse.ResourceOverride o in overlist)
+                {
+                    if (tile.resource != null && tile.resource.type == o.og)
+                    {
+                        tile.resource = new ResourceState
+                        {
+                            type = o.neu  
+                        };
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     #endregion
     /* would need PreActionGameState
     [HarmonyPrefix] //fix for custom tribe spread and alienclimate waits so it works like polaris

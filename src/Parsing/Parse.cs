@@ -10,6 +10,8 @@ using Steamworks.Data;
 using MS.Internal.Xml.XPath;
 using PolyMod;
 using System.Reflection;
+using PolytopiaBackendBase.Common;
+using System.Security.Cryptography;
 
 
 namespace Polibrary.Parsing;
@@ -27,6 +29,25 @@ public static class Parse
         Loader.AddTypeHandler(typeof(ImprovementData.Type), HandleImprovements);
         Loader.AddTypeHandler(typeof(UnitData.Type), HandleUnits);
     }
+
+    public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] 
+    { 
+        UnitEffect.Boosted, 
+        UnitEffect.Bubble, 
+        UnitEffect.Frozen, 
+        UnitEffect.Invisible, 
+        UnitEffect.Petrified, 
+        UnitEffect.Poisoned, 
+        UnitEffect.Charmed, 
+        UnitEffect.Swift, 
+        UnitEffect.DoubleReady 
+    };
+    public static List<CityReward> rewardList = CityRewardData.cityRewards.ToList();
+
+
+
+
+
     public static List<PolibImprovementData> polibImprovementDatas = new();
     public static List<PolibUnitData> polibUnitDatas = new();
     public static Dictionary<pbb.TribeType, string> leaderNameDict = new Dictionary<pbb.TribeType, string>();
@@ -46,10 +67,15 @@ public static class Parse
         public int order { get; set; } = 0;
         public bool hidden { get; set; } = false;
     }
-    public class CityRewardOverrideClass
+    public class CityRewardOverride
     {
         public CityReward og { get; set; }
         public CityReward neu { get; set; }
+    }
+    public class ResourceOverride
+    {
+        public ResourceData.Type og { get; set; }
+        public ResourceData.Type neu { get; set; }
     }
     public class PolibUnitEffectData //So I haveth a Laser Pointre...
     {
@@ -59,14 +85,11 @@ public static class Parse
         public List<string> removal { get; set; }
         public bool freezing { get; set; }
     }
-    public static Dictionary<CityReward, PolibCityRewardData> cityRewardDict = new Dictionary<CityReward, PolibCityRewardData>();
-    public static Dictionary<pbb.TribeType, List<CityRewardOverrideClass>> cityRewardOverrideDict = new Dictionary<pbb.TribeType, List<CityRewardOverrideClass>>();
-    public static List<CityReward> rewardList = CityRewardData.cityRewards.ToList();
-    public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new Dictionary<UnitEffect, PolibUnitEffectData>();
-    public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] { UnitEffect.Boosted, UnitEffect.Bubble, UnitEffect.Frozen, UnitEffect.Invisible, UnitEffect.Petrified, UnitEffect.Poisoned, UnitEffect.Charmed, UnitEffect.Swift, UnitEffect.DoubleReady };
-    public static Dictionary<UnitData.Type, List<string>> unitDataTargets = new Dictionary<UnitData.Type, List<string>>();
-    public static Dictionary<UnitAbility.Type, List<string>> unitAbilityTargets = new Dictionary<UnitAbility.Type, List<string>>();
-    public static Dictionary<UnitEffect, List<string>> unitEffectTargets = new Dictionary<UnitEffect, List<string>>();
+    public static Dictionary<CityReward, PolibCityRewardData> cityRewardDict = new();
+    public static Dictionary<pbb.TribeType, List<CityRewardOverride>> cityRewardOverrideDict = new();
+    public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new();
+    public static Dictionary<TribeType, List<ResourceOverride>> resourceOverrides = new();
+
 
 
 
@@ -115,36 +138,55 @@ public static class Parse
             Main.modLogger.LogError($"Update Fuckup: Params got changed? in: {__originalMethod.Name} \n{ex}");
             return;
         }
-    
-       foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
+
+        #region Tribe
+        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
         {
             JObject token = jtoken.TryCast<JObject>();
             if (token != null)
             {
                 if (EnumCache<pbb.TribeType>.TryGetType(token.Path.Split('.').Last(), out var tribeType))
                 {
-                    List<CityRewardOverrideClass> overlist = new List<CityRewardOverrideClass>();
-                    foreach (JToken overtoken in token.SelectTokens("$.cityRewardOverrides.*").ToList())
+                    List<CityRewardOverride> rewardOverrides = new List<CityRewardOverride>();
+                    foreach (JToken rewardToken in token.SelectTokens("$.cityRewardOverrides.*").ToList())
                     {
-                        if (EnumCache<CityReward>.TryGetType(overtoken.Path.Split('.').Last(), out var reward))
+                        if (EnumCache<CityReward>.TryGetType(rewardToken.Path.Split('.').Last(), out var reward))
                         {
-                            if (EnumCache<CityReward>.TryGetType(overtoken!.ToObject<string>(), out var overreward))
+                            if (EnumCache<CityReward>.TryGetType(rewardToken!.ToObject<string>(), out var overreward))
                             {
-                                CityRewardOverrideClass overrideClass = new CityRewardOverrideClass
+                                CityRewardOverride overrideClass = new CityRewardOverride
                                 {
                                     og = reward,
                                     neu = overreward
                                 };
-                                overlist.Add(overrideClass);
+                                rewardOverrides.Add(overrideClass);
                             }
                         }
                     }
-                    cityRewardOverrideDict[tribeType] = overlist;
+                    cityRewardOverrideDict[tribeType] = rewardOverrides;
+
+                    List<ResourceOverride> resourceOverrideList = new List<ResourceOverride>();
+                    foreach (JToken resourceToken in token.SelectTokens("$.resourceOverrides.*").ToList())
+                    {
+                        if (EnumCache<ResourceData.Type>.TryGetType(resourceToken.Path.Split('.').Last(), out var resource))
+                        {
+                            if (EnumCache<ResourceData.Type>.TryGetType(resourceToken!.ToObject<string>(), out var overresource))
+                            {
+                                ResourceOverride overrideClass = new ResourceOverride
+                                {
+                                    og = resource,
+                                    neu = overresource
+                                };
+                                resourceOverrideList.Add(overrideClass);
+                            }
+                        }
+                    }
+                    resourceOverrides[tribeType] = resourceOverrideList;
                 }
             }
         }
-
         PolibUtils.ParsePerEach(rootObject, "tribeData", "leaderName", leaderNameDict);
+        #endregion
 
 
         #region City Rewards
