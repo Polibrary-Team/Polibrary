@@ -53,10 +53,10 @@ public static class TribeManager
     }
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(MapGenerator), nameof(MapGenerator.MakeOcean))]
-    public static void OverrideTerrainPass(MapData map, GameState gameState, bool shouldConvertShallows = true)
+    [HarmonyPatch(typeof(MapGenerator), nameof(MapGenerator.GenerateInternal))]
+    public static void OverrideTerrainPass(MapData __result, int seed, GameState gameState, MapGeneratorSettings settings)
     {
-        foreach (TileData tile in map.tiles)
+        foreach (TileData tile in __result.tiles)
         {
             if (Parse.terrainOverrides.TryGetValue(tile.climate, out var overlist))
             {
@@ -70,6 +70,8 @@ public static class TribeManager
                 }
             }
         }
+
+        __result.GenerateShoreLines();
     }
 
     #endregion
