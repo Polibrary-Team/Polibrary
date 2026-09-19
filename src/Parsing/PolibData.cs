@@ -20,7 +20,6 @@ public class PolibImprovementData
     public int? defenceBoost_Neutral = null;
     public List<UnitData.Type> unitWhitelist = null;
     public List<UnitData.Type> unitBlacklist = null;
-    public Dictionary<string/*trigger*/, string/*action*/> triggers = new();
     public bool hiddenItem = false;
     public List<TechData.Type> obsoleteBy = null;
 

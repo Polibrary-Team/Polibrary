@@ -11,7 +11,7 @@ using Polibrary.Parsing;
 using Scriban;
 
 
-namespace Polibrary;
+namespace Polibrary.Parsing;
 
 public static class ParseUtils
 {

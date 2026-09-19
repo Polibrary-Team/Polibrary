@@ -1,17 +1,13 @@
 using BepInEx.Logging;
 using HarmonyLib;
 using Polytopia.Data;
-using UnityEngine;
 using Newtonsoft.Json.Linq;
 using Il2CppSystem.Linq;
 
 using pbb = PolytopiaBackendBase.Common;
-using Steamworks.Data;
-using MS.Internal.Xml.XPath;
 using PolyMod;
 using System.Reflection;
 using PolytopiaBackendBase.Common;
-using System.Security.Cryptography;
 
 
 namespace Polibrary.Parsing;
@@ -23,11 +19,13 @@ public static class Parse
     {
         Harmony.CreateAndPatchAll(typeof(Parse));
         LogMan1997 = logger;
-        Loader.AddPatchDataType("improvementData", typeof(ImprovementData.Type));
-        Loader.AddPatchDataType("tribeData", typeof(TribeData));
-        Loader.AddPatchDataType("unitData", typeof(UnitData));
+        PolyMod.Loader.AddPatchDataType("cityReward", typeof(CityReward));
+        PolyMod.Loader.AddPatchDataType("unitEffect", typeof(UnitEffect));
+        PolyMod.Loader.AddPatchDataType("tileEffect", typeof(TileData.EffectType));
         Loader.AddTypeHandler(typeof(ImprovementData.Type), HandleImprovements);
         Loader.AddTypeHandler(typeof(UnitData.Type), HandleUnits);
+        Loader.AddTypeHandler(typeof(UnitData.Type), HandleUnits);
+        Loader.AddTypeHandler(typeof(TribeType), HandleTribes);
     }
 
     public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] 
@@ -50,7 +48,7 @@ public static class Parse
 
     public static List<PolibImprovementData> polibImprovementDatas = new();
     public static List<PolibUnitData> polibUnitDatas = new();
-    public static Dictionary<pbb.TribeType, string> leaderNameDict = new Dictionary<pbb.TribeType, string>();
+    public static List<PolibTribeData> polibTribeDatas = new();
     public class PolibCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
     {
         public int addProduction { get; set; }
@@ -124,7 +122,12 @@ public static class Parse
         ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitWhitelist", polibImprovementDatas, f);
         ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitBlacklist", polibImprovementDatas, f);
         ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, TechData.Type>(token, "obsoleteBy", polibImprovementDatas, f);
-        ParseUtils.ParseToDictWithHandler<ImprovementData.Type, string, PolibImprovementData>(token, "triggers", polibImprovementDatas, f);
+    }
+
+    static void HandleTribes(JObject token, bool onCreatedEnumCache)
+    {
+        static PolibTribeData f() => new();
+        ParseUtils.ParseWithHandler<TribeType, string, PolibTribeData>(token, "leaderName", polibTribeDatas, f);
     }
     
     #endregion
@@ -209,7 +212,6 @@ public static class Parse
                 }
             }
         }
-        PolibUtils.ParsePerEach(rootObject, "tribeData", "leaderName", leaderNameDict);
         #endregion
 
 

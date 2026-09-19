@@ -3,6 +3,7 @@ using HarmonyLib;
 using Polibrary.Parsing;
 using Polibrary.PolyScript;
 using Polytopia.Data;
+using PolytopiaBackendBase.Common;
 
 
 namespace Polibrary;
@@ -19,7 +20,12 @@ public static class TribeManager
         {
             TribeData tribeData;
             gameState.GameLogicData.TryGetData(playerState.tribe, out tribeData);
-            if (string.IsNullOrEmpty(playerState.GetNameInternal()) && Parsing.Parse.leaderNameDict.TryGetValue(tribeData.type, out string name))
+
+            
+            if (
+                string.IsNullOrEmpty(playerState.GetNameInternal()) &&
+                PolibData.TryGetValue<PolibTribeData, TribeType, string>(Parse.polibTribeDatas, tribeData.type, "leaderName", out var name)
+                )
             {
                 playerState.UserName = name;
             }
