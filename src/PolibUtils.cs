@@ -93,114 +93,92 @@ public static class PolibUtils
         List<CityReward> list = new List<CityReward>();
         foreach (CityReward reward in Parsing.Parse.rewardList)
         {
-            if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+            if (PolibData.TryGetValue<PolibCityRewardData, CityReward, UnitData.Type>(Parse.polibCityRewardDatas, reward, "unitType", out var cityRewardData))
             {
-                if (cityRewardData.unitType == unit)
-                {
-                    list.Add(reward);
-                }
+                list.Add(reward);
             }
         }
         return list.ToSysArray();
     }
-    public static Parsing.Parse.PolibCityRewardData GetRewardData(CityReward reward)
-    {
-        Parsing.Parse.cityRewardDict.TryGetValue(reward, out var data);
-        return data;
-    }
 
-
-    public static Parsing.Parse.PolibCityRewardData SetVanillaCityRewardDefaults(CityReward reward) //dont laugh // Wtf??? I will laugh >:)
+    public static void SetVanillaCityRewardDefaults() //dont laugh // Wtf??? I will laugh >:)
     {
-        Parsing.Parse.PolibCityRewardData rewardData = new Parsing.Parse.PolibCityRewardData();
-        switch (reward)
-        {
-            case CityReward.Workshop:
-                {
-                    rewardData = new Parsing.Parse.PolibCityRewardData
-                    {
-                        addProduction = 1,
-                        level = 1,
-                        order = 0
-                    };
-                    break;
-                }
-            case CityReward.Explorer:
-                {
-                    rewardData = new Parsing.Parse.PolibCityRewardData
-                    {
-                        scoutSpawnAmount = 1,
-                        scoutMoveAmount = 15,
-                        level = 1,
-                        order = 1
-                    };
-                    break;
-                }
-            case CityReward.Resources:
-                {
-                    rewardData = new Parsing.Parse.PolibCityRewardData
-                    {
-                        currencyReward = 5,
-                        level = 2,
-                        order = 1
-                    };
-                    break;
-                }
-            case CityReward.CityWall:
-                {
-                    rewardData = new Parsing.Parse.PolibCityRewardData
-                    {
-                        defenceBoost = 40,
-                        level = 2,
-                        order = 0
-                    };
-                    break;
-                }
-            case CityReward.PopulationGrowth:
-                {
-                    rewardData = new Parsing.Parse.PolibCityRewardData
-                    {
-                        populationReward = 3,
-                        level = 3,
-                        order = 0
-                    };
-                    break;
-                }
-            case CityReward.BorderGrowth:
-                {
-                    rewardData = new Parsing.Parse.PolibCityRewardData
-                    {
-                        borderGrowthAmount = 1,
-                        level = 3,
-                        order = 1
-                    };
-                    break;
-                }
-            case CityReward.Park:
-                {
-                    rewardData = new Parsing.Parse.PolibCityRewardData
-                    {
-                        addProduction = 1,
-                        scoreReward = 250,
-                        level = 4,
-                        persistence = "post",
-                        order = 0
-                    };
-                    break;
-                }
-            case CityReward.SuperUnit:
-                {
-                    rewardData = new Parsing.Parse.PolibCityRewardData
-                    {
-                        unitType = UnitData.Type.Giant, //i really like that I dont have to account for unitOverride
-                        level = 4,
-                        persistence = "post",
-                        order = 1
-                    };
-                    break;
-                }
-        }
-        return rewardData;
+        Parse.polibCityRewardDatas.Add(
+            new PolibCityRewardData()
+            {
+                addProduction = 1,
+                level = 1,
+                order = 0,
+                type = CityReward.Workshop
+            }
+        );
+        Parse.polibCityRewardDatas.Add(
+            new PolibCityRewardData()
+            {
+                scoutSpawnAmount = 1,
+                scoutMoveAmount = 12,
+                level = 1,
+                order = 1,
+                type = CityReward.Explorer
+            }
+        );
+        Parse.polibCityRewardDatas.Add(
+            new PolibCityRewardData()
+            {
+                currencyReward = 5,
+                level = 2,
+                order = 1,
+                type = CityReward.Resources
+            }
+        );
+        Parse.polibCityRewardDatas.Add(
+            new PolibCityRewardData()
+            {
+                defenceBoost = 40,
+                level = 2,
+                order = 0,
+                type = CityReward.CityWall
+            }
+        );
+        Parse.polibCityRewardDatas.Add(
+            new PolibCityRewardData()
+            {
+                populationReward = 3,
+                level = 3,
+                order = 0,
+                type = CityReward.PopulationGrowth
+            }
+        );
+        Parse.polibCityRewardDatas.Add(
+            new PolibCityRewardData()
+            {
+                borderGrowthAmount = 1,
+                level = 3,
+                order = 1,
+                type = CityReward.BorderGrowth
+            }
+        );
+        Parse.polibCityRewardDatas.Add(
+            new PolibCityRewardData()
+            {
+                addProduction = 1,
+                scoreReward = 250,
+                level = 4,
+                persistence = "post",
+                order = 0,
+                type = CityReward.Park
+            }
+        );
+        Parse.polibCityRewardDatas.Add(
+            new PolibCityRewardData()
+            {
+                unitType = UnitData.Type.Giant,
+                level = 4,
+                persistence = "post",
+                order = 1,
+                type = CityReward.SuperUnit
+            }
+        );
     }
 
     #endregion

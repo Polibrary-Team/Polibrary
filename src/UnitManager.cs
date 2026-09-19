@@ -57,13 +57,10 @@ public static class UnitManager
         {
             foreach (CityReward reward in tile.improvement.rewards)
             {
-                if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+                if (PolibData.TryGetValue<PolibCityRewardData, CityReward, int>(Parse.polibCityRewardDatas, reward, "defenceBoost", out var defenceBoost))
                 {
-                    if (cityRewardData.defenceBoost > 0)
-                    {
-                        defence = (defence < cityRewardData.defenceBoost) ? cityRewardData.defenceBoost : defence;
-                        change = true;
-                    }
+                    defence = (defence < defenceBoost) ? defenceBoost : defence;
+                    change = true;
                 }
             }
         }

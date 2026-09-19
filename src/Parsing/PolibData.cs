@@ -46,6 +46,27 @@ public class PolibTribeData
         type = null;
     }
 }
+public class PolibCityRewardData
+{
+    public CityReward? type;
+    public int? addProduction = null;
+    public int? currencyReward = null;
+    public int? populationReward = null;
+    public int? scoreReward = null;
+    public int? defenceBoost = null;
+    public int? scoutSpawnAmount = null;
+    public int scoutMoveAmount = 12;
+    public int? borderGrowthAmount = null;
+    public UnitData.Type? unitType = null;
+    public int level = -1;
+    public string persistence = "none";
+    public int order = 0;
+    public bool hidden = false;
+    public PolibCityRewardData()
+    {
+        type = null;
+    }
+}
 
 public class PolibData
 {
@@ -53,15 +74,15 @@ public class PolibData
     /// <summary>
     /// Tries to get a specific field's data. Return true if successful, false otherwise.
     /// </summary>
-    /// <typeparam name="T1">PolibData list type</typeparam>
-    /// <typeparam name="T2">id type</typeparam>
-    /// <typeparam name="T3">field value type</typeparam>
+    /// <typeparam name="PolibT">PolibData list type</typeparam>
+    /// <typeparam name="T">id type</typeparam>
+    /// <typeparam name="ValueType">field value type</typeparam>
     /// <param name="list">Polibdata list</param>
     /// <param name="type">ID</param>
     /// <param name="fieldName">nameof(FieldName)</param>
     /// <param name="result">Field's value outted</param>
     /// <returns>Returns success value</returns>
-    public static bool TryGetValue<T1, T2, T3>(List<T1> list, T2 type, string fieldName, out T3 result)
+    public static bool TryGetValue<PolibT, T, ValueType>(List<PolibT> list, T type, string fieldName, out ValueType result)
     {
         int index = FindData(list, type);
         if(index == -1)
@@ -70,7 +91,7 @@ public class PolibData
             return false;
         }
         object obj = list[index].GetType().GetField(fieldName).GetValue(list[index]);
-        if(obj is T3 value && !EqualityComparer<T3>.Default.Equals(value, default(T3)))
+        if(obj is ValueType value && !EqualityComparer<ValueType>.Default.Equals(value, default(ValueType)))
         {
             result = value;
             return true;
@@ -111,6 +132,19 @@ public class PolibData
         }
 
         return -1;
+    }
+
+    public static bool TryFindData<PolibT, T>(List<PolibT> list, T type, out PolibT data)
+    {
+        int idx = FindData<PolibT, T>(list, type);
+        if (idx == -1)
+        {
+            data = default;
+            return false;
+        }
+
+        data = list[idx];
+        return true;
     }
 
     /// <summary>

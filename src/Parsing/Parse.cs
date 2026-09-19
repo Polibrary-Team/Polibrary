@@ -26,6 +26,9 @@ public static class Parse
         Loader.AddTypeHandler(typeof(UnitData.Type), HandleUnits);
         Loader.AddTypeHandler(typeof(UnitData.Type), HandleUnits);
         Loader.AddTypeHandler(typeof(TribeType), HandleTribes);
+        Loader.AddTypeHandler(typeof(CityReward), HandleCityRewards);
+
+        PolibUtils.SetVanillaCityRewardDefaults();
     }
 
     public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] 
@@ -41,30 +44,10 @@ public static class Parse
         UnitEffect.DoubleReady 
     };
     public static List<CityReward> rewardList = CityRewardData.cityRewards.ToList();
-
-
-
-
-
     public static List<PolibImprovementData> polibImprovementDatas = new();
     public static List<PolibUnitData> polibUnitDatas = new();
     public static List<PolibTribeData> polibTribeDatas = new();
-    public class PolibCityRewardData //oh boy its time to bake some lights, except its not lights and we're not baking anything and flowey undertale
-    {
-        public int addProduction { get; set; }
-        public int currencyReward { get; set; }
-        public int populationReward { get; set; }
-        public int scoreReward { get; set; }
-        public int defenceBoost { get; set; } = -1;
-        public int scoutSpawnAmount { get; set; }
-        public int scoutMoveAmount { get; set; } = 15;
-        public int borderGrowthAmount { get; set; } //yay now its useful
-        public UnitData.Type unitType { get; set; }
-        public int level { get; set; } = -1;
-        public string persistence { get; set; } = "none";
-        public int order { get; set; } = 0;
-        public bool hidden { get; set; } = false;
-    }
+    public static List<PolibCityRewardData> polibCityRewardDatas = new();
     public class CityRewardOverride
     {
         public CityReward og { get; set; }
@@ -88,7 +71,6 @@ public static class Parse
         public List<string> removal { get; set; }
         public bool freezing { get; set; }
     }
-    public static Dictionary<CityReward, PolibCityRewardData> cityRewardDict = new();
     public static Dictionary<pbb.TribeType, List<CityRewardOverride>> cityRewardOverrideDict = new();
     public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new();
     public static Dictionary<TribeType, List<ResourceOverride>> resourceOverrides = new();
@@ -123,11 +105,35 @@ public static class Parse
         ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitBlacklist", polibImprovementDatas, f);
         ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, TechData.Type>(token, "obsoleteBy", polibImprovementDatas, f);
     }
-
     static void HandleTribes(JObject token, bool onCreatedEnumCache)
     {
         static PolibTribeData f() => new();
         ParseUtils.ParseWithHandler<TribeType, string, PolibTribeData>(token, "leaderName", polibTribeDatas, f);
+    }
+    static void HandleCityRewards(JObject token, bool onCreatedEnumCache)
+    {
+        static PolibCityRewardData f() => new();
+        ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "addProduction", polibCityRewardDatas, f);
+        ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "currencyReward", polibCityRewardDatas, f);
+        ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "populationReward", polibCityRewardDatas, f);
+        ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "scoreReward", polibCityRewardDatas, f);
+        ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "defenceBoost", polibCityRewardDatas, f);
+        ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "scoutSpawnAmount", polibCityRewardDatas, f);
+        ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "scoutMoveAmount", polibCityRewardDatas, f);
+        ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "borderGrowthAmount", polibCityRewardDatas, f);
+        ParseUtils.ParseWithHandler<CityReward, UnitData.Type, PolibCityRewardData>(token, "unitType", polibCityRewardDatas, f);
+        ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "level", polibCityRewardDatas, f);
+        ParseUtils.ParseWithHandler<CityReward, string, PolibCityRewardData>(token, "persistence", polibCityRewardDatas, f);
+        ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "order", polibCityRewardDatas, f);
+        ParseUtils.ParseWithHandler<CityReward, bool, PolibCityRewardData>(token, "hidden", polibCityRewardDatas, f);
+
+        if (EnumCache<CityReward>.TryGetType(token.Path.Split('.').Last(), out var type))
+        {
+            if (!rewardList.Contains(type))
+            {
+                rewardList.Add(type);
+            }
+        }
     }
     
     #endregion
@@ -214,54 +220,7 @@ public static class Parse
         }
         #endregion
 
-
-        #region City Rewards
-
-        foreach (CityReward reward in CityRewardData.cityRewards) //default for vanilla cityRewards
-        {
-            cityRewardDict[reward] = PolibUtils.SetVanillaCityRewardDefaults(reward);
-        }
-
-
-        foreach (JToken jtoken in rootObject.SelectTokens("$.cityReward.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<CityReward>.TryGetType(token.Path.Split('.').Last(), out var cityReward))
-                {
-                    PolibCityRewardData cityRewardData = new PolibCityRewardData();
-
-                    cityRewardData.addProduction = PolibUtils.ParseToken<int>(token, "addProduction");
-                    cityRewardData.currencyReward = PolibUtils.ParseToken<int>(token, "currencyReward");
-                    cityRewardData.populationReward = PolibUtils.ParseToken<int>(token, "populationReward");
-                    cityRewardData.scoreReward = PolibUtils.ParseToken<int>(token, "scoreReward");
-                    cityRewardData.defenceBoost = PolibUtils.ParseToken<int>(token, "defenceBoost");
-                    cityRewardData.scoutSpawnAmount = PolibUtils.ParseToken<int>(token, "scoutSpawnAmount");
-                    cityRewardData.scoutMoveAmount = PolibUtils.ParseToken<int>(token, "scoutMoveAmount");
-                    cityRewardData.borderGrowthAmount = PolibUtils.ParseToken<int>(token, "borderGrowthAmount");
-                    if (token["spawnUnit"] != null)
-                    {
-                        if (EnumCache<UnitData.Type>.TryGetType(token["spawnUnit"]!.ToObject<string>(), out var type))
-                        {
-                            cityRewardData.unitType = type;
-                        }
-                        token.Remove("spawnUnit");
-                    }
-                    cityRewardData.level = PolibUtils.ParseToken<int>(token, "level");
-                    cityRewardData.persistence = PolibUtils.ParseToken<string>(token, "persistence");
-                    cityRewardData.order = PolibUtils.ParseToken<int>(token, "order");
-                    cityRewardData.hidden = PolibUtils.ParseToken<bool>(token, "hidden");
-                    if (!rewardList.Contains(cityReward))
-                    {
-                        rewardList.Add(cityReward);
-                    }
-                    cityRewardDict[cityReward] = cityRewardData;
-                }
-            }
-        }
-
-        #endregion City Rewards
+        #region UnitEffect
 
         foreach (JToken jtoken in rootObject.SelectTokens("$.unitEffect.*").ToList())
         {
@@ -306,5 +265,7 @@ public static class Parse
                 }
             }
         }
+
+        #endregion
     }
 }

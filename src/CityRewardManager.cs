@@ -5,7 +5,8 @@ using Polytopia.Data;
 
 using Une = UnityEngine;
 using Il2Gen = Il2CppSystem.Collections.Generic;
-using pbb = PolytopiaBackendBase.Common;
+using PolytopiaBackendBase.Common;
+using Polibrary.Parsing;
 
 
 namespace Polibrary;
@@ -27,44 +28,43 @@ public static class CityRewardManager
         CityReward reward = __instance.Reward;
         byte playerId = __instance.PlayerId;
         TileData tile = state.Map.GetTile(__instance.Coordinates);
+        int idx = PolibData.FindData(Parse.polibCityRewardDatas, reward);
+        if (idx < 0) return true;
+        PolibCityRewardData data = Parse.polibCityRewardDatas[idx];
 
-        if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+        if (data.addProduction != null)
         {
-            if (cityRewardData.addProduction != 0)
-            {
-                state.ActionStack.Add(new ModifyProductionAction(__instance.PlayerId, System.Convert.ToInt16(cityRewardData.addProduction), __instance.Coordinates));
-            }
-            if (cityRewardData.currencyReward != 0)
-            {
-                state.ActionStack.Add(new IncreaseCurrencyAction(playerId, tile.coordinates, cityRewardData.currencyReward, 40));
-            }
-            if (cityRewardData.populationReward != 0)
-            {
-                for (int i = 0; i < cityRewardData.populationReward; i++)
-                {
-                    state.ActionStack.Add(new IncreasePopulationAction(playerId, tile.coordinates, tile.coordinates, 40));
-                }
-            }
-            if (cityRewardData.scoreReward != 0)
-            {
-                state.ActionStack.Add(new IncreaseScoreAction(playerId, cityRewardData.scoreReward, tile.coordinates, 0));
-            }
-            for (int i = 0; i < cityRewardData.scoutSpawnAmount; i++)
-            {
-                state.ActionStack.Add(new ScoutMoveAction(playerId, state.GetNextUnitId(), System.Convert.ToUInt32(cityRewardData.scoutMoveAmount), state.RandomHash.GetHash(tile.coordinates.X, tile.coordinates.Y), tile.coordinates, new Il2Gen.List<WorldCoordinates>()));
-            }
-            for (int i = 0; i < cityRewardData.borderGrowthAmount; i++)
-            {
-                __instance.AddBorderGrowthActions(state, tile);
-            }
-            if (cityRewardData.unitType != UnitData.Type.None)
-            {
-                ActionUtils.TrainUnitOnOccupiedSpace(state, playerId, cityRewardData.unitType, tile);
-            }
-            tile.improvement.AddReward(reward);
-            return false;
+            state.ActionStack.Add(new ModifyProductionAction(__instance.PlayerId, (short)data.addProduction, __instance.Coordinates));
         }
-        else { return true; }
+        if (data.currencyReward != null)
+        {
+            state.ActionStack.Add(new IncreaseCurrencyAction(playerId, tile.coordinates, (int)data.currencyReward, 40));
+        }
+        if (data.populationReward != null)
+        {
+            for (int i = 0; i < data.populationReward; i++)
+            {
+                state.ActionStack.Add(new IncreasePopulationAction(playerId, tile.coordinates, tile.coordinates, 40));
+            }
+        }
+        if (data.scoreReward != 0)
+        {
+            state.ActionStack.Add(new IncreaseScoreAction(playerId, (int)data.scoreReward, tile.coordinates, 0));
+        }
+        for (int i = 0; i < data.scoutSpawnAmount; i++)
+        {
+            state.ActionStack.Add(new ScoutMoveAction(playerId, state.GetNextUnitId(), (uint)data.scoutMoveAmount, state.RandomHash.GetHash(tile.coordinates.X, tile.coordinates.Y), tile.coordinates, new Il2Gen.List<WorldCoordinates>()));
+        }
+        for (int i = 0; i < data.borderGrowthAmount; i++)
+        {
+            __instance.AddBorderGrowthActions(state, tile);
+        }
+        if (data.unitType != UnitData.Type.None)
+        {
+            ActionUtils.TrainUnitOnOccupiedSpace(state, playerId, (UnitData.Type)data.unitType, tile);
+        }
+        tile.improvement.AddReward(reward);
+        return false;
     }
 
 
@@ -77,7 +77,7 @@ public static class CityRewardManager
         GameState state = GameManager.GameState;
 
         PlayerState playerState;
-        pbb.TribeType tribeType = pbb.TribeType.Aimo;
+        TribeType tribeType;
         if (state.TryGetPlayer(state.CurrentPlayer, out playerState))
         {
             tribeType = playerState.tribe;
@@ -86,7 +86,7 @@ public static class CityRewardManager
 
         foreach (CityReward reward in Parsing.Parse.rewardList)
         {
-            if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+            if (PolibData.TryFindData(Parse.polibCityRewardDatas, reward, out var cityRewardData))
             {
                 if ((cityRewardData.level == level || (cityRewardData.persistence == "post" && cityRewardData.level <= level) || (cityRewardData.persistence == "pre" && cityRewardData.level >= level)) && !cityRewardData.hidden)
                 {
@@ -121,7 +121,21 @@ public static class CityRewardManager
         }
 
         List<CityReward> orderedlist = PolibUtils.ToSysList(list);
-        System.Comparison<CityReward> comparison = (a, b) => Parsing.Parse.cityRewardDict[a].order.CompareTo(Parsing.Parse.cityRewardDict[b].order);
+        System.Comparison<CityReward> comparison = (a, b) => 
+        {
+            int orderA = 0;
+            int orderB = 0;
+
+            if (PolibData.TryFindData(Parse.polibCityRewardDatas, a, out var dataA))
+            {
+                orderA = dataA.order;
+            }
+            if (PolibData.TryFindData(Parse.polibCityRewardDatas, b, out var dataB))
+            {
+                orderB = dataB.order;
+            }
+            return orderA.CompareTo(orderB);
+        };
 
         orderedlist.Sort(comparison);
 
@@ -198,20 +212,16 @@ public static class CityRewardManager
 
         PlayerState playerState;
         state.TryGetPlayer(state.CurrentPlayer, out playerState);
-        pbb.TribeType tribeType = pbb.TribeType.Aimo;
-        if (state.TryGetPlayer(state.CurrentPlayer, out playerState))
-        {
-            tribeType = playerState.tribe;
-        }
-        else { Main.modLogger.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED"); }
+        if (!state.TryGetPlayer(state.CurrentPlayer, out playerState)) Main.modLogger.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED");
+        TribeType tribeType = playerState.tribe;
 
-        foreach (CityReward reward in Parsing.Parse.rewardList)
+        foreach (CityReward reward in Parse.rewardList)
         {
-            if (Parsing.Parse.cityRewardDict.TryGetValue(reward, out var cityRewardData))
+            if (PolibData.TryFindData(Parse.polibCityRewardDatas, reward, out var cityRewardData))
             {
                 if ((cityRewardData.level == level || (cityRewardData.persistence == "post" && cityRewardData.level <= level) || (cityRewardData.persistence == "pre" && cityRewardData.level >= level)) && !cityRewardData.hidden)
                 {
-                    if (Parsing.Parse.cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
+                    if (Parse.cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
                     {
                         int num2 = 0;
                         foreach (Parsing.Parse.CityRewardOverride overrideClass in cityRewardOverrideClasses)
@@ -242,7 +252,21 @@ public static class CityRewardManager
             }
         }
         List<CityReward> orderedlist = PolibUtils.ToSysList(list);
-        System.Comparison<CityReward> comparison = (a, b) => Parsing.Parse.cityRewardDict[a].order.CompareTo(Parsing.Parse.cityRewardDict[b].order);
+        System.Comparison<CityReward> comparison = (a, b) => 
+        {
+            int orderA = 0;
+            int orderB = 0;
+
+            if (PolibData.TryFindData(Parse.polibCityRewardDatas, a, out var dataA))
+            {
+                orderA = dataA.order;
+            }
+            if (PolibData.TryFindData(Parse.polibCityRewardDatas, b, out var dataB))
+            {
+                orderB = dataB.order;
+            }
+            return orderA.CompareTo(orderB);
+        };
 
         orderedlist.Sort(comparison);
 
