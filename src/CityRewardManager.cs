@@ -47,19 +47,25 @@ public static class CityRewardManager
                 state.ActionStack.Add(new IncreasePopulationAction(playerId, tile.coordinates, tile.coordinates, 40));
             }
         }
-        if (data.scoreReward != 0)
+        if (data.scoreReward != null)
         {
             state.ActionStack.Add(new IncreaseScoreAction(playerId, (int)data.scoreReward, tile.coordinates, 0));
         }
-        for (int i = 0; i < data.scoutSpawnAmount; i++)
+        if (data.scoutSpawnAmount != null)
         {
-            state.ActionStack.Add(new ScoutMoveAction(playerId, state.GetNextUnitId(), (uint)data.scoutMoveAmount, state.RandomHash.GetHash(tile.coordinates.X, tile.coordinates.Y), tile.coordinates, new Il2Gen.List<WorldCoordinates>()));
+            for (int i = 0; i < data.scoutSpawnAmount; i++)
+            {
+                state.ActionStack.Add(new ScoutMoveAction(playerId, state.GetNextUnitId(), (uint)data.scoutMoveAmount, state.RandomHash.GetHash(tile.coordinates.X, tile.coordinates.Y), tile.coordinates, new Il2Gen.List<WorldCoordinates>()));
+            }
         }
-        for (int i = 0; i < data.borderGrowthAmount; i++)
+        if (data.borderGrowthAmount != null)
         {
-            __instance.AddBorderGrowthActions(state, tile);
+            for (int i = 0; i < data.borderGrowthAmount; i++)
+            {
+                __instance.AddBorderGrowthActions(state, tile);
+            }
         }
-        if (data.unitType != UnitData.Type.None)
+        if (data.unitType != null)
         {
             ActionUtils.TrainUnitOnOccupiedSpace(state, playerId, (UnitData.Type)data.unitType, tile);
         }
