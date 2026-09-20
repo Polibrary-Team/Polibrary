@@ -79,9 +79,9 @@ public static class Parse
         ParseUtils.ParseWithHandler<ImprovementData.Type, float, PolibImprovementData>(token, "aiScore", polibImprovementDatas, f);
         ParseUtils.ParseWithHandler<ImprovementData.Type, int, PolibImprovementData>(token, "defenceBoost", polibImprovementDatas, f);
         ParseUtils.ParseWithHandler<ImprovementData.Type, int, PolibImprovementData>(token, "defenceBoost_Neutral", polibImprovementDatas, f);
-        ParseUtils.ParseWithHandler<ImprovementData.Type, string, PolibImprovementData>(token, "builtOnSpecific", polibImprovementDatas, f);
-        ParseUtils.ParseWithHandler<ImprovementData.Type, string, PolibImprovementData>(token,"unblock", polibImprovementDatas, f);
-        ParseUtils.ParseWithHandler<ImprovementData.Type, string, PolibImprovementData>(token, "infoOverride", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandler_<ImprovementData.Type, string, PolibImprovementData>(token, "builtOnSpecific", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandler_<ImprovementData.Type, string, PolibImprovementData>(token,"unblock", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandler_<ImprovementData.Type, string, PolibImprovementData>(token, "infoOverride", polibImprovementDatas, f);
         ParseUtils.ParseWithHandler<ImprovementData.Type, bool, PolibImprovementData>(token,"canTrain", polibImprovementDatas, f);
         ParseUtils.ParseWithHandler<ImprovementData.Type, bool, PolibImprovementData>(token, "hiddenItem", polibImprovementDatas, f);
         ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitAbility.Type>(token, "unitAbilityWhitelist", polibImprovementDatas, f);
@@ -95,7 +95,7 @@ public static class Parse
         if (onCreatedEnumCache) return;
 
         static PolibTribeData f() => new();
-        ParseUtils.ParseWithHandler<TribeType, string, PolibTribeData>(token, "leaderName", polibTribeDatas, f);
+        ParseUtils.ParseWithHandler_<TribeType, string, PolibTribeData>(token, "leaderName", polibTribeDatas, f);
         ParseUtils.ParseToDictWithHandler<TribeType, TerrainData.Type, TerrainData.Type, PolibTribeData>(token, "terrainOverrides", polibTribeDatas, f);
         ParseUtils.ParseToDictWithHandler<TribeType, ResourceData.Type, ResourceData.Type, PolibTribeData>(token, "resourceOverrides", polibTribeDatas, f);
         ParseUtils.ParseToDictWithHandler<TribeType, CityReward, CityReward, PolibTribeData>(token, "cityRewardOverrides", polibTribeDatas, f);
@@ -115,7 +115,7 @@ public static class Parse
         ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "borderGrowthAmount", polibCityRewardDatas, f);
         ParseUtils.ParseWithHandler<CityReward, UnitData.Type, PolibCityRewardData>(token, "unitType", polibCityRewardDatas, f);
         ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "level", polibCityRewardDatas, f);
-        ParseUtils.ParseWithHandler<CityReward, string, PolibCityRewardData>(token, "persistence", polibCityRewardDatas, f);
+        ParseUtils.ParseWithHandler_<CityReward, string, PolibCityRewardData>(token, "persistence", polibCityRewardDatas, f);
         ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "order", polibCityRewardDatas, f);
         ParseUtils.ParseWithHandler<CityReward, bool, PolibCityRewardData>(token, "hidden", polibCityRewardDatas, f);
 

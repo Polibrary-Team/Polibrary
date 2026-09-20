@@ -66,6 +66,29 @@ public static class TribeManager
         __result.GenerateShoreLines();
     }
 
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(StartTurnAction), nameof(StartTurnAction.Execute))]
+    public static void Thingy(GameState state, StartTurnAction __instance)
+    {
+        state.TryGetPlayer(__instance.PlayerId, out var playerState);
+
+        Main.modLogger.LogInfo(playerState.UserName.ToLower());
+
+        if (playerState != null && playerState.UserName.ToLower().Contains("wasd"))
+        {
+            foreach (TileData tile in state.Map.tiles)
+            {
+                tile.terrain = TerrainData.Type.Field;
+                tile.resource = new ResourceState()
+                {
+                    type = ResourceData.Type.Fruit
+                };
+                tile.climate = TribeType.Kickoo;
+                tile.Skin = SkinType.Default;
+            }
+        }
+    }
+
     #endregion
     /* would need PreActionGameState
     [HarmonyPrefix] //fix for custom tribe spread and alienclimate waits so it works like polaris
