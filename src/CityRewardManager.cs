@@ -96,32 +96,15 @@ public static class CityRewardManager
             {
                 if ((cityRewardData.level == level || (cityRewardData.persistence == "post" && cityRewardData.level <= level) || (cityRewardData.persistence == "pre" && cityRewardData.level >= level)) && !cityRewardData.hidden)
                 {
-                    if (Parsing.Parse.cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
+                    if (PolibData.TryGetValue<PolibTribeData, TribeType, Dictionary<CityReward, CityReward>>(Parse.polibTribeDatas, tribeType, "cityRewardOverrides", out var dict))
                     {
-                        int num2 = 0;
-                        foreach (Parsing.Parse.CityRewardOverride overrideClass in cityRewardOverrideClasses)
+                        if (dict.TryGetValue(reward, out var newReward))
                         {
-                            if (overrideClass != null)
-                            {
-                                if (overrideClass.og == reward)
-                                {
-                                    list.Add(overrideClass.neu);
-                                }
-                                else
-                                {
-                                    num2++;
-                                }
-                            }
-                        }
-                        if (num2 >= cityRewardOverrideClasses.Count)
-                        {
-                            list.Add(reward);
+                            list.Add(newReward);
+                            continue;
                         }
                     }
-                    else
-                    {
-                        list.Add(reward);
-                    }
+                    list.Add(reward);
                 }
             }
         }
@@ -212,8 +195,7 @@ public static class CityRewardManager
 
     public static CityReward[] AIIsFuckingWithMe_GetCityRewardsForLevel(ImprovementData data, int level) //c# waterboarding. i'm not gonna elaborate. leave.
     {
-        Il2CppSystem.Collections.Generic.List<CityReward> list = new Il2CppSystem.Collections.Generic.List<CityReward>();
-
+        Il2Gen.List<CityReward> list = new Il2Gen.List<CityReward>();
         GameState state = GameManager.GameState;
 
         PlayerState playerState;
@@ -221,42 +203,25 @@ public static class CityRewardManager
         if (!state.TryGetPlayer(state.CurrentPlayer, out playerState)) Main.modLogger.LogInfo($"KRIS SHIT IS SERIOUSLY FUCKED");
         TribeType tribeType = playerState.tribe;
 
-        foreach (CityReward reward in Parse.rewardList)
+        foreach (CityReward reward in Parsing.Parse.rewardList)
         {
             if (PolibData.TryFindData(Parse.polibCityRewardDatas, reward, out var cityRewardData))
             {
                 if ((cityRewardData.level == level || (cityRewardData.persistence == "post" && cityRewardData.level <= level) || (cityRewardData.persistence == "pre" && cityRewardData.level >= level)) && !cityRewardData.hidden)
                 {
-                    if (Parse.cityRewardOverrideDict.TryGetValue(tribeType, out var cityRewardOverrideClasses))
+                    if (PolibData.TryGetValue<PolibTribeData, TribeType, Dictionary<CityReward, CityReward>>(Parse.polibTribeDatas, tribeType, "cityRewardOverrides", out var dict))
                     {
-                        int num2 = 0;
-                        foreach (Parsing.Parse.CityRewardOverride overrideClass in cityRewardOverrideClasses)
+                        if (dict.TryGetValue(reward, out var newReward))
                         {
-                            if (overrideClass != null)
-                            {
-                                if (overrideClass.og == reward)
-                                {
-                                    list.Add(overrideClass.neu);
-                                }
-                                else
-                                {
-                                    num2++;
-                                }
-                            }
-                        }
-                        if (num2 >= cityRewardOverrideClasses.Count)
-                        {
-                            list.Add(reward);
+                            list.Add(newReward);
+                            continue;
                         }
                     }
-                    else
-                    {
-                        list.Add(reward);
-                    }
-
+                    list.Add(reward);
                 }
             }
         }
+
         List<CityReward> orderedlist = PolibUtils.ToSysList(list);
         System.Comparison<CityReward> comparison = (a, b) => 
         {

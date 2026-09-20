@@ -16,7 +16,7 @@ namespace Polibrary.Parsing;
 public static class ParseUtils
 {
     
-    public static void ParseToDictWithHandler<targetType, VT, PDataType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory)
+    public static void ParseToDictWithHandler<targetType, KT, VT, PDataType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory)
     where targetType : struct, System.IConvertible
     {
         if (token[fieldName] != null)
@@ -24,12 +24,17 @@ public static class ParseUtils
             var jt = token[fieldName].TryCast<JObject>();
             if (jt != null)
             {
-                Dictionary<string, VT> dict = new Dictionary<string, VT>();
+                Dictionary<KT, VT> dict = new Dictionary<KT, VT>();
 
                 foreach (JProperty property in jt.Properties().ToList())
                 {
+                    Main.modLogger.LogInfo($"value: {property.Value.ToString()}");
                     VT value = property.Value.ToObject<VT>();
-                    dict[property.Name] = value;
+                    Main.modLogger.LogInfo($"value: {value}");
+                    KT key = new JValue(property.Name).ToObject<KT>();
+                    Main.modLogger.LogInfo($"key: {key}");
+                    
+                    dict[key] = value;
                 }
 
                 if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))

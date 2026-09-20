@@ -24,9 +24,8 @@ public static class Parse
         PolyMod.Loader.AddPatchDataType("tileEffect", typeof(TileData.EffectType));
         Loader.AddTypeHandler(typeof(ImprovementData.Type), HandleImprovements);
         Loader.AddTypeHandler(typeof(UnitData.Type), HandleUnits);
-        Loader.AddTypeHandler(typeof(UnitData.Type), HandleUnits);
-        Loader.AddTypeHandler(typeof(TribeType), HandleTribes);
         Loader.AddTypeHandler(typeof(CityReward), HandleCityRewards);
+        Loader.AddTypeHandler(typeof(TribeType), HandleTribes);
 
         PolibUtils.SetVanillaCityRewardDefaults();
     }
@@ -48,21 +47,6 @@ public static class Parse
     public static List<PolibUnitData> polibUnitDatas = new();
     public static List<PolibTribeData> polibTribeDatas = new();
     public static List<PolibCityRewardData> polibCityRewardDatas = new();
-    public class CityRewardOverride
-    {
-        public CityReward og { get; set; }
-        public CityReward neu { get; set; }
-    }
-    public class ResourceOverride
-    {
-        public ResourceData.Type og { get; set; }
-        public ResourceData.Type neu { get; set; }
-    }
-    public class TerrainOverride
-    {
-        public Polytopia.Data.TerrainData.Type og { get; set; }
-        public Polytopia.Data.TerrainData.Type neu { get; set; }
-    }
     public class PolibUnitEffectData //So I haveth a Laser Pointre...
     {
         public Dictionary<string, int> additives = new Dictionary<string, int>();
@@ -71,10 +55,7 @@ public static class Parse
         public List<string> removal { get; set; }
         public bool freezing { get; set; }
     }
-    public static Dictionary<pbb.TribeType, List<CityRewardOverride>> cityRewardOverrideDict = new();
     public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new();
-    public static Dictionary<TribeType, List<ResourceOverride>> resourceOverrides = new();
-    public static Dictionary<TribeType, List<TerrainOverride>> terrainOverrides = new();
 
 
 
@@ -109,6 +90,9 @@ public static class Parse
     {
         static PolibTribeData f() => new();
         ParseUtils.ParseWithHandler<TribeType, string, PolibTribeData>(token, "leaderName", polibTribeDatas, f);
+        ParseUtils.ParseToDictWithHandler<TribeType, TerrainData.Type, TerrainData.Type, PolibTribeData>(token, "terrainOverrides", polibTribeDatas, f);
+        ParseUtils.ParseToDictWithHandler<TribeType, ResourceData.Type, ResourceData.Type, PolibTribeData>(token, "resourceOverrides", polibTribeDatas, f);
+        ParseUtils.ParseToDictWithHandler<TribeType, CityReward, CityReward, PolibTribeData>(token, "cityRewardOverrides", polibTribeDatas, f);
     }
     static void HandleCityRewards(JObject token, bool onCreatedEnumCache)
     {
@@ -153,72 +137,6 @@ public static class Parse
             Main.modLogger.LogError($"Update Fuckup: Params got changed? in: {__originalMethod.Name} \n{ex}");
             return;
         }
-
-        #region Tribe
-        foreach (JToken jtoken in rootObject.SelectTokens("$.tribeData.*").ToList()) // "// tribeData!" -exploit, 2025
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<pbb.TribeType>.TryGetType(token.Path.Split('.').Last(), out var tribeType))
-                {
-                    List<CityRewardOverride> rewardOverrides = new List<CityRewardOverride>();
-                    foreach (JToken rewardToken in token.SelectTokens("$.cityRewardOverrides.*").ToList())
-                    {
-                        if (EnumCache<CityReward>.TryGetType(rewardToken.Path.Split('.').Last(), out var reward))
-                        {
-                            if (EnumCache<CityReward>.TryGetType(rewardToken!.ToObject<string>(), out var overreward))
-                            {
-                                CityRewardOverride overrideClass = new CityRewardOverride
-                                {
-                                    og = reward,
-                                    neu = overreward
-                                };
-                                rewardOverrides.Add(overrideClass);
-                            }
-                        }
-                    }
-                    cityRewardOverrideDict[tribeType] = rewardOverrides;
-
-                    List<ResourceOverride> resourceOverrideList = new List<ResourceOverride>();
-                    foreach (JToken resourceToken in token.SelectTokens("$.resourceOverrides.*").ToList())
-                    {
-                        if (EnumCache<ResourceData.Type>.TryGetType(resourceToken.Path.Split('.').Last(), out var resource))
-                        {
-                            if (EnumCache<ResourceData.Type>.TryGetType(resourceToken!.ToObject<string>(), out var overresource))
-                            {
-                                ResourceOverride overrideClass = new ResourceOverride
-                                {
-                                    og = resource,
-                                    neu = overresource
-                                };
-                                resourceOverrideList.Add(overrideClass);
-                            }
-                        }
-                    }
-                    resourceOverrides[tribeType] = resourceOverrideList;
-
-                    List<TerrainOverride> terrainOverrideList = new List<TerrainOverride>();
-                    foreach (JToken terrainToken in token.SelectTokens("$.terrainOverrides.*").ToList())
-                    {
-                        if (EnumCache<Polytopia.Data.TerrainData.Type>.TryGetType(terrainToken.Path.Split('.').Last(), out var terrain))
-                        {
-                            if (EnumCache<Polytopia.Data.TerrainData.Type>.TryGetType(terrainToken!.ToObject<string>(), out var overterrain))
-                            {
-                                TerrainOverride overrideClass = new TerrainOverride
-                                {
-                                    og = terrain,
-                                    neu = overterrain
-                                };
-                                terrainOverrideList.Add(overrideClass);
-                            }
-                        }
-                    }
-                    terrainOverrides[tribeType] = terrainOverrideList;
-                }
-            }
-        }
-        #endregion
 
         #region UnitEffect
 

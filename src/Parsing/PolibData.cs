@@ -41,6 +41,9 @@ public class PolibTribeData
 {
     public TribeType? type;
     public string leaderName = null;
+    public Dictionary<TerrainData.Type, TerrainData.Type> terrainOverrides = null; 
+    public Dictionary<CityReward, CityReward> cityRewardOverrides = null; 
+    public Dictionary<ResourceData.Type, ResourceData.Type> resourceOverrides = null; 
     public PolibTribeData()
     {
         type = null;

@@ -36,42 +36,28 @@ public static class TribeManager
     #region Climate Overrides
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(MapGenerator), nameof(MapGenerator.AddResources))]
-    public static void OverrideResourcesPass(MapData map, GameState gameState, float richness = 1)
-    {
-        foreach (TileData tile in map.tiles)
-        {
-            if (Parse.resourceOverrides.TryGetValue(tile.climate, out var overlist))
-            {
-                foreach (Parse.ResourceOverride o in overlist)
-                {
-                    if (tile.resource != null && tile.resource.type == o.og)
-                    {
-                        tile.resource = new ResourceState
-                        {
-                            type = o.neu  
-                        };
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    [HarmonyPostfix]
     [HarmonyPatch(typeof(MapGenerator), nameof(MapGenerator.GenerateInternal))]
-    public static void OverrideTerrainPass(MapData __result, int seed, GameState gameState, MapGeneratorSettings settings)
+    public static void OverrideMapPass(MapData __result, int seed, GameState gameState, MapGeneratorSettings settings)
     {
         foreach (TileData tile in __result.tiles)
         {
-            if (Parse.terrainOverrides.TryGetValue(tile.climate, out var overlist))
+            if (PolibData.TryFindData(Parse.polibTribeDatas, tile.climate, out var data))
             {
-                foreach (Parse.TerrainOverride o in overlist)
+                if (data.terrainOverrides != null)
                 {
-                    if (tile.terrain == o.og)
+                    if (data.terrainOverrides.TryGetValue(tile.terrain, out var newTerrain))
                     {
-                        tile.terrain = o.neu;
-                        break;
+                        tile.terrain = newTerrain;
+                    }
+                }
+                if (data.resourceOverrides != null)
+                {
+                    if (data.resourceOverrides.TryGetValue(tile.resource.type, out var newResource))
+                    {
+                        tile.resource = new ResourceState()
+                        {
+                            type = newResource
+                        };
                     }
                 }
             }
