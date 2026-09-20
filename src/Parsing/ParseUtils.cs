@@ -28,11 +28,8 @@ public static class ParseUtils
 
                 foreach (JProperty property in jt.Properties().ToList())
                 {
-                    Main.modLogger.LogInfo($"value: {property.Value.ToString()}");
                     VT value = property.Value.ToObject<VT>();
-                    Main.modLogger.LogInfo($"value: {value}");
                     KT key = new JValue(property.Name).ToObject<KT>();
-                    Main.modLogger.LogInfo($"key: {key}");
                     
                     dict[key] = value;
                 }
@@ -65,7 +62,6 @@ public static class ParseUtils
                 if (idx >= 0)
                 {
                     PolibData.OverrideField<PDataType, T>(list, fieldName, idx, value);
-                    Main.modLogger.LogInfo($"Added to existing class in list: {type.ToString()} because of value {value} in field {fieldName}");
                 }
                 else
                 {
@@ -73,7 +69,6 @@ public static class ParseUtils
                     list.Add(newone);
                     PolibData.OverrideField<PDataType, targetType>(list, "type", list.Count - 1, type);
                     PolibData.OverrideField<PDataType, T>(list, fieldName, list.Count - 1, value);
-                    Main.modLogger.LogInfo($"Added a new class to list: {type.ToString()} because of value {value} in field {fieldName}");
                 }
                 token.Remove(fieldName);
 
