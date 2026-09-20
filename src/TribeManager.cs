@@ -1,7 +1,9 @@
 using BepInEx.Logging;
+using BepInEx.Unity.IL2CPP.UnityEngine;
 using HarmonyLib;
 using Polibrary.Parsing;
 using Polibrary.PolyScript;
+using PolyMod.Managers;
 using Polytopia.Data;
 using PolytopiaBackendBase.Common;
 
@@ -67,25 +69,33 @@ public static class TribeManager
     }
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(StartTurnAction), nameof(StartTurnAction.Execute))]
-    public static void Thingy(GameState state, StartTurnAction __instance)
+    [HarmonyPatch(typeof(StartTurnReaction), nameof(StartTurnReaction.Execute))]
+    public static void Thingy(StartTurnReaction __instance)
     {
-        state.TryGetPlayer(__instance.PlayerId, out var playerState);
-
-        Main.modLogger.LogInfo(playerState.UserName.ToLower());
-
-        if (playerState != null && playerState.UserName.ToLower().Contains("wasd"))
+        if (!GameManager.GameState.TryGetPlayer(__instance.action.PlayerId, out var playerState))
         {
-            foreach (TileData tile in state.Map.tiles)
+            return;
+        }
+
+        if (playerState != null && playerState.UserName.ToLower().Contains("bananique"))
+        {
+            Random random = new();
+
+            if (random.Next(0,20) != 1) return;
+
+            InputManager.DisableAllInput();
+            BasicPopup popup = PopupManager.GetBasicPopup();
+            popup.Header = $"Congratulations {playerState.UserName}!!";
+            popup.Description = $"By using Polibrary Lite, you just won yourself a 1-off voucher for a {random.Next(0, 100)}% discount on your next Polibrary purchase!";
+            popup.buttonData = new PopupBase.PopupButtonData[1]
             {
-                tile.terrain = TerrainData.Type.Field;
-                tile.resource = new ResourceState()
+                new PopupBase.PopupButtonData("UPGRADE NOW!", PopupBase.PopupButtonData.States.Selected, (Il2CppSystem.Action)delegate
                 {
-                    type = ResourceData.Type.Fruit
-                };
-                tile.climate = TribeType.Kickoo;
-                tile.Skin = SkinType.Default;
-            }
+                    NotificationManager.Notify($"Current balance: -{random.Next(100, 50000)}$ Thank you for choosing Polibrary!", "Transaction successful!");
+                    InputManager.EnableAllInput();
+                })
+            };
+            popup.Show();
         }
     }
 
