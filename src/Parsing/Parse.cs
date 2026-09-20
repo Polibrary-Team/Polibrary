@@ -65,12 +65,16 @@ public static class Parse
 
     static void HandleUnits(JObject token, bool onCreatedEnumCache)
     {
+        if (onCreatedEnumCache) return;
+
         static PolibUnitData f() => new(); // PolibUnitData Factory
         ParseUtils.ParseWithHandler<UnitData.Type, bool, PolibUnitData>(token, "hiddenItem", polibUnitDatas, f);
         ParseUtils.ParseWithHandlerIntoArray<PolibUnitData, UnitData.Type, TechData.Type>(token, "obsoleteBy", polibUnitDatas, f);
     }
     static void HandleImprovements(JObject token, bool onCreatedEnumCache)
     {
+        if (onCreatedEnumCache) return;
+
         static PolibImprovementData f() => new(); // PolibImprovementData Factory
         ParseUtils.ParseWithHandler<ImprovementData.Type, float, PolibImprovementData>(token, "aiScore", polibImprovementDatas, f);
         ParseUtils.ParseWithHandler<ImprovementData.Type, int, PolibImprovementData>(token, "defenceBoost", polibImprovementDatas, f);
@@ -88,6 +92,8 @@ public static class Parse
     }
     static void HandleTribes(JObject token, bool onCreatedEnumCache)
     {
+        if (onCreatedEnumCache) return;
+
         static PolibTribeData f() => new();
         ParseUtils.ParseWithHandler<TribeType, string, PolibTribeData>(token, "leaderName", polibTribeDatas, f);
         ParseUtils.ParseToDictWithHandler<TribeType, TerrainData.Type, TerrainData.Type, PolibTribeData>(token, "terrainOverrides", polibTribeDatas, f);
@@ -96,6 +102,8 @@ public static class Parse
     }
     static void HandleCityRewards(JObject token, bool onCreatedEnumCache)
     {
+        if (onCreatedEnumCache) return;
+
         static PolibCityRewardData f() => new();
         ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "addProduction", polibCityRewardDatas, f);
         ParseUtils.ParseWithHandler<CityReward, int, PolibCityRewardData>(token, "currencyReward", polibCityRewardDatas, f);
