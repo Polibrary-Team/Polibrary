@@ -81,7 +81,7 @@ public static class ParseUtils
     }
 
     public static void ParseWithHandler_<targetType, T, PDataType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory)
-    where targetType : struct, System.IConvertible
+    where targetType : struct, System.IConvertible // USE THIS FOR STRINGS
     {
         if (token[fieldName] != null)
         {
