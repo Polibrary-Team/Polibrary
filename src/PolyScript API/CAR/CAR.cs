@@ -97,7 +97,7 @@ public static class CAR
         ReactionMapping[actionType] = type;
         ReactionReverseMapping[type] = actionType;
         WrapTypeReflection(type);
-        Main.modLogger.LogInfo($"Assigned '{type.GetType()}' reaction to '{actionType}' action.");
+        Main.modLogger.LogInfo($"Assigned '{type}' reaction to '{actionType}' action.");
     }
 
     public static void New<T>(out T action) where T : class

@@ -111,7 +111,8 @@
 	"actionType": {
 		"polibactionbase": {
 			"idx": -1,
-			"action": "PolibActionBase"
+			"action": "PolibActionBase",
+			"reaction": "PolibReactionBase"
 		}
 	}
 }
