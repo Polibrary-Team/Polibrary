@@ -8,8 +8,8 @@ namespace Polibrary;
 
 public static class Main
 {
-    //public static PolibGameState polibGameState;
-    public static ManualLogSource modLogger;
+	//public static PolibGameState polibGameState;
+	public static ManualLogSource modLogger;
     public static void Load(ManualLogSource logger)
     {
         Harmony.CreateAndPatchAll(typeof(Main));
@@ -20,13 +20,7 @@ public static class Main
         Harmony.CreateAndPatchAll(typeof(TribeManager));
         Harmony.CreateAndPatchAll(typeof(UI));
         Harmony.CreateAndPatchAll(typeof(UnitManager));
-
-        Harmony.CreateAndPatchAll(typeof(PolibReactionManager));
-        ClassInjector.RegisterTypeInIl2Cpp<PolibActionBase>();
-        Harmony.CreateAndPatchAll(typeof(PolibCommandManager));
-        ClassInjector.RegisterTypeInIl2Cpp<PolibCommandBase>();
-        Harmony.CreateAndPatchAll(typeof(PolibActionManager));
-        ClassInjector.RegisterTypeInIl2Cpp<PolibActionBase>();
+        Harmony.CreateAndPatchAll(typeof(CAR));
 
         modLogger = logger;
         logger.LogMessage("Polibrary.dll loaded.");

@@ -104,12 +104,14 @@
 	},
 	"commandType": {
 		"polibcommandbase": {
-			"idx": -1
+			"idx": -1,
+			"command": "Polibrary.PolyScript.PolibCommandBase"
 		}
 	},
 	"actionType": {
 		"polibactionbase": {
-			"idx": -1
+			"idx": -1,
+			"action": "PolibActionBase"
 		}
 	}
 }
