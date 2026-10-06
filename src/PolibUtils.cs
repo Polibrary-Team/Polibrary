@@ -190,53 +190,6 @@ public static class PolibUtils
         unit.effects = new Il2Gen.List<UnitEffect>();
     }
 
-    public static Parsing.Parse.PolibUnitEffectData SetVanillaUnitEffectDefaults(UnitEffect effect)
-    {
-        Parsing.Parse.PolibUnitEffectData effectData = new Parsing.Parse.PolibUnitEffectData();
-        switch (effect)
-        {
-            case UnitEffect.Boosted:
-                {
-                    effectData.additives.Add("movement", 1);
-                    effectData.additives.Add("attack", 5);
-                    break;
-                }
-            case UnitEffect.Swift:
-                {
-                    effectData.additives.Add("movement", 1);
-                    break;
-                }
-            case UnitEffect.Poisoned:
-                {
-                    effectData.additives.Add("movement", -1);
-                    effectData.multiplicatives.Add("defence", 0.5);
-                    break;
-                }
-            case UnitEffect.Charmed:
-                {
-                    effectData.additives.Add("movement", -1);
-                    effectData.multiplicatives.Add("defence", 0.5);
-                    break;
-                }
-            case UnitEffect.Bubble:
-                {
-                    effectData.additives.Add("movement", 1);
-                    break;
-                }
-            case UnitEffect.Frozen:
-                {
-                    effectData.freezing = true;
-                    break;
-                }
-            case UnitEffect.Petrified:
-                {
-                    effectData.freezing = true;
-                    break;
-                }
-        }
-        return effectData;
-    }
-
     #endregion
 
     #region TechUtils

@@ -43,11 +43,11 @@ public static class ImprovementManager
                 return false;
         }
 
-        if(impNeighborCheckers(gameState, tile, playerState, improvement)) return false;
+        if (impNeighborCheckers(gameState, tile, playerState, improvement)) return false;
 
-        if(PolibUtils.IsTileNative(playerState, tile, gameState))
+        if (PolibUtils.IsTileNative(playerState, tile, gameState))
         {
-            if(improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_foreign")))
+            if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_foreign")))
                 return false;
         }
         else if (improvement.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_native"))) return false;
@@ -63,18 +63,18 @@ public static class ImprovementManager
         bool needsenemy_success = false;
         bool isolated_success = true;
 
-        foreach(var tile1 in gameState.Map.GetTileNeighbors(tile.coordinates))
+        foreach (var tile1 in gameState.Map.GetTileNeighbors(tile.coordinates))
         {
-            if(tile1 != null && tile1.coordinates != WorldCoordinates.NULL_COORDINATES)
+            if (tile1 != null && tile1.coordinates != WorldCoordinates.NULL_COORDINATES)
             {
-                if(tile1.unit != null)
+                if (tile1.unit != null)
                 {
-                    if(tile1.unit.owner == playerState.Id) needsfriendly_success = true;
+                    if (tile1.unit.owner == playerState.Id) needsfriendly_success = true;
                     else needsenemy_success = true;
                 }
-                if(tile1.improvement != null)
+                if (tile1.improvement != null)
                 {
-                    if(tile1.improvement.type == improvement.type) isolated_success = false;
+                    if (tile1.improvement.type == improvement.type) isolated_success = false;
                 }
             }
         }
@@ -93,13 +93,13 @@ public static class ImprovementManager
     {
         if (__result == false) return;
         int idx = PolibData.FindData<PolibImprovementData, ImprovementData.Type>(Parse.polibImprovementDatas, improvement.type);
-        if(idx < 0) return; // It is cleaner here to use index rather than PD.TryGetValue()
+        if (idx < 0) return; // It is cleaner here to use index rather than PD.TryGetValue()
 
         var allowAbilityList = Parse.polibImprovementDatas[idx].unitAbilityWhitelist;
         var denyAbilityList = Parse.polibImprovementDatas[idx].unitAbilityBlacklist;
         var allowList = Parse.polibImprovementDatas[idx].unitWhitelist;
         var denyList = Parse.polibImprovementDatas[idx].unitBlacklist;
-        
+
         if (allowAbilityList == null && denyAbilityList == null && allowList == null && denyList == null) return;
         if (tile.unit == null)
         {
@@ -126,7 +126,7 @@ public static class ImprovementManager
     public static void mBuiltOnSpecific(GameState gameState, TileData tile, PlayerState playerState, ImprovementData improvement, ref bool __result)
     {
         if (__result == false) return;
-        if(PolibData.TryGetValue(Parse.polibImprovementDatas, improvement.type, nameof(PolibImprovementData.builtOnSpecific), out string ability))
+        if (PolibData.TryGetValue(Parse.polibImprovementDatas, improvement.type, nameof(PolibImprovementData.builtOnSpecific), out string ability))
         {
             if (tile.improvement == null)
             {
@@ -211,6 +211,15 @@ public static class ImprovementManager
             {
                 gameState.ActionStack.Add(new KillUnitAction(tile.unit.owner, tile.coordinates));
             }
+
+            if (PolibData.TryGetValue(Parse.polibImprovementDatas, data.type, "appliesOnBuild", out List<UnitEffect> appliedEffects))
+            {
+                if(appliedEffects != null || appliedEffects != default)
+                foreach (UnitEffect effect in appliedEffects)
+                {
+                    tile.unit.AddEffect(effect);
+                }
+            }
         }
 
         if (data.HasAbility(EnumCache<ImprovementAbility.Type>.GetType("polib_research")))
@@ -246,7 +255,8 @@ public static class ImprovementManager
     {
         if (!gameState.GameLogicData.CanBuild(gameState, tileData, player, improvementData))
             return;
-        if(PolibData.TryGetValue(Parse.polibImprovementDatas, improvementData.type, nameof(PolibImprovementData.aiScore), out float? result)){
+        if (PolibData.TryGetValue(Parse.polibImprovementDatas, improvementData.type, nameof(PolibImprovementData.aiScore), out float? result))
+        {
             //Main.modLogger.LogMessage("AISCORE FOUND for "+improvementData.type+" amount: "+result);
             __result += (float)result;
         }
@@ -282,7 +292,7 @@ public static class ImprovementManager
             __result = list;
             return;
         }
-        
+
         foreach (UnitData unlockedUnit in gameState.GameLogicData.GetUnlockedUnits(player, gameState, shouldIncludeHidden: false))
         {
             if (CommandValidation.HasUnitTerrain(gameState, tile.coordinates, unlockedUnit))

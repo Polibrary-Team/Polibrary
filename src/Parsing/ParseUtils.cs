@@ -16,7 +16,8 @@ namespace Polibrary.Parsing;
 
 public static class ParseUtils
 {
-    
+    // Oh how lucky i am to not have documented this while i still had the chance...
+
     public static void ParseToDictWithHandler<targetType, KT, VT, PDataType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory)
     where targetType : struct, System.IConvertible
     where KT : struct, System.IConvertible
@@ -33,7 +34,7 @@ public static class ParseUtils
                 {
                     KT key = new JValue(property.Name).PToObject<KT>();
                     VT value = property.Value.PToObject<VT>();
-                    
+
                     dict[key] = value;
                 }
 
@@ -53,9 +54,49 @@ public static class ParseUtils
             }
         }
     }
+
+
+    // Please someone make this an overload of ParseToDictWithHandler
+    public static void ParseToDictWithHandlerKeyString<targetType, KT, VT, PDataType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory)
+    where targetType : struct, System.IConvertible
+    where KT : class, System.IConvertible
+    where VT : struct, System.IConvertible
+    {
+        if (token[fieldName] != null)
+        {
+            var jt = token[fieldName].TryCast<JObject>();
+            if (jt != null)
+            {
+                Dictionary<KT, VT> dict = new Dictionary<KT, VT>();
+
+                foreach (JProperty property in jt.Properties().ToList())
+                {
+                    KT key = new JValue(property.Name).ToObject<KT>();
+                    VT value = property.Value.PToObject<VT>();
+
+                    dict[key] = value;
+                }
+
+                if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
+                {
+                    int idx = PolibData.FindData<PDataType, targetType>(list, type);
+
+                    if (idx == -1)
+                    {
+                        PDataType newone = factory();
+                        list.Add(newone);
+                        PolibData.OverrideField(list, "type", list.Count - 1, type);
+                        idx = list.Count - 1;
+                    }
+                    if(!PolibData.OverrideField(list, fieldName, idx, dict))
+                        Main.modLogger.LogError("Could not override field" + fieldName + "for type "+type);
+                }
+            }
+        }
+    }
     public static void ParseWithHandler<targetType, T, PDataType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory)
     where targetType : struct, System.IConvertible
-    where T : struct, System.IConvertible
+    where T : struct
     {
         if (token[fieldName] != null)
         {
@@ -73,6 +114,7 @@ public static class ParseUtils
                     list.Add(newone);
                     PolibData.OverrideField<PDataType, targetType>(list, "type", list.Count - 1, type);
                     PolibData.OverrideField<PDataType, T>(list, fieldName, list.Count - 1, value);
+                    
                 }
                 token.Remove(fieldName);
 
@@ -106,8 +148,8 @@ public static class ParseUtils
         }
     }
 
-    public static void ParseWithHandlerIntoArray<PDataType, targetType, listType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory) 
-    where targetType : struct, System.IConvertible 
+    public static void ParseWithHandlerIntoArray<PDataType, targetType, listType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory)
+    where targetType : struct, System.IConvertible
     where listType : struct, System.IConvertible
     {
         if (token != null)
@@ -126,14 +168,21 @@ public static class ParseUtils
                 {
                     PolibData.OverrideField(list, fieldName, idx, PolibUtils.ParseEnumsToSysList<listType>(token[fieldName]));
                 }
+
+                
             }
         }
 
     }
 
     public static T PToObject<T>(this JToken token)
-    where T : struct, System.IConvertible
+    where T : struct
     {
+        if (token == null || token.Type == JTokenType.Null)
+        {
+            return default;
+        }
+
         if (typeof(T).IsEnum)
         {
             string s = token.TryCast<JValue>()?.Value?.ToString();
@@ -142,6 +191,25 @@ public static class ParseUtils
                 return enumVal;
             }
             return default;
+        }
+
+        if (typeof(T) == typeof(Color))
+        {
+            Color color = new(0, 0, 0, 0);
+            if (token.HasValues)
+            {
+                List<float> values = new();
+                foreach(float f in token.Values<float>().ToList())
+                {
+                    values.Add(f);
+                }
+                if(values.Count != 4) return default;
+                color.r = values[0];
+                color.g = values[1];
+                color.b = values[2];
+                color.a = values[3];
+            }
+            return (T)(object)color;
         }
 
         try

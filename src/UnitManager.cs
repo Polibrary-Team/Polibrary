@@ -31,22 +31,22 @@ public static class UnitManager
             Main.modLogger.LogError($"Update Error: Parameters got changed? in: {__originalMethod.Name} \n{ex}"); //made the logging sfw - got nothing better to do
             return;
         }
-        
-        
+
+
         int defence = 10;
         bool change = false;
         TileData tile = gameState.Map.GetTile(unit.coordinates);
 
         if (tile.improvement == null) return;
         int idx = PolibData.FindData(Parse.polibImprovementDatas, tile.improvement.type);
-        if(idx >= 0)
+        if (idx >= 0)
         {
-            if(tile.owner == unit.owner && Parse.polibImprovementDatas[idx].defenceBoost != null)
+            if (tile.owner == unit.owner && Parse.polibImprovementDatas[idx].defenceBoost != null)
             {
                 defence = (int)Parse.polibImprovementDatas[idx].defenceBoost;
                 change = true;
             }
-            if(Parse.polibImprovementDatas[idx].defenceBoost_Neutral != null)
+            if (Parse.polibImprovementDatas[idx].defenceBoost_Neutral != null)
             {
                 defence = (int)Parse.polibImprovementDatas[idx].defenceBoost_Neutral;
                 change = true;
@@ -74,7 +74,7 @@ public static class UnitManager
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetDefence))]
     public static void Defence(object[] __args, MethodBase __originalMethod, ref int __result)
-    {   
+    {
         UnitState unit;
         GameState gameState;
 
@@ -91,15 +91,16 @@ public static class UnitManager
 
         foreach (UnitEffect effect in unit.effects)
         {
-            if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
+            int idx = PolibData.FindData(Parse.polibUnitEffectDatas, effect);
+            if (idx >= 0)
             {
-                if (effectData.additives.TryGetValue("defence", out int add))
+                if (Parse.polibUnitEffectDatas[idx].add.TryGetValue("defence", out int result))
                 {
-                    __result += add * 10;
+                    __result += result * 10;
                 }
-                if (effectData.multiplicatives.TryGetValue("defence", out double mult))
+                if (Parse.polibUnitEffectDatas[idx].multiply.TryGetValue("defence", out double result2))
                 {
-                    __result =  (int)System.Math.Round(__result * mult);
+                    __result = (int)System.Math.Round(__result * result2);
                 }
             }
         }
@@ -125,9 +126,10 @@ public static class UnitManager
 
         foreach (UnitEffect effect in unitState.effects)
         {
-            if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
+            int idx = PolibData.FindData(Parse.polibUnitEffectDatas, effect);
+            if (idx >= 0)
             {
-                if (effectData.additives.TryGetValue("movement", out int add))
+                if (Parse.polibUnitEffectDatas[idx].add.TryGetValue("movement", out int add))
                 {
                     if (__result + add < 1)
                     {
@@ -138,9 +140,9 @@ public static class UnitManager
                         __result += add;
                     }
                 }
-                if (effectData.multiplicatives.TryGetValue("movement", out double mult))
+                if (Parse.polibUnitEffectDatas[idx].multiply.TryGetValue("movement", out double mult))
                 {
-                    __result =  (int)System.Math.Round(__result * mult);
+                    __result = (int)System.Math.Round(__result * mult);
                 }
             }
         }
@@ -149,7 +151,7 @@ public static class UnitManager
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetAttack), typeof(UnitState), typeof(GameState))]
     public static void Attack(object[] __args, MethodBase __originalMethod, ref int __result)
-    {   
+    {
         UnitState unitState;
         GameState gameState;
 
@@ -166,20 +168,25 @@ public static class UnitManager
 
         foreach (UnitEffect effect in unitState.effects)
         {
-            if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
+            int idx = PolibData.FindData(Parse.polibUnitEffectDatas, effect);
+            if (idx >= 0)
             {
-                if (effectData.additives.TryGetValue("attack", out int add))
+                if (Parse.polibUnitEffectDatas[idx].add.TryGetValue("attack", out int add))
                 {
                     __result += add * 10;
                 }
-                if (effectData.multiplicatives.TryGetValue("attack", out double mult))
+                if (Parse.polibUnitEffectDatas[idx].multiply.TryGetValue("attack", out double mult))
                 {
-                    __result =  (int)System.Math.Round(__result * mult);
+                    __result = (int)System.Math.Round(__result * mult);
                 }
             }
         }
     }
 
+    /*
+    
+    Commenting this out since this doesnt work anyways - Fapingvin
+    
     [HarmonyPostfix]
     [HarmonyPatch(typeof(UnitDataExtensions), nameof(UnitDataExtensions.GetRange), typeof(UnitState), typeof(GameState))]
     public static void Range(this UnitState unitState, GameState gameState, ref int __result) //this technically doesnt work :/ it just never gets called for SOME reason. maybe when they add sum similar it will start to work.
@@ -188,17 +195,17 @@ public static class UnitManager
         {
             if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
             {
-                if (effectData.additives.TryGetValue("range", out int add))
+                if (effectData.add.TryGetValue("range", out int add))
                 {
                     __result += add;
                 }
-                if (effectData.multiplicatives.TryGetValue("range", out double mult))
+                if (effectData.multiply.TryGetValue("range", out double mult))
                 {
                     __result =  (int)System.Math.Round(__result * mult);
                 }
             }
         }
-    }
+    }*/
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Unit), nameof(Unit.UpdateObject), typeof(MapRenderContext), typeof(SkinVisualsTransientData))]
@@ -206,12 +213,14 @@ public static class UnitManager
     {
         foreach (UnitEffect effect in __instance.UnitState.effects)
         {
-            if (Parsing.Parse.unitEffectDataDict.TryGetValue(effect, out var effectData))
-            {
-                if (Parsing.Parse.vanillaUnitEffects.Contains(effect)) continue;
+            int idx = PolibData.FindData(Parse.polibUnitEffectDatas, effect);
 
-                if (effectData.color == null) continue;
-                
+            if (idx >= 0)
+            {
+                if ((int)effect < 1000) continue; // Vanilla effect
+
+                if (Parse.polibUnitEffectDatas[idx].color == null || Parse.polibUnitEffectDatas[idx].color.Value.a == 0) continue;
+
                 foreach (SkinVisualsReference.VisualPart visualPart in __instance.skinVisuals.visualParts)
                 {
                     if (visualPart != null)
@@ -222,7 +231,7 @@ public static class UnitManager
                             {
                                 var materialBlock = new UnityEngine.MaterialPropertyBlock();
                                 visualPart.renderer.spriteRenderer.GetPropertyBlock(materialBlock);
-                                materialBlock.SetColor("_OverlayColor", (UnityEngine.Color)effectData.color);
+                                materialBlock.SetColor("_OverlayColor", (UnityEngine.Color)Parse.polibUnitEffectDatas[idx].color);
                                 materialBlock.SetFloat("_OverlayStrength", 0.5f);
                                 visualPart.renderer.spriteRenderer.SetPropertyBlock(materialBlock);
                             }
@@ -464,6 +473,24 @@ public static class UnitManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(MoveAction), nameof(MoveAction.Execute))]
+    private static void AppliesOnStep(MoveAction __instance, GameState state)
+    {
+        UnitState unit;
+        if (!state.TryGetPlayer(__instance.PlayerId, out PlayerState playerState)) return;
+        if (!state.TryGetUnit(__instance.UnitId, out unit)) return;
+        TileData tile2 = state.Map.GetTile(__instance.Path[0]);
+        if (tile2 == null || tile2.coordinates == WorldCoordinates.NULL_COORDINATES || tile2.improvement == null) return;
+        else if (PolibData.TryGetValue(Parse.polibImprovementDatas, tile2.improvement.type, "appliesOnStep", out List<UnitEffect> appliedEffects))
+        {
+            foreach (UnitEffect effect in appliedEffects)
+            {
+                unit.AddEffect(effect);
+            }
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(MoveAction), nameof(MoveAction.Execute))]
     public static void Crush(MoveAction __instance, GameState state)
     {
 
@@ -538,7 +565,7 @@ public static class UnitManager
 
         var tile = map.GetTile(destination);
         bool isBridge = false;
-        if(tile.improvement != null && tile.improvement.type == ImprovementData.Type.Bridge) isBridge = true;
+        if (tile.improvement != null && tile.improvement.type == ImprovementData.Type.Bridge) isBridge = true;
         if (tile.IsWater && !isBridge) __result = null;
     }
 

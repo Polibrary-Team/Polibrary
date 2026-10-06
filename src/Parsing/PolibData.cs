@@ -5,6 +5,8 @@ using PolytopiaBackendBase.Common;
 namespace Polibrary.Parsing;
 
 // It is imperative that fields are called what the user calls them in patch.json
+
+#region Improvement
 public class PolibImprovementData
 {
     public ImprovementData.Type? type;
@@ -22,33 +24,42 @@ public class PolibImprovementData
     public List<UnitData.Type> unitBlacklist = null;
     public bool hiddenItem = false;
     public List<TechData.Type> obsoleteBy = null;
+    public List<UnitEffect> appliesOnBuild = null;
+    public List<UnitEffect> appliesOnStep = null;
 
     public PolibImprovementData() //ctor needed because uhh it is needed
     {
         type = null;
     }
 }
+#endregion
 
+#region Unit
 public class PolibUnitData
 {
     public UnitData.Type? type;
     public bool hiddenItem = false;
     public List<TechData.Type> obsoleteBy = null;
-    public PolibUnitData(){type = null;}
+    public PolibUnitData() { type = null; }
 }
+#endregion
 
+#region TribeData
 public class PolibTribeData
 {
     public TribeType? type;
     public string leaderName = null;
-    public Dictionary<TerrainData.Type, TerrainData.Type> terrainOverrides = null; 
-    public Dictionary<CityReward, CityReward> cityRewardOverrides = null; 
-    public Dictionary<ResourceData.Type, ResourceData.Type> resourceOverrides = null; 
+    public Dictionary<TerrainData.Type, TerrainData.Type> terrainOverrides = null;
+    public Dictionary<CityReward, CityReward> cityRewardOverrides = null;
+    public Dictionary<ResourceData.Type, ResourceData.Type> resourceOverrides = null;
     public PolibTribeData()
     {
         type = null;
     }
 }
+#endregion
+
+#region CityReward
 public class PolibCityRewardData
 {
     public CityReward? type;
@@ -70,6 +81,22 @@ public class PolibCityRewardData
         type = null;
     }
 }
+#endregion
+
+#region UnitEffect
+public class PolibUnitEffectData
+{
+    public UnitEffect? type;
+    public Dictionary<string, int> add = new Dictionary<string, int>();
+    public Dictionary<string, double> multiply = new Dictionary<string, double>();
+    public UnityEngine.Color? color = null;
+    public bool hidden = false;
+    public PolibUnitEffectData()
+    {
+        type = null;
+    }
+}
+#endregion
 
 public class PolibData
 {
@@ -87,14 +114,15 @@ public class PolibData
     /// <returns>Returns success value</returns>
     public static bool TryGetValue<PolibT, T, ValueType>(List<PolibT> list, T type, string fieldName, out ValueType result)
     {
+        if(list == null || type == null || fieldName == null) {result = default; return false;}
         int index = FindData(list, type);
-        if(index == -1)
+        if (index == -1 || list[index] == null || list[index].GetType() == null || list[index].GetType().GetField(fieldName) == null)
         {
             result = default;
             return false;
         }
         object obj = list[index].GetType().GetField(fieldName).GetValue(list[index]);
-        if(obj is ValueType value && !EqualityComparer<ValueType>.Default.Equals(value, default(ValueType)))
+        if (obj is ValueType value && !EqualityComparer<ValueType>.Default.Equals(value, default(ValueType)))
         {
             result = value;
             return true;
@@ -114,7 +142,7 @@ public class PolibData
     /// <param name="list">List of PolibDatas to search in</param>
     /// <param name="type">The PolibData.type to search with</param>
     /// <returns>Returns -1 if not found, otherwise the index</returns>
-    
+
     // ooh whats this?
     public static int FindData<T1, T2>(List<T1> list, T2 type)
     {
@@ -164,8 +192,11 @@ public class PolibData
     {
         var item = list[idx];
         var field = item.GetType().GetField(fieldName);
-        if(field == null) return false;
-        if(!field.FieldType.IsAssignableFrom(typeof(T2))) return false;
+        if (field == null) return false;
+        Type valueType = newValue != null ? newValue.GetType() : typeof(T2);
+        if (!field.FieldType.IsAssignableFrom(valueType)) {
+            return false;
+        }
         field.SetValue(item, newValue);
         list[idx] = item;
         return true;

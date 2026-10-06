@@ -26,42 +26,25 @@ public static class Parse
         Loader.AddTypeHandler(typeof(UnitData.Type), HandleUnits);
         Loader.AddTypeHandler(typeof(CityReward), HandleCityRewards);
         Loader.AddTypeHandler(typeof(TribeType), HandleTribes);
+        Loader.AddTypeHandler(typeof(UnitEffect), HandleUnitEffects);
 
         PolibUtils.SetVanillaCityRewardDefaults();
     }
 
-    public static UnitEffect[] vanillaUnitEffects = new UnitEffect[] 
-    { 
-        UnitEffect.Boosted, 
-        UnitEffect.Bubble, 
-        UnitEffect.Frozen, 
-        UnitEffect.Invisible, 
-        UnitEffect.Petrified, 
-        UnitEffect.Poisoned, 
-        UnitEffect.Charmed, 
-        UnitEffect.Swift, 
-        UnitEffect.DoubleReady 
-    };
     public static List<CityReward> rewardList = CityRewardData.cityRewards.ToList();
     public static List<PolibImprovementData> polibImprovementDatas = new();
     public static List<PolibUnitData> polibUnitDatas = new();
     public static List<PolibTribeData> polibTribeDatas = new();
     public static List<PolibCityRewardData> polibCityRewardDatas = new();
-    public class PolibUnitEffectData //So I haveth a Laser Pointre...
-    {
-        public Dictionary<string, int> additives = new Dictionary<string, int>();
-        public Dictionary<string, double> multiplicatives = new Dictionary<string, double>();
-        public UnityEngine.Color? color = null;
-        public List<string> removal { get; set; }
-        public bool freezing { get; set; }
-    }
-    public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new();
+    public static List<PolibUnitEffectData> polibUnitEffectDatas = new();
+    
+    //public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new();
 
 
 
 
 
-    #region Parse
+    #region HANDLERS
 
     static void HandleUnits(JObject token, bool onCreatedEnumCache)
     {
@@ -74,7 +57,6 @@ public static class Parse
     static void HandleImprovements(JObject token, bool onCreatedEnumCache)
     {
         if (onCreatedEnumCache) return;
-
         static PolibImprovementData f() => new(); // PolibImprovementData Factory
         ParseUtils.ParseWithHandler<ImprovementData.Type, float, PolibImprovementData>(token, "aiScore", polibImprovementDatas, f);
         ParseUtils.ParseWithHandler<ImprovementData.Type, int, PolibImprovementData>(token, "defenceBoost", polibImprovementDatas, f);
@@ -89,6 +71,8 @@ public static class Parse
         ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitWhitelist", polibImprovementDatas, f);
         ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitData.Type>(token, "unitBlacklist", polibImprovementDatas, f);
         ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, TechData.Type>(token, "obsoleteBy", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitEffect>(token, "appliesOnBuild", polibImprovementDatas, f);
+        ParseUtils.ParseWithHandlerIntoArray<PolibImprovementData, ImprovementData.Type, UnitEffect>(token, "appliesOnStep", polibImprovementDatas, f);
     }
     static void HandleTribes(JObject token, bool onCreatedEnumCache)
     {
@@ -127,71 +111,20 @@ public static class Parse
             }
         }
     }
+
+    static void HandleUnitEffects(JObject token, bool onCreatedEnumCache)
+    {
+        if(onCreatedEnumCache) return;
+        static PolibUnitEffectData f() => new();
+
+        ParseUtils.ParseWithHandler<UnitEffect, UnityEngine.Color, PolibUnitEffectData>(token, "color", polibUnitEffectDatas, f);
+        ParseUtils.ParseWithHandler<UnitEffect, bool, PolibUnitEffectData>(token, "hidden", polibUnitEffectDatas, f);
+        ParseUtils.ParseToDictWithHandlerKeyString<UnitEffect, string, int, PolibUnitEffectData>(token, "add", polibUnitEffectDatas, f);
+        ParseUtils.ParseToDictWithHandlerKeyString<UnitEffect, string, double, PolibUnitEffectData>(token, "multiply", polibUnitEffectDatas, f);
+        
+    }
     
     #endregion
-    //thanks exploit
-    [HarmonyPrefix]
-    [HarmonyPriority(Priority.Last)]
-    [HarmonyPatch(typeof(GameLogicData), nameof(GameLogicData.AddGameLogicPlaceholders))]
-    private static void GameLogicData_Parse(object[] __args, MethodBase __originalMethod, GameLogicData __instance/*, JObject rootObject*/)
-    {
-        JObject rootObject;
-        try
-        {
-            rootObject = (JObject)__args[0];
-        }
-        catch (Exception ex)
-        {
-            Main.modLogger.LogError($"Update Fuckup: Params got changed? in: {__originalMethod.Name} \n{ex}");
-            return;
-        }
 
-        #region UnitEffect
-
-        foreach (JToken jtoken in rootObject.SelectTokens("$.unitEffect.*").ToList())
-        {
-            JObject token = jtoken.TryCast<JObject>();
-            if (token != null)
-            {
-                if (EnumCache<UnitEffect>.TryGetType(token.Path.Split('.').Last(), out var unitEffect))
-                {
-                    PolibUnitEffectData unitEffectData = new PolibUnitEffectData();
-
-                    if (token["add"] != null)
-                    {
-                        unitEffectData.additives = PolibUtils.ParseStringDict<int>(token["add"]);
-                        token.Remove("add");
-                    }
-                    if (token["mult"] != null)
-                    {
-                        unitEffectData.multiplicatives = PolibUtils.ParseStringDict<double>(token["mult"]);
-                        token.Remove("mult");
-                    }
-
-                    if (token["color"] != null)
-                    {
-                        string val = token["color"]!.ToObject<string>();
-                        string[] vals = val.Split(',');
-
-                        float r = 0;
-                        float g = 0;
-                        float b = 0;
-                        float a = 1;
-
-                        float.TryParse(vals[0], out r);
-                        float.TryParse(vals[1], out g);
-                        float.TryParse(vals[2], out b);
-                        float.TryParse(vals[3], out a);
-
-                        unitEffectData.color = new UnityEngine.Color(r, g, b, a);
-                        token.Remove("color");
-                    }
-
-                    unitEffectDataDict[unitEffect] = unitEffectData;
-                }
-            }
-        }
-
-        #endregion
-    }
+    // Finally could erase the God-Parsing method
 }
