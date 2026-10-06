@@ -14,11 +14,9 @@ namespace Polibrary.Parsing;
 
 public static class Parse
 {
-    private static ManualLogSource LogMan1997;
     public static void Load(ManualLogSource logger)
     {
         Harmony.CreateAndPatchAll(typeof(Parse));
-        LogMan1997 = logger;
         PolyMod.Loader.AddPatchDataType("cityReward", typeof(CityReward));
         PolyMod.Loader.AddPatchDataType("unitEffect", typeof(UnitEffect));
         PolyMod.Loader.AddPatchDataType("tileEffect", typeof(TileData.EffectType));

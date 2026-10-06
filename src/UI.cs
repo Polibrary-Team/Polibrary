@@ -125,7 +125,7 @@ public static class UI
             foreach(ImprovementData imp in data.improvementUnlocks)
             {
                 bool success = PolibData.TryGetValue(Parse.polibImprovementDatas, imp.type, nameof(PolibImprovementData.hiddenItem), out bool isHidden);
-                if (success & isHidden)
+                if (success && isHidden)
                 {
                     impsToRemove.Add(imp);
                 }
@@ -142,7 +142,7 @@ public static class UI
             foreach(UnitData unit in data.unitUnlocks)
             {
                 bool success = PolibData.TryGetValue(Parse.polibUnitDatas, unit.type, nameof(PolibUnitData.hiddenItem), out bool isHidden);
-                if(success & isHidden)
+                if(success && isHidden)
                 {
                     unitsToRemove.Add(unit);
                 }
@@ -184,7 +184,7 @@ public static class UI
             foreach(ImprovementData imp in techData.improvementUnlocks)
             {
                 bool success = PolibData.TryGetValue(Parse.polibImprovementDatas, imp.type, nameof(PolibImprovementData.hiddenItem), out bool isHidden);
-                if (success & isHidden)
+                if (success && isHidden)
                 {
                     impsToRemove.Add(imp);
                 }
@@ -201,7 +201,7 @@ public static class UI
             foreach(UnitData unit in techData.unitUnlocks)
             {
                 bool success = PolibData.TryGetValue(Parse.polibUnitDatas, unit.type, nameof(PolibUnitData.hiddenItem), out bool isHidden);
-                if(success & isHidden)
+                if(success && isHidden)
                 {
                     unitsToRemove.Add(unit);
                 }
