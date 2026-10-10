@@ -3,10 +3,7 @@ using HarmonyLib;
 using Polytopia.Data;
 using Newtonsoft.Json.Linq;
 using Il2CppSystem.Linq;
-
-using pbb = PolytopiaBackendBase.Common;
 using PolyMod;
-using System.Reflection;
 using PolytopiaBackendBase.Common;
 
 
@@ -35,8 +32,6 @@ public static class Parse
     public static List<PolibTribeData> polibTribeDatas = new();
     public static List<PolibCityRewardData> polibCityRewardDatas = new();
     public static List<PolibUnitEffectData> polibUnitEffectDatas = new();
-    
-    //public static Dictionary<UnitEffect, PolibUnitEffectData> unitEffectDataDict = new();
 
 
 
