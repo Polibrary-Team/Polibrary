@@ -10,6 +10,7 @@ using pbb = PolytopiaBackendBase.Common;
 using Polibrary.Parsing;
 using Scriban;
 using PolytopiaBackendBase.Game.BindingModels;
+using System.Reflection;
 
 
 namespace Polibrary.Parsing;
@@ -17,6 +18,60 @@ namespace Polibrary.Parsing;
 public static class ParseUtils
 {
     // Oh how lucky i am to not have documented this while i still had the chance...
+    //buddy
+
+    public static void ParseClassPropertiesWithHandler<targetType, ClassType, PDataType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory)
+    where targetType : struct, IConvertible
+    where ClassType : class, new()
+    {
+        if (token[fieldName] != null)
+        {
+            JToken deepToken = token[fieldName].TryCast<JToken>(); //deepToken is the class name or idk
+            if (deepToken != null)
+            {
+                ClassType resultClass = new ClassType(); //Make new class instance
+
+                //Define PToObject method for reflection, so we dont do it per property
+                var PToObjectDef = typeof(ParseUtils).GetMethod(nameof(PToObject), BindingFlags.Static | BindingFlags.Public); 
+
+                //Check each property of ClassType. Il2Cpp converts everything to properties
+                foreach (PropertyInfo propertyInfo in typeof(ClassType).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                {
+                    if (!propertyInfo.CanWrite) continue;
+                    var jField = deepToken[propertyInfo.Name]; //Does it exist in the json file
+                    if (jField == null) continue;
+
+                    try
+                    {
+                        var PToObjectMethod = PToObjectDef.MakeGenericMethod(propertyInfo.PropertyType); //Reflection
+
+                        propertyInfo.SetValue(resultClass, PToObjectMethod.Invoke(null, new object[] { jField })); //Set this property of resultClass
+                    }
+                    catch (Exception ex)
+                    {
+                        Main.modLogger.LogInfo($"Skipping parsing for {propertyInfo.Name} due to Exception: {ex}");
+                    }
+                }
+                
+                if (EnumCache<targetType>.TryGetType(token.Path.Split('.').Last(), out var type))
+                {
+                    int idx = PolibData.FindData(list, type);
+                    if (idx >= 0)
+                    {
+                        PolibData.OverrideField(list, fieldName, idx, resultClass);
+                    }
+                    else
+                    {
+                        PDataType newone = factory();
+                        list.Add(newone);
+                        PolibData.OverrideField(list, "type", list.Count - 1, type);
+                        PolibData.OverrideField(list, fieldName, list.Count - 1, resultClass);
+                    }
+                    token.Remove(fieldName);
+                }
+            }
+        }
+    }
 
     public static void ParseToDictWithHandler<targetType, KT, VT, PDataType>(JObject token, string fieldName, List<PDataType> list, Func<PDataType> factory)
     where targetType : struct, System.IConvertible

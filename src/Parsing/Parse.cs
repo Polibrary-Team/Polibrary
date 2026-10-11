@@ -22,6 +22,7 @@ public static class Parse
         Loader.AddTypeHandler(typeof(CityReward), HandleCityRewards);
         Loader.AddTypeHandler(typeof(TribeType), HandleTribes);
         Loader.AddTypeHandler(typeof(UnitEffect), HandleUnitEffects);
+        Loader.AddTypeHandler(typeof(UnitAbility.Type), HandleUnitAbilities);
 
         PolibUtils.SetVanillaCityRewardDefaults();
     }
@@ -32,6 +33,7 @@ public static class Parse
     public static List<PolibTribeData> polibTribeDatas = new();
     public static List<PolibCityRewardData> polibCityRewardDatas = new();
     public static List<PolibUnitEffectData> polibUnitEffectDatas = new();
+    public static List<PolibUnitAbilityData> polibUnitAbilityDatas = new();
 
 
 
@@ -114,7 +116,16 @@ public static class Parse
         ParseUtils.ParseWithHandler<UnitEffect, bool, PolibUnitEffectData>(token, "hidden", polibUnitEffectDatas, f);
         ParseUtils.ParseToDictWithHandlerKeyString<UnitEffect, string, int, PolibUnitEffectData>(token, "add", polibUnitEffectDatas, f);
         ParseUtils.ParseToDictWithHandlerKeyString<UnitEffect, string, double, PolibUnitEffectData>(token, "multiply", polibUnitEffectDatas, f);
-        
+    }
+
+    static void HandleUnitAbilities(JObject token, bool onCreatedEnumCache)
+    {
+        if(onCreatedEnumCache) return;
+        static PolibUnitAbilityData f() => new();
+
+        ParseUtils.ParseClassPropertiesWithHandler<UnitAbility.Type, UIButtonBase.ColorStates, PolibUnitAbilityData>(token, "bgColorStates", polibUnitAbilityDatas, f);
+        ParseUtils.ParseClassPropertiesWithHandler<UnitAbility.Type, UIButtonBase.ColorStates, PolibUnitAbilityData>(token, "labelColorStates", polibUnitAbilityDatas, f);
+        ParseUtils.ParseWithHandler<UnitAbility.Type, bool, PolibUnitAbilityData>(token, "hidden", polibUnitAbilityDatas, f);
     }
     
     #endregion

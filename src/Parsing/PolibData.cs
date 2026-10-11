@@ -98,6 +98,20 @@ public class PolibUnitEffectData
 }
 #endregion
 
+#region UnitAbility
+public class PolibUnitAbilityData
+{
+    public UnitAbility.Type? type;
+    public UIButtonBase.ColorStates bgColorStates = null;
+    public UIButtonBase.ColorStates labelColorStates = null;
+    public bool hidden = false;
+    public PolibUnitAbilityData()
+    {
+        type = null;
+    }
+}
+#endregion
+
 public class PolibData
 {
 
@@ -142,8 +156,6 @@ public class PolibData
     /// <param name="list">List of PolibDatas to search in</param>
     /// <param name="type">The PolibData.type to search with</param>
     /// <returns>Returns -1 if not found, otherwise the index</returns>
-
-    // ooh whats this?
     public static int FindData<T1, T2>(List<T1> list, T2 type)
     {
         for (int i = 0; i < list.Count; i++)

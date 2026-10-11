@@ -20,6 +20,7 @@ public static class Main
         Harmony.CreateAndPatchAll(typeof(TribeManager));
         Harmony.CreateAndPatchAll(typeof(UI));
         Harmony.CreateAndPatchAll(typeof(UnitManager));
+        Harmony.CreateAndPatchAll(typeof(UnitAbilityManager));
         Harmony.CreateAndPatchAll(typeof(CAR));
 
         modLogger = logger;
