@@ -17,7 +17,7 @@ public static class UnitAbilityManager
     {
         foreach (UITextButton button in __instance.abilityButtons)
         {
-            UnitAbility.Type type = abilities[__instance.abilityButtons.IndexOf(button)];
+            UnitAbility.Type type = abilities[button.id];
 
             if (PolibData.TryFindData(Parse.polibUnitAbilityDatas, type, out var data))
             {
