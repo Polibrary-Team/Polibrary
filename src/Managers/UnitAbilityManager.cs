@@ -7,7 +7,7 @@ using Polytopia.Data;
 using UnityEngine.Video;
 
 
-namespace Polibrary;
+namespace Polibrary.Managers;
 
 public static class UnitAbilityManager
 {

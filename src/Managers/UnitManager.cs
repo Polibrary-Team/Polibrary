@@ -10,7 +10,7 @@ using Il2Gen = Il2CppSystem.Collections.Generic;
 using Polibrary.Parsing;
 
 
-namespace Polibrary;
+namespace Polibrary.Managers;
 
 public static class UnitManager
 {

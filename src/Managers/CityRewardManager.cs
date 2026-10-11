@@ -9,7 +9,7 @@ using PolytopiaBackendBase.Common;
 using Polibrary.Parsing;
 
 
-namespace Polibrary;
+namespace Polibrary.Managers;
 
 public static class CityRewardManager
 {

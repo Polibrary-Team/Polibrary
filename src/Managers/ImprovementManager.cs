@@ -8,7 +8,7 @@ using Polibrary.Parsing;
 using PolytopiaBackendBase;
 
 
-namespace Polibrary;
+namespace Polibrary.Managers;
 
 // imp = improvement
 // no, you have to be shitting me! no WAY!!

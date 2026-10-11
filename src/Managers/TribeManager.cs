@@ -8,7 +8,7 @@ using Polytopia.Data;
 using PolytopiaBackendBase.Common;
 
 
-namespace Polibrary;
+namespace Polibrary.Managers;
 
 public static class TribeManager
 {
@@ -70,7 +70,7 @@ public static class TribeManager
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(StartTurnReaction), nameof(StartTurnReaction.Execute))]
-    public static void Thingy(StartTurnReaction __instance)
+    public static void ExperimentalAdvertisingStrategies(StartTurnReaction __instance)
     {
         if (!GameManager.GameState.TryGetPlayer(__instance.action.PlayerId, out var playerState))
         {
