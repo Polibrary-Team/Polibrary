@@ -32,7 +32,7 @@ public static class JsonMerger
                         ExpandKeys(item.Cast<JObject>());
             }
 
-            if (!property.Name.Contains("/"))
+            if (!property.Name.Contains('/'))
                 continue;
 
             string[] names = property.Name
