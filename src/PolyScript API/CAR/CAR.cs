@@ -32,22 +32,15 @@ public static class CAR
     public static void RegisterAction(Type type, string actionType)
     {
         if (EnumCache<ActionType>.TryGetType(actionType, out var aType))
-        RegisterAction(type, aType);
+        {
+            ActionMapping[aType] = type;
+            ActionReverseMapping[type] = aType;
+            WrapTypeReflection(type);
+            Main.modLogger.LogInfo($"Registered action '{actionType}' as an action.");
+        }
 
         else
         Main.modLogger.LogError($"Failed to register action '{actionType}'. Enum isn't valid. Check spelling.");
-    }
-
-    /// <summary>
-    /// Register an action into Polibrary. The string overload is preferred for usage.
-    /// </summary>
-    /// <param name="actionType">The EnumCached ActionType.</param>
-    public static void RegisterAction(Type type, ActionType actionType)
-    {
-        ActionMapping[actionType] = type;
-        ActionReverseMapping[type] = actionType;
-        WrapTypeReflection(type);
-        Main.modLogger.LogInfo($"Registered action '{actionType}' as an action.");
     }
 
     /// <summary>
@@ -57,22 +50,15 @@ public static class CAR
     public static void RegisterCommand(Type type, string commandType)
     {
         if (EnumCache<CommandType>.TryGetType(commandType, out var cType))
-        RegisterCommand(type, cType);
+        {
+            CommandMapping[cType] = type;
+            CommandReverseMapping[type] = cType;
+            WrapTypeReflection(type);
+            Main.modLogger.LogInfo($"Registered command '{commandType}' as a command.");
+        }
 
         else
         Main.modLogger.LogError($"Failed to register command '{commandType}'. Enum isn't valid. Check spelling.");
-    }
-
-    /// <summary>
-    /// Register a command into Polibrary. The string overload is preferred for usage.
-    /// </summary>
-    /// <param name="commandType">The EnumCached CommandType.</param>
-    public static void RegisterCommand(Type type, CommandType commandType)
-    {
-        CommandMapping[commandType] = type;
-        CommandReverseMapping[type] = commandType;
-        WrapTypeReflection(type);
-        Main.modLogger.LogInfo($"Registered command '{commandType}' as a command.");
     }
 
     /// <summary>
@@ -82,22 +68,15 @@ public static class CAR
     public static void AssignReaction(Type type, string actionType)
     {
         if (EnumCache<ActionType>.TryGetType(actionType, out var aType))
-        AssignReaction(type, aType);
+        {
+            ReactionMapping[aType] = type;
+            ReactionReverseMapping[type] = aType;
+            WrapTypeReflection(type);
+            Main.modLogger.LogInfo($"Assigned '{type}' reaction to '{actionType}' action.");    
+        }
 
         else
         Main.modLogger.LogError($"Failed to assign reaction to '{actionType}'. Enum isn't valid. Check spelling.");
-    }
-
-    /// <summary>
-    /// Assign a reaction to an action. The string overload is preferred for usage.
-    /// </summary>
-    /// <param name="actionType">The EnumCached ActionType.</param>
-    public static void AssignReaction(Type type, ActionType actionType)
-    {
-        ReactionMapping[actionType] = type;
-        ReactionReverseMapping[type] = actionType;
-        WrapTypeReflection(type);
-        Main.modLogger.LogInfo($"Assigned '{type}' reaction to '{actionType}' action.");
     }
 
     public static void New<T>(out T action) where T : class
