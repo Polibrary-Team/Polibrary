@@ -54,12 +54,15 @@ public static class TribeManager
                 }
                 if (data.resourceOverrides != null)
                 {
-                    if (data.resourceOverrides.TryGetValue(tile.resource.type, out var newResource))
+                    if (tile.resource != null)
                     {
-                        tile.resource = new ResourceState()
+                        if (data.resourceOverrides.TryGetValue(tile.resource.type, out var newResource))
                         {
-                            type = newResource
-                        };
+                            tile.resource = new ResourceState()
+                            {
+                                type = newResource
+                            };
+                        }
                     }
                 }
             }
