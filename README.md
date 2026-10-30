@@ -1,7 +1,5 @@
-# Polibrary 2.1.4 - A GLD Modding Tool for Polytopia
+# Polibrary - A GLD Modding Tool for Polytopia
 A library mod that helps modders make mods better & faster.
-
-Latest version: 2.1.4
 
 # Installation (User or GLD Modding)
 These instructions are for users or GLD modders. For polyscript usage, scroll a bit down.
